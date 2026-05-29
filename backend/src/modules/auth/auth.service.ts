@@ -15,6 +15,7 @@ import { Tenant } from '../tenants/schemas/tenant.schema';
 import { NotificationService } from '../notifications/notification.service';
 import * as bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { AppRole } from '../../common/enums/app-role.enum';
 
 @Injectable()
 export class AuthService {
@@ -178,7 +179,7 @@ export class AuthService {
         country: registerDto.country,
         phone: registerDto.phone,
         companyName: registerDto.companyName,
-        roles: isAdmin ? ['admin'] : ['user'],
+        roles: isAdmin ? [AppRole.ADMIN] : [AppRole.MERCHANT, 'user'],
         tenantId: tenant._id,
         isActive: true,
         isEmailVerified: false,

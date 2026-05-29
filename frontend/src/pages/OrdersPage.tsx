@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2, ShoppingCart } from 'lucide-react';
 import { GenerateInvoiceButton } from '@/components/orders/GenerateInvoiceButton';
 import { StatusUpdateButton } from '@/components/orders/StatusUpdateButton';
+import { AssignDriverSelect } from '@/components/orders/AssignDriverSelect';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils';
 import { ExportButton } from '@/components/orders/ExportButton';
@@ -253,6 +254,7 @@ const OrdersPage: React.FC = () => {
                 <TableHead>Client</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Livreur</TableHead>
                 <TableHead>Paiement</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -283,6 +285,13 @@ const OrdersPage: React.FC = () => {
                         await updateOrderStatus.mutateAsync({ orderId: order._id, status: status as OrderStatus })
                       }
                       disabled={updateOrderStatus.isPending}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <AssignDriverSelect
+                      orderId={order._id}
+                      orderStatus={order.status}
+                      assignedDriverId={order.assignedDriverId}
                     />
                   </TableCell>
                   <TableCell>

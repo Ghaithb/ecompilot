@@ -16,6 +16,8 @@ import {
   Sun,
   Zap,
   MessageCircle,
+  Truck,
+  RotateCcw,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -56,6 +58,8 @@ const ModernSidebar = () => {
       items: [
         { icon: Home, label: 'Accueil', path: '/dashboard' },
         { icon: ShoppingBag, label: 'Commandes', path: '/orders' },
+        { icon: Truck, label: 'Livreurs', path: '/drivers' },
+        { icon: RotateCcw, label: 'Retours', path: '/returns' },
         { icon: Package, label: 'Produits', path: '/products' },
         { icon: Users, label: 'Clients', path: '/customers' },
       ],

@@ -98,8 +98,35 @@ export class Order {
   @Prop({ required: true })
   currency: string;
 
-  @Prop({ default: 'pending' })
-  status: string; // pending, confirmed, shipped, delivered, cancelled
+  @Prop({ default: 'created' })
+  status: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  assignedDriverId?: Types.ObjectId;
+
+  @Prop()
+  delegation?: string;
+
+  @Prop()
+  amountToCollect?: number;
+
+  @Prop()
+  refusalReason?: string;
+
+  @Prop()
+  returnReason?: string;
+
+  @Prop()
+  deliveryProofUrl?: string;
+
+  @Prop({ type: Object })
+  returnDetails?: {
+    reason?: string;
+    photos?: string[];
+    notes?: string;
+    processedAt?: Date;
+    processedBy?: string;
+  };
 
   @Prop({ type: [{
     status: String,

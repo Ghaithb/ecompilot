@@ -1,0 +1,10 @@
+{
+  "name": "EcomPilot Livreur",
+  "short_name": "Livreur",
+  "description": "Application livreur EcomPilot — tournées COD Tunisie",
+  "start_url": "/driver",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait"
+}

@@ -44,6 +44,11 @@ import SitePreviewPage from '@/pages/SitePreviewPage';
 import ModernLayout from '@/components/Layout/ModernLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
+import RoleRoute from '@/components/RoleRoute';
+import DriverDashboardPage from '@/pages/driver/DriverDashboardPage';
+import DriversPage from '@/pages/merchant/DriversPage';
+import ReturnsPage from '@/pages/merchant/ReturnsPage';
+import OrderTrackPage from '@/pages/public/OrderTrackPage';
 import AdminLayout from '@/admin/AdminLayout';
 import UsersPage from '@/admin/UsersPage';
 import AdminSettingsPage from '@/admin/SettingsPage';
@@ -104,6 +109,15 @@ function AppContent() {
         <Route path="/site/:slug" element={<PublicSitePage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment/return" element={<PaymentReturnPage />} />
+        <Route path="/track" element={<OrderTrackPage />} />
+        <Route
+          path="/driver"
+          element={
+            <RoleRoute roles={['driver', 'admin', 'super_admin']}>
+              <DriverDashboardPage />
+            </RoleRoute>
+          }
+        />
 
         {/* Routes protégées avec nouveau layout moderne */}
         <Route path="/" element={
@@ -117,6 +131,8 @@ function AppContent() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="customers" element={<CustomersPage />} />
           <Route path="conversion" element={<ConversionCenterPage />} />
+          <Route path="drivers" element={<DriversPage />} />
+          <Route path="returns" element={<ReturnsPage />} />
           <Route path="abandoned-cart" element={<Navigate to="/conversion" replace />} />
           <Route path="discounts" element={<DiscountsPage />} />
           <Route path="whatsapp-settings" element={<WhatsAppSettingsPage />} />

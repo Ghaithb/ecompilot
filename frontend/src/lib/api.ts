@@ -245,7 +245,12 @@ const ordersApi = {
   delete: async (orderId: string) => {
     const response = await api.delete(`/orders/${orderId}`);
     return response.data;
-  }
+  },
+
+  assignDriver: async (orderId: string, driverId: string) => {
+    const response = await api.patch(`/orders/${orderId}/assign-driver`, { driverId });
+    return response.data;
+  },
 };
 
 const aiApi = {

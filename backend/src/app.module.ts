@@ -54,6 +54,7 @@ import { ShippingModule } from './modules/shipping/shipping.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CodTrustModule } from './modules/cod-trust/cod-trust.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
+import { DriverModule } from './modules/driver/driver.module';
 
 @Module({
   imports: [
@@ -138,6 +139,7 @@ import { RealtimeModule } from './modules/realtime/realtime.module';
     CartModule,
     CodTrustModule,
     RealtimeModule,
+    DriverModule,
   ],
   controllers: [AppController],
   providers: [AppService],

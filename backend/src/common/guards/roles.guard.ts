@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+import { expandUserRoles } from '../enums/app-role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -24,7 +25,8 @@ export class RolesGuard implements CanActivate {
     if (!user || !Array.isArray(user.roles)) {
       throw new ForbiddenException('Accès refusé');
     }
-    const hasRole = requiredRoles.some((role) => user.roles.includes(role));
+    const expanded = expandUserRoles(user.roles);
+    const hasRole = requiredRoles.some((role) => expanded.includes(role));
     if (!hasRole) {
       throw new ForbiddenException('Rôle insuffisant');
     }

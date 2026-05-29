@@ -13,6 +13,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantGuard } from '../../common/guards/tenant.guard';
 import { TenantId } from '../../common/decorators/tenant.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { AppRole } from '../../common/enums/app-role.enum';
 
 @ApiTags('upload')
 @ApiBearerAuth()
@@ -121,6 +124,40 @@ export class UploadController {
       originalName: file.originalname,
       size: file.size,
       mimetype: file.mimetype,
+    };
+  }
+
+  @Post('delivery-proof')
+  @UseGuards(RolesGuard)
+  @Roles(AppRole.DRIVER, AppRole.MERCHANT, AppRole.ADMIN)
+  @ApiOperation({ summary: 'Photo preuve livraison / refus' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      storage: diskStorage({
+        destination: './uploads/delivery-proofs',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+      limits: { fileSize: 8 * 1024 * 1024 },
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|webp)$/)) {
+          return cb(new BadRequestException('Image requise'), false);
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadDeliveryProof(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('Photo requise');
+    return {
+      url: `/uploads/delivery-proofs/${file.filename}`,
+      filename: file.filename,
     };
   }
 }

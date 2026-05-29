@@ -41,6 +41,13 @@ export class User {
   @Prop()
   avatar?: string;
 
+  @Prop({ type: Object })
+  driverProfile?: {
+    vehicleType?: string;
+    invitedAt?: Date;
+    invitedBy?: string;
+  };
+
   @Prop({ type: Object, default: { emailNotifications: true, pushNotifications: true, darkMode: false, language: 'fr' } })
   preferences: {
     emailNotifications: boolean;

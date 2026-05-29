@@ -2,6 +2,8 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument } from './schemas/order.schema';
+import { User, UserDocument } from '../users/schemas/user.schema';
+import { AppRole } from '../../common/enums/app-role.enum';
 import { ProductStockService } from '../products/product-stock.service';
 import { ProductsService } from '../products/products.service';
 import { InventoryService } from '../inventory/inventory.service';
@@ -10,6 +12,10 @@ import { CodTrustService } from '../cod-trust/cod-trust.service';
 import { normalizeTunisianPhone } from '../../common/utils/phone.util';
 import { RealtimeService } from '../realtime/realtime.service';
 import { WhatsAppService } from '../whatsapp/whatsapp.service';
+import { WhatsappOrderNotificationService } from '../whatsapp/whatsapp-order-notification.service';
+import { OrderStatusService } from './order-status.service';
+import { OrderStatus, normalizeOrderStatus } from '../../common/enums/order-status.enum';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class OrdersService {
@@ -17,6 +23,7 @@ export class OrdersService {
 
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly productStockService: ProductStockService,
     private readonly productsService: ProductsService,
     private readonly inventoryService: InventoryService,
@@ -24,6 +31,8 @@ export class OrdersService {
     private readonly codTrustService: CodTrustService,
     private readonly realtimeService: RealtimeService,
     private readonly whatsAppService: WhatsAppService,
+    private readonly orderStatusService: OrderStatusService,
+    private readonly whatsappNotifications: WhatsappOrderNotificationService,
   ) {}
 
   async create(createOrderDto: any, tenantId: string) {
@@ -83,16 +92,20 @@ export class OrdersService {
     }
 
     // 2. Créer la commande
+    const initialStatus = createOrderDto.status || OrderStatus.CREATED;
     const createdOrder = new this.orderModel({
       ...createOrderDto,
       tenantId,
+      status: initialStatus,
       paymentMethod: createOrderDto.paymentMethod || 'stripe',
       isVerified: createOrderDto.isVerified || false,
+      amountToCollect:
+        (createOrderDto.paymentMethod || 'stripe') === 'cod' ? createOrderDto.total : 0,
       createdAt: new Date(),
       updatedAt: new Date(),
       statusHistory: [
         {
-          status: createOrderDto.status || 'pending',
+          status: initialStatus,
           changedAt: new Date(),
           changedBy: 'system',
         },
@@ -159,6 +172,70 @@ export class OrdersService {
     return this.orderModel.findOne({ _id: id, tenantId }).exec();
   }
 
+  async assignDriver(
+    orderId: string,
+    tenantId: string,
+    driverId: string,
+    actorRoles: string[] = ['merchant'],
+  ) {
+    const order = await this.orderModel.findOne({ _id: orderId, tenantId });
+    if (!order) throw new BadRequestException('Commande introuvable');
+
+    const driver = await this.userModel.findOne({
+      _id: driverId,
+      tenantId,
+      roles: { $in: [AppRole.DRIVER] },
+      isActive: true,
+    });
+    if (!driver) {
+      throw new BadRequestException('Livreur introuvable ou inactif pour cette boutique');
+    }
+
+    const next = this.orderStatusService.assertTransition(
+      order.status,
+      OrderStatus.ASSIGNED_TO_DRIVER,
+      actorRoles,
+    );
+
+    order.assignedDriverId = new Types.ObjectId(driverId);
+    order.status = next;
+    order.amountToCollect = order.paymentMethod === 'cod' ? order.total : 0;
+    order.statusHistory.push({
+      status: next,
+      changedAt: new Date(),
+      changedBy: 'merchant',
+    });
+    await order.save();
+    await this.whatsappNotifications.notifyStatusChange(tenantId, order, next);
+    return order;
+  }
+
+  async trackPublicOrder(orderNumber: string, phone: string) {
+    const normalized = normalizeTunisianPhone(phone);
+    const order = await this.orderModel
+      .findOne({
+        orderNumber,
+        'shippingAddress.phone': normalized,
+      })
+      .select('-metadata')
+      .lean();
+
+    if (!order) {
+      throw new BadRequestException('Commande introuvable');
+    }
+
+    return {
+      orderNumber: order.orderNumber,
+      status: order.status,
+      total: order.total,
+      currency: order.currency,
+      paymentMethod: order.paymentMethod,
+      createdAt: order.createdAt,
+      statusHistory: order.statusHistory,
+      nextSteps: this.orderStatusService.listNextStatuses(order.status),
+    };
+  }
+
   async update(id: string, updateOrderDto: any, tenantId: string) {
     return this.orderModel
       .findOneAndUpdate(
@@ -169,33 +246,32 @@ export class OrdersService {
       .exec();
   }
 
-  async updateStatus(id: string, status: string, tenantId: string) {
-    // Machine à états simple
-    const allowedTransitions: Record<string, string[]> = {
-      pending: ['confirmed', 'cancelled'],
-      confirmed: ['shipped', 'cancelled'],
-      shipped: ['delivered', 'cancelled'],
-      delivered: [],
-      cancelled: [],
-    };
-
+  async updateStatus(
+    id: string,
+    status: string,
+    tenantId: string,
+    actorRoles: string[] = ['merchant'],
+    changedBy = 'system',
+  ) {
     const order = await this.orderModel.findOne({ _id: id, tenantId });
     if (!order) {
       throw new BadRequestException('Commande introuvable');
     }
 
     const oldStatus = order.status;
+    const nextStatus = this.orderStatusService.assertTransition(
+      oldStatus,
+      status,
+      actorRoles,
+    );
 
-    // Vérifier transition autorisée
-    if (!allowedTransitions[oldStatus]?.includes(status)) {
-      throw new BadRequestException(
-        `Transition de ${oldStatus} vers ${status} non autorisée`,
-      );
-    }
-
-    // COD: bloquer expédition si OTP non vérifié (comme TikTak PRO)
+    const shipStatuses = [
+      OrderStatus.SHIPPED,
+      OrderStatus.ASSIGNED_TO_DRIVER,
+      OrderStatus.OUT_FOR_DELIVERY,
+    ];
     if (
-      status === 'shipped' &&
+      shipStatuses.includes(nextStatus) &&
       order.paymentMethod === 'cod' &&
       !order.isVerified
     ) {
@@ -204,8 +280,10 @@ export class OrdersService {
       );
     }
 
-    // COD: marquer payé à la livraison
-    if (status === 'delivered' && order.paymentMethod === 'cod') {
+    if (
+      (nextStatus === OrderStatus.DELIVERED || nextStatus === OrderStatus.PAID) &&
+      order.paymentMethod === 'cod'
+    ) {
       order.paymentStatus = 'paid';
       order.paymentDetails = {
         provider: 'cod',
@@ -218,7 +296,7 @@ export class OrdersService {
     }
 
     // 🔥 CRITIQUE: Restaurer le stock si annulation
-    if (status === 'cancelled' && oldStatus !== 'cancelled') {
+    if (nextStatus === OrderStatus.CANCELLED && oldStatus !== OrderStatus.CANCELLED) {
       this.logger.log(`♻️ Restauration stock pour commande annulée ${id}`);
 
       try {
@@ -242,19 +320,57 @@ export class OrdersService {
       }
     }
 
-    order.status = status;
+    order.status = nextStatus;
     order.updatedAt = new Date();
     order.statusHistory = order.statusHistory || [];
     order.statusHistory.push({
-      status,
+      status: nextStatus,
       changedAt: new Date(),
-      changedBy: 'system',
+      changedBy,
     });
 
     await order.save();
-    this.logger.log(`✅ Statut commande ${id} mis à jour: ${oldStatus} → ${status}`);
+    this.logger.log(`✅ Statut commande ${id} mis à jour: ${oldStatus} → ${nextStatus}`);
+
+    await this.whatsappNotifications.notifyStatusChange(tenantId, order, nextStatus);
 
     return order;
+  }
+
+  async findReturns(tenantId: string) {
+    return this.orderModel
+      .find({
+        tenantId,
+        status: {
+          $in: [
+            OrderStatus.REFUSED,
+            OrderStatus.RETURNED_TO_SELLER,
+            OrderStatus.RETURN_COMPLETED,
+            OrderStatus.RETURN_REJECTED,
+          ],
+        },
+      })
+      .sort({ updatedAt: -1 })
+      .lean();
+  }
+
+  async getReturnsStats(tenantId: string) {
+    const statuses = [
+      OrderStatus.REFUSED,
+      OrderStatus.RETURNED_TO_SELLER,
+      OrderStatus.RETURN_COMPLETED,
+    ];
+    const counts = await Promise.all(
+      statuses.map((s) => this.orderModel.countDocuments({ tenantId, status: s })),
+    );
+    const totalOrders = await this.orderModel.countDocuments({ tenantId });
+    const refused = counts[0];
+    return {
+      refused,
+      returnedToSeller: counts[1],
+      returnCompleted: counts[2],
+      returnRatePercent: totalOrders ? Math.round((refused / totalOrders) * 1000) / 10 : 0,
+    };
   }
 
   async updatePaymentStatus(id: string, status: string, tenantId: string) {
@@ -298,7 +414,7 @@ export class OrdersService {
 
     if (isValid) {
       order.isVerified = true;
-      order.status = 'confirmed';
+      order.status = OrderStatus.CONFIRMED;
       await order.save();
       if (phone) {
         await this.codTrustService.recordVerifiedOrder(

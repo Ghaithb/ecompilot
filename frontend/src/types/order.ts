@@ -20,7 +20,22 @@ export interface OrderLineItem {
   total: number;
 }
 
-export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderStatus =
+  | 'pending'
+  | 'created'
+  | 'confirmed'
+  | 'prepared'
+  | 'shipped'
+  | 'assigned_to_driver'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'paid'
+  | 'completed'
+  | 'refused'
+  | 'returned_to_seller'
+  | 'return_completed'
+  | 'return_rejected'
+  | 'cancelled';
 export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed';
 
 export interface Order {
@@ -37,6 +52,8 @@ export interface Order {
   total: number;
   currency: string;
   shippingAddress?: ShippingAddress;
+  assignedDriverId?: string;
+  paymentMethod?: string;
   createdAt: string;
   updatedAt: string;
 }
