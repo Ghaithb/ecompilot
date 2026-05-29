@@ -1,0 +1,39 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "hello": "Hello",
+    "goodbye": "Goodbye",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid_email": "Invalid email",
+    "invalid_phone": "Invalid phone number",
+    "min_length": "Minimum length not reached",
+    "max_length": "Maximum length exceeded"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "forgot_password": "Forgot password",
+    "reset_password": "Reset password"
+  },
+  "website": {
+    "title": "Website",
+    "generate": "Generate website",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "preview": "Preview"
+  }
+}

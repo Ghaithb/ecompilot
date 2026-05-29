@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Boutique - E-commerce de Qualité | Livraison Rapide</title>
+  <meta name="description" content="Achetez en ligne des produits de qualité premium. Livraison express 24-48h. Satisfait ou remboursé.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Alpine.js pour interactivité -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- AOS Animations au scroll -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
+  <!-- Swiper.js pour sliders professionnels -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  
+  <!-- GSAP pour animations fluides -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  
+  <!-- Configuration Tailwind -->
+  <script>
+      tailwind.config = {
+          theme: {
+              extend: {
+                  colors: {
+                      primary: '#3B82F6',
+                      secondary: '#8B5CF6'
+                  },
+                  animation: {
+                      'float': 'float 3s ease-in-out infinite',
+                      'slide-up': 'slide-up 0.5s ease-out',
+                      'fade-in': 'fade-in 0.6s ease-out',
+                      'zoom-in': 'zoom-in 0.5s ease-out',
+                  },
+                  keyframes: {
+                      float: {
+                          '0%, 100%': { transform: 'translateY(0)' },
+                          '50%': { transform: 'translateY(-20px)' },
+                      },
+                      'slide-up': {
+                          '0%': { transform: 'translateY(100px)', opacity: '0' },
+                          '100%': { transform: 'translateY(0)', opacity: '1' },
+                      },
+                      'fade-in': {
+                          '0%': { opacity: '0' },
+                          '100%': { opacity: '1' },
+                      },
+                      'zoom-in': {
+                          '0%': { transform: 'scale(0.9)', opacity: '0' },
+                          '100%': { transform: 'scale(1)', opacity: '1' },
+                      }
+                  }
+              }
+          }
+      }
+  </script>
+  
+  <!-- Config Site (pour runtime.js) -->
+  <script id="site-config" type="application/json">
+  {"slug":"test-boutique-12","companyName":"Test Boutique","industry":"e-commerce","settings":{"enableCart":false,"enableCheckout":false,"enableContact":true,"currency":"EUR","language":"fr","timezone":"Europe/Paris"},"theme":{"primaryColor":"#3B82F6","secondaryColor":"#8B5CF6","accentColor":"#8B5CF6","backgroundColor":"#FFFFFF","textColor":"#111827","font":"Inter"},"currency":"EUR"}
+  </script>
+  
+  <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+      
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+      
+      body { 
+          font-family: 'Poppins', sans-serif;
+          overflow-x: hidden;
+      }
+      
+      /* Gradient backgrounds ultra-modernes */
+      .gradient-bg-1 {
+          background: linear-gradient(135deg, #3B82F615 0%, #8B5CF615 100%);
+      }
+      
+      .gradient-bg-2 {
+          background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+      }
+      
+      /* Glass morphism effet vitre */
+      .glass {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      }
+      
+      /* Gradient text comme les grands sites */
+      .gradient-text {
+          background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradient-shift 3s ease infinite;
+      }
+      
+      @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+      }
+      
+      /* Hover effects premium */
+      .card-hover {
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .card-hover:hover {
+          transform: translateY(-12px) scale(1.02);
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+      
+      /* Boutons modernes avec effet shine */
+      .btn-modern {
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s ease;
+      }
+      .btn-modern::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+          transition: left 0.5s;
+      }
+      .btn-modern:hover::before {
+          left: 100%;
+      }
+      
+      /* Parallax effect */
+      .parallax-bg {
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+      }
+      
+      /* Custom scrollbar élégante */
+      ::-webkit-scrollbar {
+          width: 12px;
+      }
+      ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+          background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+          border-radius: 6px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+          background: #3B82F6;
+      }
+      
+      /* Animations de chargement */
+      .skeleton {
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 200% 100%;
+          animation: loading 1.5s infinite;
+      }
+      
+      @keyframes loading {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+      }
+      
+      /* Effet néon pour les titres */
+      .neon-text {
+          text-shadow: 
+              0 0 10px #3B82F680,
+              0 0 20px #3B82F660,
+              0 0 30px #3B82F640;
+      }
+      
+      /* Image zoom au hover */
+      .image-zoom {
+          overflow: hidden;
+      }
+      .image-zoom img {
+          transition: transform 0.5s ease;
+      }
+      .image-zoom:hover img {
+          transform: scale(1.1);
+      }
+  </style>
+</head>
+<body class="antialiased bg-white">
+
+
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md" x-data="{ mobileMenuOpen: false }">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-20">
+            <!-- Logo + Titre -->
+            <div class="flex items-center space-x-4">
+                
+                <div>
+                    <h1 class="text-2xl font-bold" style="color: #3B82F6">Test Boutique</h1>
+                    <p class="text-sm text-gray-600">Le meilleur du test</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Desktop -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#accueil" class="text-gray-700 hover:text-primary transition">Accueil</a>
+                <a href="#produits" class="text-gray-700 hover:text-primary transition">Nos Produits</a>
+                <a href="#apropos" class="text-gray-700 hover:text-primary transition">À Propos</a>
+                <a href="#contact" class="text-gray-700 hover:text-primary transition">Contact</a>
+            </nav>
+            
+            <!-- Bouton Menu Mobile -->
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Menu Mobile -->
+        <nav x-show="mobileMenuOpen" x-transition class="md:hidden pb-4 space-y-2">
+            <a href="#accueil" class="block py-2 text-gray-700 hover:text-primary">Accueil</a>
+            <a href="#produits" class="block py-2 text-gray-700 hover:text-primary">Nos Produits</a>
+            <a href="#apropos" class="block py-2 text-gray-700 hover:text-primary">À Propos</a>
+            <a href="#contact" class="block py-2 text-gray-700 hover:text-primary">Contact</a>
+        </nav>
+    </div>
+</header>
+
+
+<!-- HERO SECTION ULTRA PROFESSIONNEL -->
+<section id="accueil" class="relative min-h-screen flex items-center overflow-hidden">
+  <!-- Background avec gradient animé -->
+  <div class="absolute inset-0 gradient-bg-1">
+      <div class="absolute inset-0 opacity-30">
+          <div class="absolute top-0 -left-4 w-72 h-72 bg-primary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
+          <div class="absolute top-0 -right-4 w-72 h-72 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style="animation-delay: 2s;"></div>
+          <div class="absolute -bottom-8 left-20 w-72 h-72 bg-primary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style="animation-delay: 4s;"></div>
+      </div>
+  </div>
+  
+  <!-- Contenu Hero -->
+  <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-5xl mx-auto text-center">
+          <!-- Badge animé -->
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full mb-8 shadow-lg animate-slide-up" data-aos="fade-down">
+              <span class="flex h-3 w-3 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+              </span>
+              <span class="text-sm font-semibold text-gray-700">✨ Le meilleur du test</span>
+          </div>
+          
+          <!-- Titre principal avec gradient -->
+          <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight" data-aos="zoom-in" data-aos-delay="100">
+              <span class="gradient-text neon-text">Test Boutique - Votre Boutique en Ligne de Confiance</span>
+          </h1>
+          
+          <!-- Sous-titre -->
+          <p class="text-xl md:text-2xl lg:text-3xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-delay="200">
+              Découvrez nos produits de qualité premium
+          </p>
+          
+          <!-- Statistiques en ligne -->
+          <div class="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="300">
+              <div class="text-center">
+                  <div class="text-3xl md:text-4xl font-bold gradient-text">100%</div>
+                  <div class="text-sm text-gray-600 mt-1">Satisfaction</div>
+              </div>
+              <div class="text-center">
+                  <div class="text-3xl md:text-4xl font-bold gradient-text">24/7</div>
+                  <div class="text-sm text-gray-600 mt-1">Support</div>
+              </div>
+              <div class="text-center">
+                  <div class="text-3xl md:text-4xl font-bold gradient-text">⭐ 5.0</div>
+                  <div class="text-sm text-gray-600 mt-1">Avis clients</div>
+              </div>
+          </div>
+          
+          <!-- Boutons CTA modernes -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center" data-aos="fade-up" data-aos-delay="400">
+              <a href="#produits" class="group relative px-8 py-5 btn-modern gradient-bg-2 text-white font-bold rounded-2xl shadow-2xl hover:shadow-primary/50 transition-all duration-300 inline-flex items-center gap-3">
+                  <i class="fas fa-shopping-bag"></i>
+                  <span>Découvrir nos produits</span>
+                  <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+              </a>
+              
+              <a href="#contact" class="group px-8 py-5 bg-white text-gray-800 font-bold rounded-2xl border-2 border-gray-200 hover:border-primary hover:text-primary transition-all duration-300 inline-flex items-center gap-3 shadow-xl">
+                  <i class="fas fa-phone"></i>
+                  <span>Nous contacter</span>
+              </a>
+          </div>
+          
+          <!-- Badges de confiance -->
+          <div class="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60" data-aos="fade-up" data-aos-delay="500">
+              <div class="flex items-center gap-2">
+                  <i class="fas fa-shield-alt text-2xl text-primary"></i>
+                  <span class="text-sm">Paiement sécurisé</span>
+              </div>
+              <div class="flex items-center gap-2">
+                  <i class="fas fa-truck text-2xl text-primary"></i>
+                  <span class="text-sm">Livraison rapide</span>
+              </div>
+              <div class="flex items-center gap-2">
+                  <i class="fas fa-undo text-2xl text-primary"></i>
+                  <span class="text-sm">Retour gratuit</span>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+      <a href="#produits" class="flex flex-col items-center gap-2 text-gray-600 hover:text-primary transition">
+          <span class="text-xs">Défiler</span>
+          <i class="fas fa-chevron-down"></i>
+      </a>
+  </div>
+</section>
+
+<!-- SECTION FEATURES (Nouveauté) -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                <span class="gradient-text">Pourquoi nous choisir ?</span>
+            </h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Une expérience d'achat incomparable avec des avantages exclusifs
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <!-- Feature 1 -->
+            <div class="card-hover p-8 rounded-3xl bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-100" data-aos="fade-up" data-aos-delay="100">
+                <div class="w-16 h-16 rounded-2xl gradient-bg-2 flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-gem text-2xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Qualité Premium</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Des produits soigneusement sélectionnés pour leur qualité exceptionnelle
+                </p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="card-hover p-8 rounded-3xl bg-gradient-to-br from-pink-50 to-orange-50 border border-gray-100" data-aos="fade-up" data-aos-delay="200">
+                <div class="w-16 h-16 rounded-2xl gradient-bg-2 flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-bolt text-2xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Livraison Express</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Recevez vos commandes en 24-48h partout en France
+                </p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="card-hover p-8 rounded-3xl bg-gradient-to-br from-green-50 to-teal-50 border border-gray-100" data-aos="fade-up" data-aos-delay="300">
+                <div class="w-16 h-16 rounded-2xl gradient-bg-2 flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-headset text-2xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Support 24/7</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Une équipe à votre écoute pour répondre à toutes vos questions
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- SECTION PRODUITS (Vide) -->
+<section id="produits" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-4xl font-bold mb-4" style="color: #3B82F6">Nos Produits</h2>
+        <p class="text-gray-600 mb-12">Nos produits seront bientôt disponibles...</p>
+    </div>
+</section>
+
+
+<!-- SECTION À PROPOS MODERNE -->
+<section id="apropos" class="py-20 bg-white relative overflow-hidden">
+  <!-- Décorations background -->
+  <div class="absolute top-0 right-0 w-1/3 h-full opacity-5">
+      <div class="absolute top-10 right-10 w-64 h-64 border-4 border-primary rounded-full"></div>
+      <div class="absolute bottom-10 right-20 w-48 h-48 border-4 border-secondary rounded-full"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-6xl mx-auto">
+          <!-- Titre section -->
+          <div class="text-center mb-16" data-aos="fade-up">
+              <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                  <span class="gradient-text">À Propos de Test Boutique</span>
+              </h2>
+              <div class="w-24 h-1 gradient-bg-2 mx-auto rounded-full"></div>
+          </div>
+          
+          <!-- Contenu en 2 colonnes -->
+          <div class="grid md:grid-cols-2 gap-12 items-center">
+              <!-- Texte -->
+              <div data-aos="fade-right">
+                  <h3 class="text-3xl font-bold mb-6">Notre Histoire</h3>
+                  <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                      Test Boutique est votre destination shopping en ligne, offrant une sélection soigneusement choisie de produits exceptionnels.
+                  </p>
+                  <p class="text-gray-600 mb-8 leading-relaxed">
+                      Offrir une expérience d'achat incomparable avec des produits de qualité
+                  </p>
+                  
+                  <!-- Stats -->
+                  <div class="grid grid-cols-2 gap-4">
+                      <div class="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50">
+                          <div class="text-3xl font-bold gradient-text">500+</div>
+                          <div class="text-sm text-gray-600">Clients satisfaits</div>
+                      </div>
+                      <div class="p-4 rounded-xl bg-gradient-to-br from-pink-50 to-orange-50">
+                          <div class="text-3xl font-bold gradient-text">98%</div>
+                          <div class="text-sm text-gray-600">Taux de satisfaction</div>
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- Image/Illustration -->
+              <div class="relative" data-aos="fade-left">
+                  <div class="relative rounded-3xl overflow-hidden shadow-2xl image-zoom">
+                      
+                      <div class="w-full h-96 gradient-bg-2 flex items-center justify-center">
+                          <div class="text-center text-white">
+                              <i class="fas fa-store text-6xl mb-4"></i>
+                              <div class="text-2xl font-bold">Test Boutique</div>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- Floating badge -->
+                  <div class="absolute -bottom-6 -right-6 bg-white rounded-2xl p-6 shadow-2xl animate-float">
+                      <div class="flex items-center gap-3">
+                          <div class="text-4xl">⭐</div>
+                          <div>
+                              <div class="text-2xl font-bold gradient-text">5.0</div>
+                              <div class="text-xs text-gray-600">Note moyenne</div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- SECTION CONTACT MODERNE -->
+
+<section id="contact" class="py-20 gradient-bg-1 relative overflow-hidden">
+  <!-- Background décoratif -->
+  <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full filter blur-3xl"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-5xl mx-auto">
+          <!-- Titre -->
+          <div class="text-center mb-16" data-aos="fade-up">
+              <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                  <span class="gradient-text">Contactez-nous</span>
+              </h2>
+              <p class="text-xl text-gray-600">Une question ? Notre équipe vous répond rapidement</p>
+          </div>
+          
+          <!-- Grid Contact -->
+          <div class="grid md:grid-cols-2 gap-8">
+              <!-- Infos de contact -->
+              <div class="space-y-6" data-aos="fade-right">
+                  <div class="glass rounded-2xl p-8">
+                      <h3 class="text-2xl font-bold mb-6">Nos Coordonnées</h3>
+                      
+                      
+                      <div class="flex items-start gap-4 mb-6 group cursor-pointer">
+                          <div class="w-12 h-12 rounded-xl gradient-bg-2 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                              <i class="fas fa-envelope text-white"></i>
+                          </div>
+                          <div>
+                              <div class="font-semibold text-gray-800">Email</div>
+                              <a href="mailto:test@boutique.com" class="text-gray-600 hover:text-primary transition">test@boutique.com</a>
+                          </div>
+                      </div>
+                      
+                      
+                      <div class="flex items-start gap-4 mb-6 group cursor-pointer">
+                          <div class="w-12 h-12 rounded-xl gradient-bg-2 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                              <i class="fas fa-phone text-white"></i>
+                          </div>
+                          <div>
+                              <div class="font-semibold text-gray-800">Téléphone</div>
+                              <a href="tel:+33 1 23 45 67 89" class="text-gray-600 hover:text-primary transition">+33 1 23 45 67 89</a>
+                          </div>
+                      </div>
+                      
+                      
+                      <div class="flex items-start gap-4 group cursor-pointer">
+                          <div class="w-12 h-12 rounded-xl gradient-bg-2 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                              <i class="fas fa-map-marker-alt text-white"></i>
+                          </div>
+                          <div>
+                              <div class="font-semibold text-gray-800">Adresse</div>
+                              <div class="text-gray-600">123 rue de Test, Paris, FR</div>
+                          </div>
+                      </div>
+                      
+                      <!-- Horaires -->
+                      <div class="mt-8 pt-8 border-t border-gray-200">
+                          <div class="font-semibold mb-3">Horaires d'ouverture</div>
+                          <div class="text-sm text-gray-600 space-y-1">
+                              <div class="flex justify-between">
+                                  <span>Lundi - Vendredi</span>
+                                  <span class="font-medium">9h - 18h</span>
+                              </div>
+                              <div class="flex justify-between">
+                                  <span>Samedi</span>
+                                  <span class="font-medium">10h - 17h</span>
+                              </div>
+                              <div class="flex justify-between">
+                                  <span>Dimanche</span>
+                                  <span class="font-medium">Fermé</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- Formulaire -->
+              <div data-aos="fade-left">
+                  <div class="glass rounded-2xl p-8">
+                      <form class="space-y-6" id="contact-form">
+                          <div>
+                              <label class="block text-sm font-semibold mb-2 text-gray-700">Nom complet *</label>
+                              <input type="text" required placeholder="John Doe" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                          </div>
+                          
+                          <div>
+                              <label class="block text-sm font-semibold mb-2 text-gray-700">Email *</label>
+                              <input type="email" required placeholder="john@example.com" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                          </div>
+                          
+                          <div>
+                              <label class="block text-sm font-semibold mb-2 text-gray-700">Sujet</label>
+                              <input type="text" placeholder="Demande d'information" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                          </div>
+                          
+                          <div>
+                              <label class="block text-sm font-semibold mb-2 text-gray-700">Message *</label>
+                              <textarea required rows="5" placeholder="Écrivez votre message ici..." class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none"></textarea>
+                          </div>
+                          
+                          <button type="submit" class="w-full btn-modern gradient-bg-2 text-white py-5 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-3">
+                              <i class="fas fa-paper-plane"></i>
+                              <span>Envoyer le message</span>
+                          </button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <!-- Info Entreprise -->
+            <div>
+                <h3 class="text-xl font-bold mb-4" style="color: #3B82F6">Test Boutique</h3>
+                <p class="text-gray-400 mb-4">Le meilleur du test</p>
+            </div>
+            
+            <!-- Contact -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li>✉️ test@boutique.com</li>
+                    <li>📞 +33 1 23 45 67 89</li>
+                    <li>📍 123 rue de Test, Paris, FR</li>
+                </ul>
+            </div>
+            
+            <!-- Liens rapides -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Navigation</h4>
+                <ul class="space-y-2">
+                    <li><a href="#accueil" class="text-gray-400 hover:text-primary transition">Accueil</a></li>
+                    <li><a href="#produits" class="text-gray-400 hover:text-primary transition">Produits</a></li>
+                    <li><a href="#apropos" class="text-gray-400 hover:text-primary transition">À Propos</a></li>
+                    <li><a href="#contact" class="text-gray-400 hover:text-primary transition">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-800 pt-8 text-center text-gray-500">
+            <p>&copy; 2025 Test Boutique. Tous droits réservés. Propulsé par EcomPilot.</p>
+        </div>
+    </div>
+</footer>
+
+
+<!-- Scripts d'animation et interactivité -->
+<script>
+  // Init AOS
+  AOS.init({
+      duration: 800,
+      once: true,
+      offset: 100,
+      easing: 'ease-out-cubic'
+  });
+  
+  // GSAP Animations
+  gsap.registerPlugin(ScrollTrigger);
+  
+  // Animation du Hero au chargement
+  gsap.from('h1', {
+      opacity: 0,
+      y: 50,
+      duration: 1,
+      ease: 'power3.out'
+  });
+  
+  // Parallax effect sur les sections
+  gsap.utils.toArray('section').forEach((section) => {
+      gsap.to(section, {
+          scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1
+          }
+      });
+  });
+  
+  // Animation des cartes au hover avec GSAP
+  document.querySelectorAll('.card-hover').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+              scale: 1.05,
+              duration: 0.3,
+              ease: 'power2.out'
+          });
+      });
+      
+      card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+              scale: 1,
+              duration: 0.3,
+              ease: 'power2.out'
+          });
+      });
+  });
+  
+  // Compteur animé pour les statistiques
+  function animateCounter(element, target) {
+      let current = 0;
+      const increment = target / 50;
+      const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+              element.textContent = target;
+              clearInterval(timer);
+          } else {
+              element.textContent = Math.floor(current);
+          }
+      }, 30);
+  }
+  
+  // Observer pour déclencher les compteurs
+  const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+          if (entry.isIntersecting) {
+              const target = parseInt(entry.target.textContent);
+              if (!isNaN(target)) {
+                  animateCounter(entry.target, target);
+                  observer.unobserve(entry.target);
+              }
+          }
+      });
+  });
+  
+  // Gestion du formulaire de contact
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+      contactForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          // Animation de succès
+          gsap.to(contactForm, {
+              scale: 0.95,
+              duration: 0.1,
+              yoyo: true,
+              repeat: 1,
+              onComplete: () => {
+                  alert('Merci ! Votre message a été envoyé avec succès.');
+                  contactForm.reset();
+              }
+          });
+      });
+  }
+  
+  // Smooth scroll amélioré
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+              gsap.to(window, {
+                  duration: 1,
+                  scrollTo: {
+                      y: target,
+                      offsetY: 80
+                  },
+                  ease: 'power3.inOut'
+              });
+          }
+      });
+  });
+  
+  // Effet cursor follow (optionnel)
+  const cursor = document.createElement('div');
+  cursor.className = 'fixed w-4 h-4 rounded-full pointer-events-none z-50 mix-blend-difference bg-white opacity-0 transition-opacity';
+  document.body.appendChild(cursor);
+  
+  document.addEventListener('mousemove', (e) => {
+      gsap.to(cursor, {
+          x: e.clientX - 8,
+          y: e.clientY - 8,
+          duration: 0.3,
+          ease: 'power2.out'
+      });
+      cursor.style.opacity = '1';
+  });
+</script>
+
+</body>
+</html>

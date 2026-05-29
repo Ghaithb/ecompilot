@@ -1,0 +1,18 @@
+action_endpoint:
+  url: "http://localhost:5055/webhook"
+
+# Tracker store (optionnel - pour production)
+# tracker_store:
+#   type: mongod
+#   url: mongodb://localhost:27017
+#   db: rasa_tracker
+#   username: null
+#   password: null
+
+# Event broker (optionnel - pour analytics)
+# event_broker:
+#   type: pika
+#   url: localhost
+#   username: guest
+#   password: guest
+#   queue: rasa_events

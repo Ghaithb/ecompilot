@@ -1,0 +1,123 @@
+version: "3.1"
+
+stories:
+  - story: greet and track order
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: track_order
+        entities:
+          - order_id: "123456"
+      - action: action_track_order
+      - intent: thank
+      - action: utter_thank
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: product inquiry
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: product_info
+        entities:
+          - product_name: "parfum essence"
+      - action: action_get_product_info
+      - intent: ask_price
+      - action: action_get_product_info
+      - intent: place_order
+      - action: order_form
+      - action: action_create_order
+
+  - story: payment methods inquiry
+    steps:
+      - intent: payment_methods
+      - action: utter_payment_methods
+      - intent: affirm
+      - action: utter_thank
+
+  - story: shipping information
+    steps:
+      - intent: shipping_info
+      - action: utter_shipping_info
+      - intent: thank
+      - action: utter_thank
+
+  - story: product recommendation flow
+    steps:
+      - intent: recommend_product
+      - action: action_recommend_products
+      - intent: product_info
+      - action: action_get_product_info
+      - intent: place_order
+      - action: order_form
+
+  - story: stock check
+    steps:
+      - intent: check_stock
+        entities:
+          - product_name: "parfum rose"
+      - action: action_check_stock
+      - intent: place_order
+      - action: order_form
+
+  - story: apply discount code
+    steps:
+      - intent: apply_discount
+        entities:
+          - discount_code: "PROMO20"
+      - action: action_apply_discount
+      - intent: affirm
+      - action: utter_thank
+
+  - story: complaint handling
+    steps:
+      - intent: complaint
+      - action: utter_ask_rephrase
+      - intent: track_order
+      - action: action_track_order
+
+  - story: complete order flow
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: place_order
+        entities:
+          - product_name: "parfum essence"
+      - action: order_form
+      - action: action_create_order
+      - intent: payment_methods
+      - action: utter_payment_methods
+      - intent: thank
+      - action: utter_thank
+
+  - story: help request
+    steps:
+      - intent: ask_help
+      - action: utter_ask_help
+      - intent: track_order
+      - action: utter_ask_order_id
+
+  - story: interactive_story_1
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: mood_great
+      - action: utter_thank
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: sad path 1 - unhappy
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: mood_unhappy
+      - action: utter_ask_help
+      - intent: complaint
+      - action: utter_ask_rephrase
+
+  - story: return policy inquiry
+    steps:
+      - intent: ask_return_policy
+      - action: utter_ask_help
+      - intent: affirm
+      - action: utter_thank

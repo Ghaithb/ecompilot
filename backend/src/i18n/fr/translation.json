@@ -1,0 +1,39 @@
+{
+  "common": {
+    "welcome": "Bienvenue",
+    "hello": "Bonjour",
+    "goodbye": "Au revoir",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "invalid_email": "Email invalide",
+    "invalid_phone": "Numéro de téléphone invalide",
+    "min_length": "Longueur minimale non atteinte",
+    "max_length": "Longueur maximale dépassée"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "register": "Inscription",
+    "forgot_password": "Mot de passe oublié",
+    "reset_password": "Réinitialiser le mot de passe"
+  },
+  "website": {
+    "title": "Site Web",
+    "generate": "Générer le site",
+    "publish": "Publier",
+    "unpublish": "Dépublier",
+    "preview": "Aperçu"
+  }
+}

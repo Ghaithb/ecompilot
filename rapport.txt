@@ -1,0 +1,1012 @@
+================================================================================
+                    RAPPORT DÉTAILLÉ DU PROJET : ECOMPILOT
+                    Plateforme SaaS Multi-Tenant de Commerce & Business
+================================================================================
+
+Date de rédaction : Avril 2026
+Auteur            : Équipe de développement
+Technologie       : NestJS (Backend) + React/TypeScript (Frontend)
+Architecture      : Multi-Tenant SaaS (Software as a Service)
+
+================================================================================
+                           TABLE DES MATIÈRES
+================================================================================
+
+1.  Vue d'ensemble du projet
+2.  Architecture technique
+3.  Module d'Authentification & Gestion des Utilisateurs
+4.  Tableau de bord (Dashboard)
+5.  Gestion des Produits
+6.  Gestion des Commandes
+7.  Gestion des Clients
+8.  Inventaire & Stock
+9.  Commerce & Ventes
+10. Constructeur de Site Web & Vitrine Publique
+11. Marketing & Communication
+12. Comptabilité & Finance
+13. Intelligence Artificielle & Chatbot
+14. Intégrations & Connecteurs
+15. Parement & Checkout Express (Marché Tunisien)
+16. Analytics & Rapports
+17. Gestion du Personnel (Staff)
+18. Notifications & Alertes
+19. Administration Système
+20. Onboarding & Configuration Initiale
+21. Sécurité & Multi-Tenancy
+22. Conclusion
+
+================================================================================
+1. VUE D'ENSEMBLE DU PROJET
+================================================================================
+
+EcomPilot est une plateforme SaaS (Software as a Service) complète destinée aux
+entrepreneurs, PME et grandes entreprises tunisiennes et francophones. Elle offre
+un écosystème intégré couvrant l'ensemble du cycle de vie commercial : de la
+création d'une boutique en ligne à la gestion des commandes, de la comptabilité,
+du marketing, et de l'intelligence artificielle.
+
+OBJECTIF PRINCIPAL :
+Fournir une alternative locale et compétitive aux grandes plateformes
+internationales (Shopify, Wix, etc.) avec un focus sur :
+- Le marché tunisien (monnaie TND, adresses locales, SMS, paiement COD)
+- La facilité d'utilisation pour les non-techniciens
+- La multi-location (chaque client = un tenant isolé)
+- Un écosystème complet évitant la dépendance à des outils tiers
+
+CONCURRENTS VISÉS :
+- Converty-shop (Tunisie)
+- Shopify / WooCommerce (international)
+- Wix / Squarespace (création de sites)
+
+LANGUES SUPPORTÉES : Français, Arabe (prévu), Anglais
+
+================================================================================
+2. ARCHITECTURE TECHNIQUE
+================================================================================
+
+BACKEND (NestJS - Node.js)
+---------------------------
+- Framework : NestJS (TypeScript)
+- Base de données : MongoDB (Mongoose ODM)
+- Authentification : JWT (JSON Web Tokens)
+- Architecture : Modules découplés par domaine métier (44 modules)
+- Multi-Tenancy : Isolation par tenant via TenantGuard
+- API Style : REST (décrit ci-dessous par module)
+- Fichier principal : backend/src/app.module.ts
+
+MODULES BACKEND (44 modules) :
+  abandoned-cart, accounting, ads-connectors, ai, alerts, analytics, auth,
+  billing, booking, budgets, cart, coupons, currency, customers, debug,
+  discounts, email, email-marketing, export, financing, import, integrations,
+  inventory, marketing, notifications, onboarding, orders, payment, products,
+  purchase_orders, rasa, reviews, sales, search, shipping, staff, store,
+  subscriptions, tenants, upload, users, voice-calls, website, whatsapp
+
+FRONTEND (React + TypeScript)
+------------------------------
+- Framework : React 18 + TypeScript
+- Build Tool : Vite
+- Routing : React Router DOM v6
+- État Global : React Context (Auth, AI, Currency, Theme, Onboarding)
+- HTTP Client : React Query (@tanstack/react-query)
+- UI Components : Headless UI + Tailwind CSS
+- Nombre de pages : 53 pages distinctes
+
+DÉPLOIEMENT :
+- Backend : Port 3000 (API NestJS)
+- Frontend : Port 5173 (Vite Dev Server)
+- Base URL API : /api/v1/
+
+================================================================================
+3. MODULE D'AUTHENTIFICATION & GESTION DES UTILISATEURS
+================================================================================
+
+FICHIERS CLÉS :
+- backend/src/modules/auth/
+- backend/src/modules/users/
+- frontend/src/pages/LoginPage.tsx
+- frontend/src/contexts/AuthContext.tsx
+
+FONCTIONNALITÉS :
+
+3.1 Inscription & Connexion
+  - Création de compte avec email + mot de passe
+  - Connexion sécurisée via JWT access tokens
+  - Refresh tokens automatique pour maintenir la session
+  - Hachage des mots de passe (bcrypt)
+
+3.2 Gestion des Rôles
+  - SUPER_ADMIN   : Accès total à toutes les ressources
+  - ADMIN         : Gestion complète de son tenant
+  - USER          : Accès limité aux fonctions de base
+  Chaque rôle est enforced côté backend via des Guards NestJS.
+
+3.3 Multi-Tenant par Utilisateur
+  - Chaque utilisateur appartient à un tenant (entreprise)
+  - Les données de chaque tenant sont totalement isolées
+  - Le tenant ID est extrait du JWT à chaque requête
+
+3.4 Profil Utilisateur
+  - Page dédiée : /profile
+  - Modification du nom, email, mot de passe
+  - Préférences de thème (clair / sombre)
+
+UTILITÉ :
+  Garantit que chaque client de la plateforme a son espace dédié, sécurisé et
+  indépendant des autres clients. La base de la sécurité de tout le système.
+
+================================================================================
+4. TABLEAU DE BORD (DASHBOARD)
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/DashboardPage.tsx (20 KB)
+- backend/src/modules/analytics/
+- backend/src/modules/sales/
+
+FONCTIONNALITÉS :
+
+4.1 KPIs en Temps Réel
+  - Chiffre d'affaires du jour / de la semaine / du mois
+  - Nombre de commandes en attente
+  - Nombre de nouveaux clients
+  - Taux de conversion
+
+4.2 Graphiques & Visualisations
+  - Courbe d'évolution des ventes
+  - Répartition par catégorie de produit
+  - Top produits les plus vendus
+  - Géolocalisation des clients (carte)
+
+4.3 Alertes & Notifications Rapides
+  - Produits en rupture de stock
+  - Commandes en attente depuis trop longtemps
+  - Messages non lus de la boutique
+
+4.4 Raccourcis Actions Rapides
+  - Créer une commande en un clic
+  - Accéder aux dernières commandes
+  - Lien vers les statistiques détaillées
+
+UTILITÉ :
+  Point d'entrée central de la plateforme. Le commerçant accède en un coup d'œil
+  à l'état de son activité et peut réagir rapidement aux situations urgentes.
+
+================================================================================
+5. GESTION DES PRODUITS
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/ProductsPage.tsx (46 KB - le plus grand fichier frontend)
+- backend/src/modules/products/
+- backend/src/modules/inventory/
+
+FONCTIONNALITÉS :
+
+5.1 Catalogue Produits
+  - Création, modification, suppression de produits
+  - Gestion de titres, descriptions, prix, stock
+  - Upload d'images (multiple images par produit)
+  - Catégories et tags pour l'organisation
+
+5.2 Variantes de Produits
+  - Gestion des variantes (taille, couleur, poids, etc.)
+  - Prix et stock différents par variante
+  - SKU (référence) par variante
+
+5.3 Gestion des Prix
+  - Prix de vente HT / TTC
+  - Prix de revient (coût d'achat)
+  - Marges calculées automatiquement
+  - Prix en TND (Dinar Tunisien) ou autres devises
+
+5.4 Médias & Galerie
+  - Upload d'images vers le serveur
+  - Galerie média centralisée (/media-gallery)
+  - Compression automatique des images
+
+5.5 Importation / Exportation
+  - Import de produits via CSV/Excel
+  - Export du catalogue au format tableur
+  - Accessible depuis /export-import
+
+UTILITÉ :
+  Coeur du commerce en ligne. Permet de gérer un catalogue de dizaines à des
+  milliers de produits avec toutes leurs caractéristiques techniques et
+  commerciales.
+
+================================================================================
+6. GESTION DES COMMANDES
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/OrdersPage.tsx (19 KB)
+- backend/src/modules/orders/
+- backend/src/modules/orders/orders.service.ts
+- backend/src/modules/orders/orders.controller.ts
+
+FONCTIONNALITÉS :
+
+6.1 Réception des Commandes
+  - Les commandes arrivent depuis la boutique publique ou le POS
+  - Notification instantanée lors d'une nouvelle commande
+  - Horodatage, liste des produits commandés, montant total
+
+6.2 Gestion du Statut
+  - Statuts : Nouvelle → En cours → Expédiée → Livrée → Annulée → Remboursée
+  - Mise à jour manuelle ou automatique
+  - Historique complet des changements de statut
+
+6.3 Détails de la Commande
+  - Informations client (nom, téléphone, adresse livraison)
+  - Liste des produits avec quantités et prix unitaires
+  - Calcul automatique de la TVA et du total
+  - Méthode de paiement utilisée (COD, carte, etc.)
+
+6.4 Paiement à la Livraison (COD) + OTP
+  - Pour les commandes COD, un SMS OTP est envoyé au client
+  - Le client doit confirmer son numéro via le code reçu
+  - Sécurise les commandes contre les fausses commandes
+  - Endpoint public de vérification : POST /api/v1/public/website/:slug/verify-otp
+
+6.5 Facturation
+  - Génération de factures PDF automatiques
+  - Envoi de la facture par email au client
+  - Accessible depuis /quotes
+
+6.6 Commandes d'Achat (Purchase Orders)
+  - Gestion des commandes auprès des fournisseurs
+  - Suivi des livraisons fournisseurs
+  - Accessible depuis /purchase-orders
+
+UTILITÉ :
+  Module central du commerce. Chaque vente génère une commande qui doit être
+  traitée, suivie et archivée. Le système OTP pour COD est particulièrement
+  important pour le marché tunisien où le paiement à la livraison est dominant.
+
+================================================================================
+7. GESTION DES CLIENTS
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/CustomersPage.tsx (9 KB)
+- backend/src/modules/customers/
+
+FONCTIONNALITÉS :
+
+7.1 Base de Données Clients (CRM Basique)
+  - Fiche client : nom, email, téléphone, adresse
+  - Historique des achats par client
+  - Date de première commande et dernière commande
+
+7.2 Segmentation
+  - Filtrage par période, panier moyen, fréquence d'achat
+  - Identification des clients VIP (grands acheteurs)
+  - Export des segments pour campagnes marketing
+
+7.3 Communication
+  - Envoi d'emails directement depuis la fiche client
+  - Intégration WhatsApp pour contact rapide
+  - Notes internes sur le client
+
+7.4 Avis & Satisfaction
+  - Collecte des avis clients après achat
+  - Note moyenne et commentaires
+  - Gestion des avis depuis /reviews
+
+UTILITÉ :
+  Permet de fidéliser les clients, personnaliser la communication et analyser
+  les comportements d'achat pour améliorer les stratégies commerciales.
+
+================================================================================
+8. INVENTAIRE & STOCK
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/InventoryPage.tsx
+- backend/src/modules/inventory/
+
+FONCTIONNALITÉS :
+
+8.1 Suivi des Stocks
+  - Niveaux de stock en temps réel par produit/variante
+  - Déduction automatique lors d'une vente
+  - Réapprovisionnement automatique via purchase orders
+
+8.2 Alertes de Stock Bas
+  - Seuil d'alerte personnalisable par produit
+  - Notification quand le stock passe sous le seuil
+  - Dashboard avec liste des produits critiques
+
+8.3 Historique des Mouvements
+  - Entrées (réapprovisionnement) et sorties (ventes)
+  - Date, quantité, raison de chaque mouvement
+  - Rapport de valorisation du stock
+
+UTILITÉ :
+  Évite les ruptures de stock qui coûtent des ventes, et les sur-stocks qui
+  immobilisent de la trésorerie. Essentiel pour la gestion opérationnelle.
+
+================================================================================
+9. COMMERCE & VENTES
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/POSPage.tsx
+- frontend/src/pages/DiscountsPage.tsx
+- backend/src/modules/discounts/
+- backend/src/modules/coupons/
+- backend/src/modules/cart/
+
+9.1 Point de Vente (POS - Point of Sale)
+  Route : /pos
+  - Interface caisse tactile pour ventes en magasin physique
+  - Sélection rapide de produits par scan ou recherche
+  - Calcul automatique du total + rendu monnaie
+  - Impression du reçu
+  - Idéal pour les boutiques ayant aussi un espace physique
+
+9.2 Remises & Promotions
+  Route : /discounts
+  - Création de codes promo en pourcentage ou montant fixe
+  - Limites d'utilisation (1 fois, n fois, illimité)
+  - Validité temporelle (date début/fin)
+  - Application automatique en checkout
+
+9.3 Panier Abandonné
+  Route : /abandoned-cart
+  - Détection des paniers non finalisés
+  - Envoi automatique d'emails de relance
+  - Statistiques de récupération (taux de conversion des relances)
+
+9.4 Marchés & Devises
+  Route : /markets & /currency-settings
+  - Vente dans plusieurs pays avec devises différentes
+  - Conversion automatique des prix
+  - Règles de prix par marché géographique
+
+9.5 Devis & Factures
+  Route : /quotes
+  - Création de devis professionnels pour les clients B2B
+  - Conversion devis → facture en un clic
+  - Numérotation automatique (TN-2026-001)
+  - Export PDF prêt à envoyer
+
+UTILITÉ :
+  Couvre tous les scénarios de vente : en ligne, en magasin, B2B, avec remises.
+  La diversité des outils commerciaux permet d'adresser différents types de
+  business.
+
+================================================================================
+10. CONSTRUCTEUR DE SITE WEB & VITRINE PUBLIQUE
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/WebsiteHubPage.tsx
+- frontend/src/pages/WebsiteBuilderPagePro.tsx
+- frontend/src/pages/WebsiteTemplateGallery.tsx
+- frontend/src/pages/WebsitePagesPage.tsx
+- backend/src/modules/website/
+- backend/src/modules/website/services/smart-website-generator.service.ts
+- Public Routes : /store/:slug & /site/:slug
+
+FONCTIONNALITÉS :
+
+10.1 Hub Website
+  Route : /website
+  - Centre de contrôle de la présence en ligne
+  - Vue d'ensemble : pages, commandes, messages, inscriptions newsletter
+
+10.2 Galerie de Templates
+  Route : /website/templates
+  - Collection de templates modernes et professionnels
+  - Catégorisés par secteur (restaurant, mode, services, etc.)
+  - Prévisualisation en direct avant activation
+  - Styles : Modern, Elegance, Dark, Vibrant, Clean
+
+10.3 Générateur de Site Intelligent (SmartWebsiteGeneratorService)
+  Fonctionnement :
+  - L'IA analyse le profil de l'entreprise (secteur, objectifs, style)
+  - Génère automatiquement l'HTML/CSS/JS du site complet
+  - Inclut : hero section, section produits, à propos, contact, footer
+  - Utilise Alpine.js pour les interactions dynamiques
+  - Intègre AOS (Animate On Scroll) pour les animations
+  - Intègre GSAP pour les animations avancées
+  Technologies générées dans le HTML :
+  - Tailwind CSS (via CDN)
+  - Alpine.js (gestion des états UI)
+  - Google Fonts (typographie professionnelle)
+  - Animations CSS personnalisées
+
+10.4 Constructeur Visuel (Builder Pro)
+  Route : /website/builder/:pageId
+  - Éditeur WYSIWYG glisser-déposer
+  - Blocs réutilisables : Hero, Galerie, FAQ, CTA, Formulaire
+  - Personnalisation couleurs, typographie, espacements
+  - Aperçu responsive (mobile / tablette / desktop)
+
+10.5 Gestion des Pages
+  Route : /website/pages
+  - Création de pages personnalisées (À propos, Contact, Blog...)
+  - Éditeur de contenu riche (WYSIWYG)
+  - Gestion du SEO : titre, meta description, URL slug
+
+10.6 Boutique Publique
+  Routes : /store/:slug & /site/:slug
+  - Page accessible par les visiteurs sans compte
+  - Affichage dynamique des produits via API
+  - Checkout Express intégré (cf. section 15)
+  - Interface responsive et optimisée pour mobile
+
+10.7 Prévisualisation du Site
+  Route : /site-preview
+  - Aperçu du site tel qu'il apparaît aux visiteurs
+  - Test des fonctionnalités avant publication
+
+10.8 Messages & Newsletter de la Boutique
+  Routes : /website/messages & /website/newsletter
+  - Réception des messages du formulaire de contact de la boutique
+  - Gestion des abonnés à la newsletter
+  - Export des emails abonnés
+
+10.9 Commandes Boutique & Réservations
+  Routes : /website/orders & /website/bookings
+  - Gestion des commandes spécifiquement passées depuis la boutique publique
+  - Système de réservation pour les prestataires de services
+
+UTILITÉ :
+  La vitrine publique est le point de contact direct avec les acheteurs.
+  La génération automatique de site permet à n'importe quel entrepreneur de
+  créer une présence professionnelle en quelques minutes sans compétences
+  techniques.
+
+================================================================================
+11. MARKETING & COMMUNICATION
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/MarketingPage.tsx (12 KB)
+- frontend/src/pages/EmailMarketingPage.tsx
+- frontend/src/pages/AdsManagerPage.tsx
+- frontend/src/pages/ContentPage.tsx
+- frontend/src/pages/WhatsAppSettingsPage.tsx (16 KB)
+- backend/src/modules/marketing/
+- backend/src/modules/email-marketing/
+- backend/src/modules/whatsapp/
+- backend/src/modules/ads-connectors/
+
+11.1 Marketing General
+  Route : /marketing
+  - Tableau de bord marketing consolidé
+  - Vue des campagnes actives et leurs performances
+  - Planification des actions marketing
+
+11.2 Email Marketing
+  Route : /email-marketing
+  - Création de campagnes email avec éditeur visuel
+  - Segmentation des destinataires (clients, abonnés, nouveaux)
+  - Envoi planifié et automatisé
+  - Suivi : taux d'ouverture, clics, désinscriptions
+  - Templates d'emails préconçus
+
+11.3 WhatsApp Business
+  Route : /whatsapp-settings
+  - Connexion à l'API WhatsApp Business
+  - Messages automatiques : confirmations, notifications d'expédition
+  - Réponses rapides aux messages clients
+  - Diffusion de promotions via WhatsApp
+  - Particulièrement pertinent pour le marché tunisien où WhatsApp est
+    le moyen de communication principal
+
+11.4 Gestionnaire de Publicités
+  Route : /ads-manager
+  - Connexion à Facebook Ads & Google Ads
+  - Création de campagnes publicitaires depuis la plateforme
+  - Suivi du ROI et des conversions
+  - Budget et performance centralisés
+
+11.5 Gestion de Contenu
+  Route : /content
+  - Création d'articles de blog
+  - Calendrier éditorial
+  - Optimisation SEO du contenu
+
+11.6 Avis Clients
+  Route : /reviews
+  - Collecte automatique des avis après livraison
+  - Affichage sur la boutique publique pour la preuve sociale
+  - Réponse aux avis depuis le tableau de bord
+
+UTILITÉ :
+  Le marketing est le moteur de croissance. Ces outils permettent d'attirer,
+  convertir et fidéliser les clients sans avoir besoin d'outils tiers. La
+  centralisation dans EcomPilot économise du temps et de l'argent.
+
+================================================================================
+12. COMPTABILITÉ & FINANCE
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/AccountingPage.tsx (19 KB)
+- frontend/src/pages/QuotesInvoicesPage.tsx (20 KB)
+- frontend/src/pages/CalculatorPage.tsx (14 KB)
+- frontend/src/pages/FinancingPage.tsx
+- backend/src/modules/accounting/
+- backend/src/modules/billing/
+- backend/src/modules/budgets/
+- backend/src/modules/financing/
+
+12.1 Comptabilité
+  Route : /accounting
+  - Tableau de comptes (plan comptable simplifié)
+  - Enregistrement des revenus et dépenses
+  - Journal des opérations comptables
+  - Rapports : bilan simplifié, compte de résultat
+  - Export pour l'expert-comptable
+
+12.2 Devis & Factures
+  Route : /quotes
+  - Création de devis avec lignes de produits/services
+  - Conversion en factures en 1 clic
+  - Numérotation automatique et légalement conforme (TN)
+  - Export PDF professionnel
+  - Suivi des paiements (payé / partiellement payé / impayé)
+  - Rappels automatiques pour les impayés
+
+12.3 Calculateur Commercial
+  Route : /calculator
+  - Calcul de marges et de prix de vente
+  - Simulation TVA
+  - Calcul du seuil de rentabilité
+  - Outil d'aide à la décision tarifaire
+
+12.4 Financement
+  Route : /financing
+  - Simulation de crédits professionnels
+  - Demandes de financement en ligne
+  - Tableau de bord de la dette et des remboursements
+
+12.5 Gestion des Budgets
+  - Définition de budgets par département/catégorie
+  - Comparaison budget vs réel
+  - Alertes sur dépassements
+
+UTILITÉ :
+  Évite le recours à des logiciels de comptabilité séparés pour les PME. Le
+  commerçant gère ses finances directement dans EcomPilot, avec une vue intégrée
+  qui relie automatiquement les ventes aux revenus comptables.
+
+================================================================================
+13. INTELLIGENCE ARTIFICIELLE & CHATBOT
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/AiCopilotPage.tsx (12 KB)
+- frontend/src/pages/ChatbotPage.tsx (17 KB)
+- frontend/src/pages/ChatbotConfigPage.tsx (22 KB)
+- frontend/src/contexts/AiContext.tsx
+- backend/src/modules/ai/
+- backend/src/modules/rasa/
+
+13.1 Copilote IA (AI Copilot)
+  Route : /ai-copilot
+  Statut : En développement (phase de recherche)
+  - Assistant conversationnel intégré dans l'interface admin
+  - Réponses aux questions métier : "Quel est mon produit le plus vendu ?"
+  - Suggestions d'optimisation de prix
+  - Génération de descriptions produits via IA
+  - Génération de contenus marketing (emails, slogans)
+  - Analyse des tendances et prédictions de ventes
+
+13.2 Chatbot Client (Rasa)
+  Route : /chatbot & /chatbot-config
+  Statut : En développement
+  - Chatbot automatique pour la boutique publique
+  - Réponses aux questions fréquentes (horaires, délais de livraison)
+  - Guidage du client dans son parcours d'achat
+  - Escalade vers un humain en cas de besoin
+  - Basé sur Rasa NLU (Natural Language Understanding)
+  - Configuration des intentions et entités
+
+13.3 Génération de Site par IA
+  - SmartWebsiteGeneratorService utilise l'IA pour créer des sites personnalisés
+  - Analyse du profil d'entreprise → génération du contenu adapté
+  - Slogans, descriptions, visuels appropriés au secteur
+
+UTILITÉ :
+  L'IA permet d'automatiser des tâches répétitives, de prendre de meilleures
+  décisions commerciales et de fournir un support client 24/7 sans coût humain.
+  C'est un différenciateur fort par rapport aux concurrents locaux.
+
+================================================================================
+14. INTÉGRATIONS & CONNECTEURS
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/IntegrationsPage.tsx (7 KB)
+- frontend/src/pages/NotificationsSettingsPage.tsx (8 KB)
+- backend/src/modules/integrations/
+- backend/src/modules/shipping/
+- backend/src/modules/voice-calls/
+
+14.1 Intégrations Marketplace
+  Route : /integrations
+  - Centre de contrôle de toutes les intégrations tierces
+  - Connexion/déconnexion en un clic
+  - Statut en temps réel de chaque intégration
+
+14.2 Passerelles de Paiement
+  - Stripe (international)
+  - Paymee (Tunisie) - prévu
+  - Konnekt (Tunisie) - prévu
+  - Paiement à la livraison COD (Cash on Delivery) - opérationnel
+
+14.3 Livraison & Expédition
+  Routes : /shipping (API)
+  - Aramex (intégration initiale - simulation)
+  - Calcul automatique des frais de port
+  - Génération des étiquettes d'expédition
+  - Suivi des colis en temps réel
+
+14.4 Appels Vocaux
+  Module : voice-calls
+  - Intégration avec services VoIP (Twilio prévu)
+  - Notifications vocales automatiques aux clients
+  - Click-to-call depuis les fiches clients
+
+14.5 Passerelles SMS
+  Module : notifications
+  - Envoi de SMS via fournisseur (simulation → fournisseur réel prévu)
+  - Utilisé pour les OTP de confirmation de commande COD
+  - Notifications de statut commande par SMS
+
+14.6 Notifications
+  Route : /notifications-settings
+  - Configuration des canaux de notification : email, SMS, WhatsApp
+  - Règles personnalisables : quoi notifier, à qui, quand
+  - Notifications push navigateur
+
+UTILITÉ :
+  Les intégrations éliminent les silos d'information. Une commande passée en
+  boutique crée automatiquement un envoi Aramex, envoie un SMS au client, et
+  met à jour la comptabilité. Tout est connecté automatiquement.
+
+================================================================================
+15. PAIEMENT & CHECKOUT EXPRESS (MARCHÉ TUNISIEN)
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/CheckoutPage.tsx (16 KB)
+- backend/src/modules/website/dto/public-website.dto.ts
+- backend/src/modules/orders/orders.service.ts
+- backend/src/modules/notifications/otp.service.ts
+- backend/src/modules/payment/
+
+15.1 Modal Checkout Express (Boutique Publique)
+  Technologie : Alpine.js embarqué dans la page générée
+  - Modal qui s'ouvre sur clic "Commander" d'un produit
+  - Formulaire d'information client adapté au marché tunisien :
+    * Nom et prénom (obligatoires)
+    * Numéro de téléphone tunisien (format +216 XX XXX XXX)
+    * Gouvernorat (liste déroulante des 24 gouvernorats tunisiens)
+    * Délégation (filtrage dynamique selon le gouvernorat)
+    * Adresse détaillée (rue, numéro, etc.)
+  - Choix du mode de paiement :
+    * Paiement à la livraison (COD) - principal pour la Tunisie
+    * Carte bancaire via Stripe (international)
+    * Virement bancaire
+  - Affichage du prix en TND (ملم) par défaut, avec conversion possible
+
+15.2 Flux de Commande COD avec OTP
+  Étape 1 : Le client remplit le formulaire de checkout
+  Étape 2 : Soumission de la commande → backend reçoit la requête
+  Étape 3 : Système génère un OTP à 6 chiffres + expiration (10 minutes)
+  Étape 4 : SMS envoyé au numéro de téléphone du client avec le code
+  Étape 5 : Client entre le code dans le formulaire (champ OTP affiché)
+  Étape 6 : Vérification du code → commande confirmée
+  Endpoint : POST /api/v1/public/website/:slug/order
+  Endpoint : POST /api/v1/public/website/:slug/verify-otp
+
+15.3 Sécurité des Commandes COD
+  - Sans OTP, la commande reste "En attente de vérification"
+  - Protection contre les fausses commandes (problème majeur en Tunisie)
+  - Expiration du OTP après 10 minutes
+  - Limite de tentatives de vérification
+
+15.4 Checkout Admin (Interface Interne)
+  Route : /checkout (interface admin)
+  - Création manuelle de commandes par les agents
+  - Sélection du client depuis la base de données
+  - Ajout de produits avec quantités
+  - Calcul automatique avec remises + TVA
+
+15.5 Devise Tunisienne (TND)
+  - Affichage par défaut en Dinars Tunisiens (TND)
+  - Symbole : DT ou TND
+  - Conversion automatique depuis d'autres devises
+  - Formatage local : 1 250,500 TND
+
+UTILITÉ :
+  Le checkout express est le cœur de la conversion. Un formulaire trop long ou
+  inadapté fait fuir les acheteurs. L'adaptation au marché tunisien (gouvernorats,
+  COD, OTP, TND) est un avantage compétitif direct face aux plateformes
+  internationales qui ne localisent pas suffisamment.
+
+================================================================================
+16. ANALYTICS & RAPPORTS
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/AnalyticsPage.tsx (35 KB - très complet)
+- backend/src/modules/analytics/
+- backend/src/modules/sales/
+
+16.1 Analytics Ventes
+  Route : /analytics
+  - Chiffre d'affaires par période (jour, semaine, mois, année)
+  - Comparaison période N vs N-1
+  - Taux de croissance
+  - Panier moyen
+
+16.2 Analytics Produits
+  - Top produits vendus (quantité et revenus)
+  - Produits les moins vendus (à optimiser ou supprimer)
+  - Analyse des retours et annulations
+
+16.3 Analytics Clients
+  - Nouveaux clients vs clients fidèles
+  - Taux de rétention
+  - Valeur vie client (LTV - Lifetime Value)
+  - Segmentation géographique
+
+16.4 Analytics Marketing
+  - Performance des campagnes email (ouvertures, clics)
+  - ROI des publicités (ads)
+  - Sources de trafic vers la boutique
+
+16.5 Rapports Export
+  - Export des rapports en PDF ou Excel
+  - Partage de rapport avec l'expert-comptable
+  - Planification d'envoi automatique (hebdomadaire, mensuel)
+
+UTILITÉ :
+  Les données sont la matière première des bonnes décisions commerciales. Sans
+  analytics, le commerçant navigue à vue. Avec EcomPilot Analytics, chaque
+  décision est basée sur des données réelles et fiables.
+
+================================================================================
+17. GESTION DU PERSONNEL (STAFF)
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/StaffPage.tsx (18 KB)
+- backend/src/modules/staff/
+
+17.1 Gestion des Employés
+  Route : /staff
+  - Fiche employé : nom, poste, coordonnées
+  - Rôles et permissions dans la plateforme
+  - Horaires et planning
+  - Suivi des performances
+
+17.2 Gestion des Accès
+  - Invitation d'un employé via email
+  - Attribution de rôles spécifiques (caissier, gestionnaire stock, etc.)
+  - Restrictions d'accès par module
+  - Audit log des actions de chaque employé
+
+17.3 Réservations & Bookings (pour prestataires)
+  Route : /booking
+  - Système de prise de rendez-vous en ligne
+  - Calendrier de disponibilités par employé
+  - Confirmation par email/SMS
+  - Idéal pour : salons de beauté, cliniques, coaches, etc.
+
+UTILITÉ :
+  Pour les entreprises avec plusieurs employés, la gestion centralisée des accès
+  est essentielle. On ne veut pas qu'un caissier puisse voir la comptabilité.
+  Le module booking ouvre EcomPilot aux prestataires de services.
+
+================================================================================
+18. NOTIFICATIONS & ALERTES
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/AlertsPage.tsx
+- frontend/src/pages/NotificationsSettingsPage.tsx (8 KB)
+- backend/src/modules/notifications/
+- backend/src/modules/notifications/otp.service.ts
+- backend/src/modules/alerts/
+
+18.1 Système d'Alertes
+  Route : /alerts
+  - Alertes configurables sur des événements métier
+  - Types : stock bas, grande commande, paiement reçu, client inactif
+  - Priorités : critique, avertissement, information
+  - Notification en temps réel dans l'interface (badge)
+
+18.2 Service OTP
+  - Génération de codes OTP à usage unique (6 chiffres)
+  - Durée de validité configurable (défaut : 10 minutes)
+  - Stockage sécurisé avec expiration automatique (MongoDB TTL)
+  - Utilisé pour : confirmation COD, actions sensibles
+  - Schéma : otp.schema.ts (code, orderId, expiresAt, used)
+
+18.3 Notifications Paramétrables
+  Route : /notifications-settings
+  - Activation/désactivation par canal : email, SMS, WhatsApp, Push
+  - Templates personnalisables pour chaque type de notification
+  - Langue de notification (FR/AR)
+
+UTILITÉ :
+  Les commerçants ne peuvent pas surveiller la plateforme en permanence.
+  Les alertes proactives permettent de réagir rapidement aux événements
+  importants sans surveillance continue.
+
+================================================================================
+19. ADMINISTRATION SYSTÈME
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/admin/AdminLayout.tsx
+- frontend/src/admin/UsersPage.tsx
+- frontend/src/admin/SettingsPage.tsx
+- backend/src/modules/tenants/
+- backend/src/modules/users/
+- backend/src/modules/debug/
+
+19.1 Console d'Administration
+  Route : /admin (accès SUPER_ADMIN uniquement)
+  - Vue de tous les tenants (entreprises) de la plateforme
+  - Gestion des utilisateurs système
+  - Métriques de la plateforme (nombre d'utilisateurs actifs, stockage utilisé)
+
+19.2 Gestion des Tenants
+  - Création, suspension, suppression d'un tenant
+  - Historique d'activités par tenant
+  - Usage des ressources (produits, commandes, stockage)
+
+19.3 Module de Debug
+  Module : debug
+  - Outils de diagnostic pour les développeurs
+  - Vérification de la santé des services
+  - Logs d'erreurs centralisés
+
+19.4 Onboarding des Nouveaux Tenants
+  - Wizard de configuration lors de la première connexion
+  - Questions sur le secteur d'activité, les objectifs, les préférences
+  - Génération automatique du premier site web basé sur les réponses
+  - Checklist d'onboarding interactive (composant OnboardingChecklist)
+
+UTILITÉ :
+  L'administrateur système supervise l'ensemble de la plateforme multi-tenant.
+  Une bonne administration garantit la qualité de service pour tous les clients.
+
+================================================================================
+20. ONBOARDING & CONFIGURATION INITIALE
+================================================================================
+
+FICHIERS CLÉS :
+- frontend/src/pages/OnboardingSurveyPage.tsx (57 KB - le plus grand fichier!)
+- frontend/src/components/onboarding/OnboardingChecklist.tsx
+- frontend/src/components/onboarding/OnboardingTour.tsx
+- frontend/src/contexts/OnboardingContext.tsx
+- backend/src/modules/onboarding/
+
+20.1 Questionnaire d'Onboarding
+  Route : /onboarding/survey
+  - Questionnaire guidé pour les nouveaux utilisateurs
+  - Questions : secteur d'activité, type de produits, marché cible
+  - Objectifs commerciaux et niveau de maturité digitale
+  - Style visuel souhaité pour la boutique
+  - Résultats utilisés pour pré-configurer la plateforme
+
+20.2 Checklist d'Onboarding
+  Composant flottant visible dans toute l'application
+  - Liste des étapes à compléter pour être opérationnel
+  - Exemples : "Ajoutez votre premier produit", "Personnalisez votre boutique"
+  - Progression visuelle (barre de complétion)
+  - Disparaît automatiquement quand tout est complété
+
+20.3 Visite Guidée (Tour)
+  Composant : OnboardingTour
+  - Tour interactif de l'interface pour les nouveaux utilisateurs
+  - Survol des principales fonctions avec explications pop-up
+  - Peut être relancé à tout moment depuis les paramètres
+
+20.4 Paramètres Généraux
+  Route : /settings
+  - Informations de l'entreprise (nom, adresse, logo)
+  - Paramètres régionaux (fuseau horaire, langue, devise)
+  - Thème visuel de l'interface admin
+  - Intégrations de base
+
+UTILITÉ :
+  Un bon onboarding réduit le taux d'abandon des nouveaux utilisateurs.
+  EcomPilot guide chaque nouveau commerçant pas à pas pour qu'il soit
+  opérationnel le plus vite possible, même sans compétences techniques.
+
+================================================================================
+21. SÉCURITÉ & MULTI-TENANCY
+================================================================================
+
+21.1 Architecture Multi-Tenant
+  - Chaque entreprise = 1 tenant avec son propre espace de données
+  - Isolation totale : tenant A ne peut jamais voir les données de tenant B
+  - Implémenté via TenantGuard NestJS sur toutes les routes protégées
+  - Le tenant ID est encodé dans le JWT à la connexion
+
+21.2 Authentification JWT
+  - Access Token (courte durée : 15 minutes)
+  - Refresh Token (longue durée : 7 jours)
+  - Rotation automatique des tokens
+  - Révocation possible (logout, changement de mot de passe)
+
+21.3 Autorisation par Rôles (RBAC)
+  - Guards NestJS : RolesGuard, TenantGuard, AdminGuard
+  - Vérification server-side sur chaque endpoint
+  - Pas de confiance en le frontend pour la sécurité
+
+21.4 Validation des Données
+  - DTOs (Data Transfer Objects) avec class-validator
+  - Sanitization des entrées utilisateur
+  - Protection contre les injections NoSQL (MongoDB)
+
+21.5 Sécurité des Paiements
+  - Les clés API Stripe ne sont jamais exposées côté client
+  - Les tokens Stripe sont gérés server-side
+  - HTTPS obligatoire en production
+
+21.6 OTP & Verification
+  - Codes OTP à usage unique avec expiration
+  - Protection contre le brute-force (limite de tentatives)
+
+UTILITÉ :
+  La sécurité est non-négociable dans un SaaS commercial manipulant des données
+  de paiement et des informations clients sensibles. L'architecture multi-tenant
+  garantit l'isolation et la confidentialité des données de chaque client.
+
+================================================================================
+22. CONCLUSION
+================================================================================
+
+EcomPilot est une plateforme ambitieuse et complète qui couvre l'ensemble des
+besoins d'un commerce moderne en Tunisie et en Afrique du Nord francophone.
+
+POINTS FORTS :
+✅ Architecture multi-tenant scalable
+✅ Adaptation locale (TND, gouvernorats tunisiens, COD + OTP, WhatsApp)
+✅ Intelligence artificielle pour la génération de contenu
+✅ Ecosystem complet (vente, marketing, comptabilité, IA)
+✅ Constructeur de site web sans code
+✅ Interface moderne et intuitive
+
+EN COURS DE DÉVELOPPEMENT :
+⏳ Intégration SMS réelle (fournisseur tunisien)
+⏳ Passerelles Paymee & Konnekt (paiement en ligne tunisien)
+⏳ Module IA Copilot completement opérationnel
+⏳ Intégration Aramex complète (livraison réelle)
+⏳ Support langue arabe
+
+STATISTIQUES TECHNIQUES :
+- 44 modules backend NestJS
+- 53 pages frontend React
+- 12 contextes React globaux
+- Architecture REST avec +200 endpoints API
+- Support multi-devise avec conversion temps réel
+
+SECTEURS CIBLES :
+- E-commerce (vente de produits physiques)
+- Prestataires de services (salons, cliniques, coaches)
+- Restaurants et food delivery
+- Commerce B2B avec devis et factures
+- Tout entrepreneur souhaitant digitaliser son activité
+
+EcomPilot se positionne comme le "tout-en-un" du commerce tunisien, éliminant
+le besoin d'utiliser 5 à 10 outils différents (boutique, caisse, comptabilité,
+email marketing, whatsapp, analytics...) en remplaçant tout par une seule
+plateforme intégrée, économique et adaptée au contexte local.
+
+================================================================================
+                    FIN DU RAPPORT - ECOMPILOT v1.0
+================================================================================

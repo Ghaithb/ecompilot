@@ -1,0 +1,71 @@
+{
+  "errors": {
+    "not_found": "المورد غير موجود",
+    "forbidden": "الوصول محظور",
+    "quota_reached": "تم الوصول إلى الحصة لخطتك",
+    "email_in_use": "البريد الإلكتروني مستخدم بالفعل",
+    "invalid_credentials": "بيانات اعتماد غير صالحة",
+    "unauthorized": "وصول غير مصرح به",
+    "bad_request": "بيانات الطلب غير صالحة",
+    "server_error": "خطأ في الخادم الداخلي",
+    "payment_failed": "فشل الدفع",
+    "insufficient_funds": "رصيد غير كاف"
+  },
+  "success": {
+    "user_created": "تم إنشاء المستخدم بنجاح",
+    "user_updated": "تم تحديث المستخدم بنجاح",
+    "user_deleted": "تم حذف المستخدم بنجاح",
+    "website_created": "تم إنشاء الموقع بنجاح",
+    "website_updated": "تم تحديث الموقع بنجاح",
+    "payment_successful": "تم الدفع بنجاح",
+    "order_created": "تم إنشاء الطلب بنجاح",
+    "product_added": "تمت إضافة المنتج بنجاح"
+  },
+  "business": {
+    "types": {
+      "parfum": "متجر عطور",
+      "cafe": "مقهى",
+      "sandwich": "وجبات سريعة",
+      "immobilier": "وكالة عقارات",
+      "restaurant": "مطعم",
+      "medecin": "عيادة طبية",
+      "avocat": "مكتب محاماة",
+      "photographe": "استوديو تصوير",
+      "fitness": "صالة رياضية",
+      "ecommerce": "متجر إلكتروني",
+      "buvette": "حانة / بار",
+      "coiffure": "صالون حلاقة",
+      "couture": "خياطة",
+      "garage": "ورشة تصليح سيارات",
+      "quincaillerie": "متجر أدوات",
+      "ecole": "مدرسة / مركز تدريب",
+      "voyage": "وكالة سفر",
+      "pharmacie": "صيدلية"
+    }
+  },
+  "payment": {
+    "methods": {
+      "card": "بطاقة ائتمان",
+      "mobile_money": "المحفظة الإلكترونية",
+      "orange_money": "أورانج موني",
+      "mtn_momo": "إم تي إن موبايل موني",
+      "moov_money": "موف موني",
+      "wave": "ويف",
+      "cash": "الدفع عند الاستلام"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "accepted": "مقبول",
+      "refused": "مرفوض",
+      "processing": "جاري المعالجة"
+    }
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "invalid_email": "عنوان بريد إلكتروني غير صالح",
+    "invalid_phone": "رقم هاتف غير صالح",
+    "min_length": "الحد الأدنى {{count}} أحرف",
+    "max_length": "الحد الأقصى {{count}} أحرف",
+    "min_amount": "الحد الأدنى للمبلغ: {{amount}}"
+  }
+}

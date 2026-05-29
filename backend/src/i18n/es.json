@@ -1,0 +1,71 @@
+{
+  "errors": {
+    "not_found": "Recurso no encontrado",
+    "forbidden": "Acceso prohibido",
+    "quota_reached": "Cuota alcanzada para su plan",
+    "email_in_use": "Correo electrónico ya en uso",
+    "invalid_credentials": "Credenciales inválidas",
+    "unauthorized": "Acceso no autorizado",
+    "bad_request": "Datos de solicitud inválidos",
+    "server_error": "Error interno del servidor",
+    "payment_failed": "Pago fallido",
+    "insufficient_funds": "Fondos insuficientes"
+  },
+  "success": {
+    "user_created": "Usuario creado con éxito",
+    "user_updated": "Usuario actualizado con éxito",
+    "user_deleted": "Usuario eliminado con éxito",
+    "website_created": "Sitio web creado con éxito",
+    "website_updated": "Sitio web actualizado con éxito",
+    "payment_successful": "Pago completado con éxito",
+    "order_created": "Pedido creado con éxito",
+    "product_added": "Producto agregado con éxito"
+  },
+  "business": {
+    "types": {
+      "parfum": "Perfumería",
+      "cafe": "Cafetería",
+      "sandwich": "Comida Rápida",
+      "immobilier": "Agencia Inmobiliaria",
+      "restaurant": "Restaurante",
+      "medecin": "Consultorio Médico",
+      "avocat": "Bufete de Abogados",
+      "photographe": "Estudio Fotográfico",
+      "fitness": "Gimnasio",
+      "ecommerce": "Tienda Online",
+      "buvette": "Bar / Pub",
+      "coiffure": "Peluquería",
+      "couture": "Sastrería",
+      "garage": "Taller Mecánico",
+      "quincaillerie": "Ferretería",
+      "ecole": "Escuela / Centro de Formación",
+      "voyage": "Agencia de Viajes",
+      "pharmacie": "Farmacia"
+    }
+  },
+  "payment": {
+    "methods": {
+      "card": "Tarjeta de Crédito",
+      "mobile_money": "Mobile Money",
+      "orange_money": "Orange Money",
+      "mtn_momo": "MTN Mobile Money",
+      "moov_money": "Moov Money",
+      "wave": "Wave",
+      "cash": "Pago Contra Reembolso"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "accepted": "Aceptado",
+      "refused": "Rechazado",
+      "processing": "En Proceso"
+    }
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "invalid_email": "Dirección de correo inválida",
+    "invalid_phone": "Número de teléfono inválido",
+    "min_length": "Mínimo {{count}} caracteres",
+    "max_length": "Máximo {{count}} caracteres",
+    "min_amount": "Cantidad mínima: {{amount}}"
+  }
+}

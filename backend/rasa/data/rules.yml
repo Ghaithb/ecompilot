@@ -1,0 +1,58 @@
+version: "3.1"
+
+rules:
+  - rule: Say goodbye anytime the user says goodbye
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - rule: Say 'I am a bot' anytime the user challenges
+    steps:
+      - intent: bot_challenge
+      - action: utter_iamabot
+
+  - rule: Thank the user
+    steps:
+      - intent: thank
+      - action: utter_thank
+
+  - rule: Ask for help
+    steps:
+      - intent: ask_help
+      - action: utter_ask_help
+
+  - rule: Payment methods info
+    steps:
+      - intent: payment_methods
+      - action: utter_payment_methods
+
+  - rule: Shipping info
+    steps:
+      - intent: shipping_info
+      - action: utter_shipping_info
+
+  - rule: Activate order form
+    steps:
+      - intent: place_order
+      - action: order_form
+      - active_loop: order_form
+
+  - rule: Submit order form
+    condition:
+      - active_loop: order_form
+    steps:
+      - action: order_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: action_create_order
+
+  - rule: Handle fallback
+    steps:
+      - intent: nlu_fallback
+      - action: utter_default
+
+  - rule: Ask to rephrase when not understood
+    steps:
+      - intent: nlu_fallback
+      - action: utter_ask_rephrase

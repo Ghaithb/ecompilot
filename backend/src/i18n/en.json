@@ -1,0 +1,71 @@
+{
+  "errors": {
+    "not_found": "Resource not found.",
+    "forbidden": "Access forbidden.",
+    "quota_reached": "Quota reached for your plan.",
+    "email_in_use": "Email already in use.",
+    "invalid_credentials": "Invalid credentials.",
+    "unauthorized": "Unauthorized access.",
+    "bad_request": "Invalid request data.",
+    "server_error": "Internal server error.",
+    "payment_failed": "Payment failed.",
+    "insufficient_funds": "Insufficient funds."
+  },
+  "success": {
+    "user_created": "User created successfully.",
+    "user_updated": "User updated successfully.",
+    "user_deleted": "User deleted successfully.",
+    "website_created": "Website created successfully.",
+    "website_updated": "Website updated successfully.",
+    "payment_successful": "Payment completed successfully.",
+    "order_created": "Order created successfully.",
+    "product_added": "Product added successfully."
+  },
+  "business": {
+    "types": {
+      "parfum": "Perfume Shop",
+      "cafe": "Coffee Shop",
+      "sandwich": "Fast Food / Sandwich Shop",
+      "immobilier": "Real Estate Agency",
+      "restaurant": "Restaurant",
+      "medecin": "Medical Practice",
+      "avocat": "Law Firm",
+      "photographe": "Photography Studio",
+      "fitness": "Gym / Fitness Center",
+      "ecommerce": "Online Store",
+      "buvette": "Bar / Pub",
+      "coiffure": "Hair Salon",
+      "couture": "Tailor Shop",
+      "garage": "Auto Repair Shop",
+      "quincaillerie": "Hardware Store",
+      "ecole": "School / Training Center",
+      "voyage": "Travel Agency",
+      "pharmacie": "Pharmacy"
+    }
+  },
+  "payment": {
+    "methods": {
+      "card": "Credit Card",
+      "mobile_money": "Mobile Money",
+      "orange_money": "Orange Money",
+      "mtn_momo": "MTN Mobile Money",
+      "moov_money": "Moov Money",
+      "wave": "Wave",
+      "cash": "Cash on Delivery"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "refused": "Refused",
+      "processing": "Processing"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid_email": "Invalid email address",
+    "invalid_phone": "Invalid phone number",
+    "min_length": "Minimum {{count}} characters",
+    "max_length": "Maximum {{count}} characters",
+    "min_amount": "Minimum amount: {{amount}}"
+  }
+}

@@ -1,0 +1,309 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - bonjour
+      - salut
+      - hello
+      - bonsoir
+      - hey
+      - coucou
+      - yo
+      - salutations
+      - bonne journée
+      - bonjour à tous
+
+  - intent: goodbye
+    examples: |
+      - au revoir
+      - bye
+      - à bientôt
+      - à plus
+      - salut
+      - ciao
+      - adieu
+      - bonne journée
+      - à plus tard
+      - merci au revoir
+
+  - intent: affirm
+    examples: |
+      - oui
+      - yes
+      - bien sûr
+      - exactement
+      - ok
+      - d'accord
+      - absolument
+      - correct
+      - tout à fait
+      - c'est ça
+      - affirmatif
+
+  - intent: deny
+    examples: |
+      - non
+      - no
+      - pas du tout
+      - jamais
+      - négatif
+      - certainement pas
+      - je refuse
+      - pas question
+      - aucunement
+      - non merci
+
+  - intent: thank
+    examples: |
+      - merci
+      - merci beaucoup
+      - thanks
+      - je te remercie
+      - merci bien
+      - c'est gentil
+      - super merci
+      - merci infiniment
+      - merci pour ton aide
+      - je t'en remercie
+
+  - intent: ask_help
+    examples: |
+      - aide
+      - aidez-moi
+      - j'ai besoin d'aide
+      - pouvez-vous m'aider
+      - help
+      - que peux-tu faire
+      - comment ça marche
+      - je suis perdu
+      - j'ai une question
+      - peux-tu m'aider
+
+  - intent: track_order
+    examples: |
+      - où est ma commande
+      - je veux suivre ma commande
+      - statut de ma commande [123456](order_id)
+      - ma commande [ABC789](order_id)
+      - suivi commande [456789](order_id)
+      - tracking commande
+      - où en est ma commande
+      - ma commande est où
+      - j'attends ma commande
+      - quand arrive ma commande
+      - livraison de la commande [789012](order_id)
+      - ordre [345678](order_id) statut
+
+  - intent: product_info
+    examples: |
+      - info sur [parfum essence](product_name)
+      - détails du produit [eau de toilette](product_name)
+      - caractéristiques [cologne fraîche](product_name)
+      - dites-moi plus sur [parfum rose](product_name)
+      - qu'est-ce que [crème hydratante](product_name)
+      - description [shampooing doux](product_name)
+      - infos [savon naturel](product_name)
+      - je cherche des infos sur [huile d'argan](product_name)
+      - parlez-moi de [gel douche](product_name)
+      - c'est quoi [masque visage](product_name)
+
+  - intent: payment_methods
+    examples: |
+      - quels moyens de paiement
+      - comment payer
+      - je peux payer avec quoi
+      - acceptez-vous orange money
+      - est-ce que vous acceptez mtn money
+      - paiement mobile money
+      - carte bancaire acceptée
+      - wave disponible
+      - méthodes de paiement
+      - moyens pour payer
+      - paiement à la livraison possible
+
+  - intent: shipping_info
+    examples: |
+      - délai de livraison
+      - combien de temps pour recevoir
+      - livraison en combien de jours
+      - frais de livraison
+      - coût de la livraison
+      - zones de livraison
+      - vous livrez où
+      - livraison gratuite
+      - délai d'expédition
+      - quand je reçois
+      - livraison à [Dakar](location)
+      - vous livrez à [Abidjan](location)
+
+  - intent: ask_price
+    examples: |
+      - combien coûte [parfum essence](product_name)
+      - quel est le prix de [eau de toilette](product_name)
+      - prix du [cologne fraîche](product_name)
+      - c'est combien [parfum rose](product_name)
+      - tarif [crème hydratante](product_name)
+      - le prix [shampooing doux](product_name)
+      - coût de [savon naturel](product_name)
+      - montant pour [huile d'argan](product_name)
+      - ça coûte combien
+      - le prix s'il vous plaît
+
+  - intent: complaint
+    examples: |
+      - je ne suis pas satisfait
+      - problème avec ma commande
+      - il manque un article
+      - produit endommagé
+      - je veux un remboursement
+      - réclamation
+      - mauvaise qualité
+      - pas content
+      - ça ne va pas
+      - problème de livraison
+      - erreur dans ma commande
+
+  - intent: recommend_product
+    examples: |
+      - recommandez-moi un produit
+      - quel produit me conseiller
+      - suggestions de produits
+      - quoi acheter
+      - meilleurs produits
+      - produits populaires
+      - nouveautés
+      - que me recommandez-vous
+      - produits tendance
+      - bons produits
+
+  - intent: place_order
+    examples: |
+      - je veux commander
+      - passer une commande
+      - acheter [parfum essence](product_name)
+      - commander [eau de toilette](product_name)
+      - je prends [cologne fraîche](product_name)
+      - ajouter au panier
+      - faire une commande
+      - acheter maintenant
+      - je veux [2](quantity) [parfum rose](product_name)
+      - commander [3](quantity) [savon naturel](product_name)
+
+  - intent: check_stock
+    examples: |
+      - est-ce disponible
+      - en stock
+      - disponibilité [parfum essence](product_name)
+      - avez-vous [eau de toilette](product_name)
+      - [cologne fraîche](product_name) disponible
+      - stock de [parfum rose](product_name)
+      - rupture de stock
+      - quand disponible
+      - bientôt en stock
+      - réapprovisionnement
+
+  - intent: apply_discount
+    examples: |
+      - j'ai un code promo
+      - code de réduction [PROMO20](discount_code)
+      - appliquer le code [WELCOME](discount_code)
+      - utiliser coupon [FIRST10](discount_code)
+      - code réduction
+      - promo disponible
+      - réduction
+      - offre spéciale
+      - bon de réduction
+      - code cadeau
+
+  - intent: ask_store_hours
+    examples: |
+      - horaires d'ouverture
+      - vous êtes ouverts quand
+      - heures d'ouverture
+      - fermé le dimanche
+      - ouvert le samedi
+      - disponible 24/7
+      - horaires boutique
+      - à quelle heure ouvrez-vous
+
+  - intent: ask_return_policy
+    examples: |
+      - politique de retour
+      - puis-je retourner
+      - remboursement possible
+      - comment retourner un produit
+      - délai de rétractation
+      - garantie satisfait ou remboursé
+      - retour gratuit
+      - échange possible
+      - conditions de retour
+
+  - intent: mood_great
+    examples: |
+      - parfait
+      - génial
+      - super
+      - excellent
+      - formidable
+      - très bien
+      - top
+      - incroyable
+      - fantastique
+      - merveilleux
+
+  - intent: mood_unhappy
+    examples: |
+      - pas content
+      - triste
+      - déçu
+      - frustré
+      - en colère
+      - mécontent
+      - ça ne va pas
+      - mauvais
+      - nul
+      - horrible
+
+  - intent: bot_challenge
+    examples: |
+      - es-tu un bot
+      - es-tu humain
+      - es-tu un robot
+      - parles-tu à un humain
+      - suis-je en train de parler à un bot
+      - es-tu réel
+      - c'est un chatbot
+      - es-tu une IA
+
+  - synonym: parfum
+    examples: |
+      - eau de parfum
+      - fragrance
+      - senteur
+      - essence
+
+  - synonym: commande
+    examples: |
+      - order
+      - achat
+      - ordre
+      - purchase
+
+  - synonym: livraison
+    examples: |
+      - shipping
+      - expédition
+      - envoi
+      - delivery
+
+  - regex: order_id
+    examples: |
+      - \d{6}
+      - [A-Z]{3}\d{3}
+      - ORD-\d{4}
+
+  - regex: price
+    examples: |
+      - \d+\s?(FCFA|€|USD|\$)
+      - \d+\.\d{2}

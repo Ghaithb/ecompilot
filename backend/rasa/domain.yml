@@ -1,0 +1,143 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - thank
+  - ask_help
+  - track_order
+  - product_info
+  - payment_methods
+  - shipping_info
+  - ask_price
+  - complaint
+  - recommend_product
+  - place_order
+  - check_stock
+  - apply_discount
+  - ask_store_hours
+  - ask_return_policy
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+
+entities:
+  - order_id
+  - product_name
+  - product_id
+  - payment_method
+  - location
+  - price
+  - quantity
+  - discount_code
+
+slots:
+  order_id:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: order_id
+
+  product_name:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: product_name
+
+  product_id:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: product_id
+
+  payment_method:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: payment_method
+
+  location:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: location
+
+  discount_code:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: discount_code
+
+responses:
+  utter_greet:
+    - text: "Bonjour ! Je suis votre assistant virtuel EcomPilot. Comment puis-je vous aider aujourd'hui ? 😊"
+    - text: "Salut ! Bienvenue sur EcomPilot. En quoi puis-je vous être utile ?"
+    - text: "Bonjour ! Ravi de vous accueillir. Que puis-je faire pour vous ?"
+
+  utter_goodbye:
+    - text: "Au revoir ! N'hésitez pas à revenir si vous avez d'autres questions. 👋"
+    - text: "À bientôt ! Passez une excellente journée ! 😊"
+    - text: "Merci de votre visite ! À très vite ! ✨"
+
+  utter_thank:
+    - text: "De rien ! C'est un plaisir de vous aider. 😊"
+    - text: "Avec plaisir ! N'hésitez pas si vous avez d'autres questions."
+    - text: "Je suis là pour ça ! Ravi d'avoir pu vous aider. ✨"
+
+  utter_ask_help:
+    - text: "Bien sûr ! Je peux vous aider avec :\n• Suivre vos commandes\n• Trouver des produits\n• Informations sur les paiements\n• Détails de livraison\n• Et bien plus !\n\nQue voulez-vous savoir ?"
+
+  utter_ask_order_id:
+    - text: "Quel est votre numéro de commande ?"
+    - text: "Pouvez-vous me donner votre numéro de commande ?"
+
+  utter_ask_product_name:
+    - text: "Quel produit recherchez-vous ?"
+    - text: "Pouvez-vous me dire le nom du produit qui vous intéresse ?"
+
+  utter_payment_methods:
+    - text: "Nous acceptons plusieurs moyens de paiement :\n💳 Cartes bancaires (Visa, Mastercard)\n📱 Orange Money\n📱 MTN Money\n📱 Wave\n📱 Moov Money\n💵 Paiement à la livraison\n\nQuel moyen préférez-vous ?"
+
+  utter_shipping_info:
+    - text: "📦 Informations de livraison :\n\n• Délai : 2-5 jours ouvrables\n• Frais : Calculés selon votre localisation\n• Zones : Toute l'Afrique de l'Ouest\n• Suivi : Disponible en temps réel\n\nAvez-vous d'autres questions ?"
+
+  utter_default:
+    - text: "Je n'ai pas bien compris. Pouvez-vous reformuler votre question ?"
+    - text: "Désolé, je n'ai pas compris. Pouvez-vous préciser votre demande ?"
+
+  utter_ask_rephrase:
+    - text: "Désolé, je n'ai pas bien compris. Pouvez-vous reformuler différemment ?"
+
+  utter_iamabot:
+    - text: "Je suis un assistant virtuel propulsé par l'IA. Je suis là pour vous aider ! 🤖"
+
+actions:
+  - action_track_order
+  - action_get_product_info
+  - action_recommend_products
+  - action_check_stock
+  - action_calculate_shipping
+  - action_apply_discount
+  - action_create_order
+  - action_get_payment_methods
+  - validate_order_form
+
+forms:
+  order_form:
+    required_slots:
+      - product_name
+      - quantity
+      - location
+      - payment_method
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

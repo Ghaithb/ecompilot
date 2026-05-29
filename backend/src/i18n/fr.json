@@ -1,0 +1,14 @@
+{
+  "errors": {
+    "not_found": "Ressource non trouvée.",
+    "forbidden": "Accès interdit.",
+    "quota_reached": "Quota atteint pour votre plan.",
+    "email_in_use": "Email déjà utilisé.",
+    "invalid_credentials": "Identifiants invalides."
+  },
+  "success": {
+    "user_created": "Utilisateur créé avec succès.",
+    "user_updated": "Utilisateur mis à jour.",
+    "user_deleted": "Utilisateur supprimé."
+  }
+}

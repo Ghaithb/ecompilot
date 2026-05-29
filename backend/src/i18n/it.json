@@ -1,0 +1,71 @@
+{
+  "errors": {
+    "not_found": "Risorsa non trovata",
+    "forbidden": "Accesso vietato",
+    "quota_reached": "Quota raggiunta per il tuo piano",
+    "email_in_use": "Email già in uso",
+    "invalid_credentials": "Credenziali non valide",
+    "unauthorized": "Accesso non autorizzato",
+    "bad_request": "Dati della richiesta non validi",
+    "server_error": "Errore interno del server",
+    "payment_failed": "Pagamento fallito",
+    "insufficient_funds": "Fondi insufficienti"
+  },
+  "success": {
+    "user_created": "Utente creato con successo",
+    "user_updated": "Utente aggiornato con successo",
+    "user_deleted": "Utente eliminato con successo",
+    "website_created": "Sito web creato con successo",
+    "website_updated": "Sito web aggiornato con successo",
+    "payment_successful": "Pagamento completato con successo",
+    "order_created": "Ordine creato con successo",
+    "product_added": "Prodotto aggiunto con successo"
+  },
+  "business": {
+    "types": {
+      "parfum": "Profumeria",
+      "cafe": "Caffetteria",
+      "sandwich": "Fast Food",
+      "immobilier": "Agenzia Immobiliare",
+      "restaurant": "Ristorante",
+      "medecin": "Studio Medico",
+      "avocat": "Studio Legale",
+      "photographe": "Studio Fotografico",
+      "fitness": "Palestra",
+      "ecommerce": "Negozio Online",
+      "buvette": "Bar / Pub",
+      "coiffure": "Parrucchiere",
+      "couture": "Sartoria",
+      "garage": "Officina Meccanica",
+      "quincaillerie": "Ferramenta",
+      "ecole": "Scuola / Centro Formazione",
+      "voyage": "Agenzia Viaggi",
+      "pharmacie": "Farmacia"
+    }
+  },
+  "payment": {
+    "methods": {
+      "card": "Carta di Credito",
+      "mobile_money": "Mobile Money",
+      "orange_money": "Orange Money",
+      "mtn_momo": "MTN Mobile Money",
+      "moov_money": "Moov Money",
+      "wave": "Wave",
+      "cash": "Contrassegno"
+    },
+    "status": {
+      "pending": "In Attesa",
+      "accepted": "Accettato",
+      "refused": "Rifiutato",
+      "processing": "In Elaborazione"
+    }
+  },
+  "validation": {
+    "required": "Questo campo è obbligatorio",
+    "invalid_email": "Indirizzo email non valido",
+    "invalid_phone": "Numero di telefono non valido",
+    "min_length": "Minimo {{count}} caratteri",
+    "max_length": "Massimo {{count}} caratteri",
+    "min_amount": "Importo minimo: {{amount}}"
+  }
+}
