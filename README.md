@@ -2,11 +2,11 @@
 
 Plateforme e-commerce orientée **Maghreb** (Tunisie) : boutique COD, checkout express, WhatsApp et tableau de bord vendeur.
 
-## Stack
+## Stack (MVP)
 
 - **Backend** : NestJS, MongoDB — `http://127.0.0.1:3001/api/v1`
 - **Frontend** : React, Vite — `http://localhost:5173` (ou 5175)
-- **Messaging** : Meta WhatsApp, Twilio, Resend, Socket.io
+- **Architecture** : `docs/MVP-STRUCTURE.md` — modules hors scope dans `/future`
 
 ## Démarrage rapide
 
@@ -35,6 +35,7 @@ node scripts/test-all-routes.mjs
 
 ## Fonctionnalités principales
 
+- **Livraison v2** : dashboard `/delivery`, transporteurs INTIGO, First Delivery, Aramex, Shipper (+ simulation Rapid Poste / Mylerz)
 - Boutique publique `/store/{slug}` avec checkout COD (24 gouvernorats)
 - Gestion produits, commandes, clients, coupons
 - Centre conversion (paniers abandonnés)

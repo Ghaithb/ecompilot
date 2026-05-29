@@ -169,6 +169,15 @@ export class Order {
   @Prop()
   trackingNumber: string;
 
+  @Prop()
+  shippingProvider?: string;
+
+  @Prop()
+  labelUrl?: string;
+
+  @Prop()
+  providerRef?: string;
+
   @Prop({ default: Date.now })
   createdAt: Date;
 

@@ -6,16 +6,19 @@ import { WhatsAppWebhookController } from './whatsapp-webhook.controller';
 import { WhatsAppService } from './whatsapp.service';
 import { WhatsAppMessage, WhatsAppMessageSchema } from './schemas/whatsapp-message.schema';
 import { MetaWhatsAppProvider } from './providers/meta-whatsapp.provider';
+import { WhatsappOrderNotificationService } from './whatsapp-order-notification.service';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
     ConfigModule,
     MongooseModule.forFeature([
       { name: WhatsAppMessage.name, schema: WhatsAppMessageSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [WhatsAppController, WhatsAppWebhookController],
-  providers: [WhatsAppService, MetaWhatsAppProvider],
-  exports: [WhatsAppService, MetaWhatsAppProvider],
+  providers: [WhatsAppService, MetaWhatsAppProvider, WhatsappOrderNotificationService],
+  exports: [WhatsAppService, MetaWhatsAppProvider, WhatsappOrderNotificationService],
 })
 export class WhatsAppModule {}

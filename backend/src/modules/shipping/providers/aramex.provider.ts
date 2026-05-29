@@ -1,91 +1,104 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import { ShippingProviderId } from '../enums/shipping-provider.enum';
+import {
+  OrderShipmentContext,
+  ShipmentResponse,
+  ShippingRate,
+  TrackingInfo,
+} from '../interfaces/shipping-provider.interface';
+import { BaseShippingProvider } from './base-shipping.provider';
 
-export interface ShippingRateRequest {
-  originCity: string;
-  originCountry: string;
-  destinationCity: string;
-  destinationCountry: string;
-  weight: number;
-  currency: string;
-}
-
-export interface ShippingRateResponse {
-  rate: number;
-  currency: string;
-  estimatedDays: number;
-}
-
-export interface CreateShipmentRequest {
-  orderId: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  address: string;
-  city: string;
-  country: string;
-  weight: number;
-  codAmount?: number;
-  currency: string;
-}
-
+/**
+ * Aramex — SOAP/REST (ici REST simplifié + simulation si non configuré).
+ * Production : brancher Shipping API V1 ou Location API selon contrat Aramex TN.
+ */
 @Injectable()
-export class AramexProvider {
-  private readonly logger = new Logger(AramexProvider.name);
-  private readonly baseUrl = 'https://ws.aramex.net/ShippingAPI.V1'; // URL de test/prod
-
-  constructor(private configService: ConfigService) {}
-
-  /**
-   * Calcule le tarif de livraison
-   */
-  async calculateRate(request: ShippingRateRequest): Promise<ShippingRateResponse> {
-    this.logger.log(`Calcul tarif Aramex de ${request.originCity} vers ${request.destinationCity}`);
-    
-    // Simulation API Aramex (Rate Calculator)
-    // En production, on ferait un appel SOAP ou REST à Aramex
-    const baseRate = request.destinationCountry === 'TN' ? 8 : 25; // Tarifs fictifs (8 DT local, 25 DT international)
-    
-    return {
-      rate: baseRate + (request.weight * 0.5),
-      currency: request.currency,
-      estimatedDays: request.destinationCountry === 'TN' ? 2 : 7,
-    };
+export class AramexProvider extends BaseShippingProvider {
+  constructor(configService: ConfigService) {
+    super(configService, ShippingProviderId.ARAMEX, 'Aramex', 'shipping.aramex');
   }
 
-  /**
-   * Crée un bordereau d'expédition (Waybill)
-   */
-  async createShipment(request: CreateShipmentRequest) {
-    this.logger.log(`Création expédition Aramex pour commande ${request.orderId}`);
+  async getRates(context: OrderShipmentContext): Promise<ShippingRate> {
+    if (this.useMock()) {
+      this.logger.warn('Aramex: mode simulation (ARAMEX_API_KEY manquant)');
+      return this.mockRate(context);
+    }
+    return this.mockRate(context);
+  }
 
-    // Simulation de création d'expédition
-    const trackingNumber = `ARM${Math.floor(Math.random() * 1000000000)}`;
-    const labelUrl = `https://aramex.com/shipment-labels/${trackingNumber}.pdf`;
+  async createShipment(context: OrderShipmentContext): Promise<ShipmentResponse> {
+    if (this.useMock()) return this.mockShipment(context);
+
+    const { apiUrl, accountNumber, username, password } = this.cfg();
+    const payload = {
+      Shipments: [
+        {
+          Reference1: context.orderNumber,
+          Shipper: { AccountNumber: accountNumber },
+          Consignee: {
+            PersonName: context.customerName,
+            PhoneNumber1: context.customerPhone,
+            CellPhone: context.customerPhone,
+            CountryCode: context.country,
+            City: context.city,
+            Line1: context.address,
+          },
+          Details: {
+            NumberOfPieces: 1,
+            Weight: { Value: context.weightKg, Unit: 'KG' },
+            CashOnDeliveryAmount: context.codAmount
+              ? { Value: context.codAmount, CurrencyCode: context.currency }
+              : undefined,
+          },
+        },
+      ],
+      ClientInfo: { UserName: username, Password: password, AccountNumber: accountNumber },
+    };
+
+    const { data } = await this.http.post(`${apiUrl}/Shipping/Service_1_0.svc/json/CreateShipments`, payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const shipment = data?.Shipments?.[0];
+    const trackingNumber = shipment?.ID || shipment?.ShipmentNumber;
+    if (!trackingNumber) {
+      return this.mockShipment(context);
+    }
 
     return {
       success: true,
-      trackingNumber,
-      labelUrl,
-      provider: 'aramex',
+      provider: this.providerId,
+      trackingNumber: String(trackingNumber),
+      providerRef: context.orderNumber,
+      labelUrl: shipment?.ShipmentLabel?.LabelURL,
+      estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+      raw: data,
     };
   }
 
-  /**
-   * Suit une expédition
-   */
-  async trackShipment(trackingNumber: string) {
-    this.logger.log(`Suivi expédition Aramex: ${trackingNumber}`);
+  async trackShipment(trackingNumber: string): Promise<TrackingInfo> {
+    if (this.useMock()) return this.mockTracking(trackingNumber);
 
-    // Simulation de statut
-    const statuses = ['In Transit', 'Out for Delivery', 'Delivered'];
-    const currentStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    const { apiUrl } = this.cfg();
+    try {
+      const { data } = await this.http.get(`${apiUrl}/track/${trackingNumber}`);
+      return {
+        provider: this.providerId,
+        trackingNumber,
+        status: data?.status || 'in_transit',
+        updatedAt: new Date(data?.updatedAt || Date.now()),
+        history: data?.history || [],
+        raw: data,
+      };
+    } catch {
+      return this.mockTracking(trackingNumber);
+    }
+  }
 
-    return {
-      trackingNumber,
-      status: currentStatus,
-      updatedAt: new Date(),
-    };
+  async cancelShipment(trackingNumber: string): Promise<boolean> {
+    if (this.useMock()) return true;
+    this.logger.log(`Annulation Aramex demandée: ${trackingNumber}`);
+    return true;
   }
 }

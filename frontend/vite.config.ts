@@ -22,6 +22,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@core": path.resolve(__dirname, "./src/core"),
+      "@modules": path.resolve(__dirname, "./src/modules"),
+      "@integrations": path.resolve(__dirname, "./src/integrations"),
+      "@ui": path.resolve(__dirname, "./src/ui"),
+      "@lib": path.resolve(__dirname, "./src/lib"),
     },
   },
   server: {

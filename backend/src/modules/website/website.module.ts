@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WebsiteController } from './website.controller';
 import { PublicWebsiteController } from './public-website.controller';
@@ -13,11 +13,9 @@ import { ContactMessage, ContactMessageSchema } from './schemas/contact-message.
 import { NewsletterSubscriber, NewsletterSubscriberSchema } from './schemas/newsletter.schema';
 import { ProductsModule } from '../products/products.module';
 import { OrdersModule } from '../orders/orders.module';
-import { AiModule } from '../ai/ai.module';
 import { PaymentModule } from '../payment/payment.module';
 import { CustomersModule } from '../customers/customers.module';
-import { AbandonedCartModule } from '../abandoned-cart/abandoned-cart.module';
-import { UltraAIGeneratorService } from './services/ultra-ai-generator.service';
+import { MvpSiteContentService } from './services/mvp-site-content.service';
 import { SmartWebsiteGeneratorService } from './services/smart-website-generator.service';
 
 @Module({
@@ -32,16 +30,14 @@ import { SmartWebsiteGeneratorService } from './services/smart-website-generator
     ]),
     ProductsModule,
     OrdersModule,
-    AiModule,
     PaymentModule,
     CustomersModule,
-    forwardRef(() => AbandonedCartModule),
   ],
   controllers: [WebsiteController, PublicWebsiteController, PublicStoreController],
   providers: [
     WebsiteService,
     PageService,
-    UltraAIGeneratorService,
+    MvpSiteContentService,
     SmartWebsiteGeneratorService,
   ],
   exports: [

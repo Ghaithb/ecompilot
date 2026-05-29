@@ -19,7 +19,11 @@
     "types": ["jest", "node"],
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@core/*": ["src/core/*"],
+      "@modules/*": ["src/modules/*"],
+      "@integrations/*": ["src/integrations/*"],
+      "@lib/*": ["src/lib/*"]
     }
   },
   "include": ["src/**/*", "test/**/*"],

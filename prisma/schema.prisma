@@ -1,0 +1,155 @@
+// Prototype PostgreSQL — migration future depuis MongoDB
+// generator client { provider = "prisma-client-js" }
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantPlan {
+  STARTER
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  STAFF
+  DELIVERY_MANAGER
+  MARKETING
+  SUPPORT
+  DRIVER
+}
+
+enum DeliveryProviderType {
+  INTIGO
+  FIRST_DELIVERY
+  ARAMEX
+  SHIPPER
+  RAPID_POSTE
+  MYLERZ
+}
+
+enum ShipmentStatus {
+  DRAFT
+  CREATED
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  REFUSED
+  RETURNED
+  CANCELLED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Tenant {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  plan      TenantPlan @default(STARTER)
+  country   String     @default("TN")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  users     User[]
+  orders    Order[]
+  shipments Shipment[]
+  providerCredentials DeliveryProviderCredential[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  email     String
+  roles     UserRole[]
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  orderNumber     String
+  status          String
+  total           Decimal  @db.Decimal(12, 3)
+  currency        String   @default("TND")
+  paymentMethod   String   @default("cod")
+  customerPhone   String?
+  riskScore       Int?
+  riskLevel       RiskLevel?
+  createdAt       DateTime @default(now())
+  shipments       Shipment[]
+}
+
+model Shipment {
+  id              String           @id @default(cuid())
+  tenantId        String
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  orderId         String?
+  order           Order?           @relation(fields: [orderId], references: [id])
+  provider        DeliveryProviderType
+  trackingNumber  String
+  providerRef     String?
+  labelUrl        String?
+  status          ShipmentStatus   @default(CREATED)
+  localityId      Int?
+  mock            Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  trackingEvents  ShipmentTrackingEvent[]
+}
+
+model ShipmentTrackingEvent {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  shipment    Shipment @relation(fields: [shipmentId], references: [id])
+  status      String
+  location    String?
+  description String?
+  occurredAt  DateTime @default(now())
+}
+
+model DeliveryProviderCredential {
+  id           String               @id @default(cuid())
+  tenantId     String
+  tenant       Tenant               @relation(fields: [tenantId], references: [id])
+  provider     DeliveryProviderType
+  encryptedToken String
+  iv           String
+  isActive     Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  @@unique([tenantId, provider])
+}
+
+model AutomationRule {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  trigger   String
+  actions   Json
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model CustomerRiskProfile {
+  id        String    @id @default(cuid())
+  tenantId  String
+  phone     String
+  score     Int       @default(50)
+  level     RiskLevel @default(LOW)
+  factors   Json?
+  updatedAt DateTime  @updatedAt
+  @@unique([tenantId, phone])
+}

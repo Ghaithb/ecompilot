@@ -6,6 +6,10 @@ export default () => ({
   database: {
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/ecompilot',
     testUri: process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/ecompilot_test',
+    /** PostgreSQL — Orders System SaaS (Prisma) */
+    url:
+      process.env.DATABASE_URL ||
+      'postgresql://postgres:postgres@localhost:5432/ecompilot_orders?schema=public',
   },
   
   jwt: {
@@ -43,6 +47,46 @@ export default () => ({
   
   gemini: {
     apiKey: process.env.GEMINI_API_KEY,
+  },
+
+  delivery: {
+    encryptionKey: process.env.DELIVERY_ENCRYPTION_KEY,
+    queueEnabled: process.env.DELIVERY_QUEUE_ENABLED === 'true',
+    webhookSecret: process.env.DELIVERY_WEBHOOK_SECRET || '',
+    allowMock: process.env.DELIVERY_ALLOW_MOCK === 'true',
+    shipper: {
+      apiUrl: process.env.SHIPPER_API_URL || 'https://server.shipper.network/api/v1',
+      apiKey: process.env.SHIPPER_API_KEY || '',
+    },
+    mylerz: {
+      apiUrl: process.env.MYLERZ_API_URL || '',
+      apiKey: process.env.MYLERZ_API_KEY || '',
+    },
+  },
+
+  shipping: {
+    defaultProvider: process.env.SHIPPING_DEFAULT_PROVIDER || 'intigo',
+    intigo: {
+      apiUrl: process.env.INTIGO_API_URL || '',
+      apiKey: process.env.INTIGO_API_KEY || '',
+      paths: {
+        create: process.env.INTIGO_PATH_CREATE || '/api/v1/shipments',
+        track: process.env.INTIGO_PATH_TRACK || '/api/v1/shipments',
+        rates: process.env.INTIGO_PATH_RATES || '/api/v1/rates',
+        cancel: process.env.INTIGO_PATH_CANCEL || '/api/v1/shipments',
+      },
+    },
+    firstDelivery: {
+      apiUrl: process.env.FIRST_DELIVERY_API_URL || 'https://www.firstdeliverygroup.com/api/v2',
+      apiKey: process.env.FIRST_DELIVERY_API_KEY || '',
+    },
+    aramex: {
+      apiUrl: process.env.ARAMEX_API_URL || 'https://ws.aramex.net/ShippingAPI.V1',
+      apiKey: process.env.ARAMEX_API_KEY || '',
+      accountNumber: process.env.ARAMEX_ACCOUNT_NUMBER || '',
+      username: process.env.ARAMEX_USERNAME || '',
+      password: process.env.ARAMEX_PASSWORD || '',
+    },
   },
 
   messaging: {

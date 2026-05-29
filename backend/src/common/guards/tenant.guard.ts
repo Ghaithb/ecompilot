@@ -93,9 +93,13 @@ export class TenantGuard implements CanActivate {
         throw new ForbiddenException('Accès refusé - Tenant inactif');
       }
 
-      // Ajouter les informations du tenant à la requête
       request.tenant = tenant;
-      
+      request.tenantContext = {
+        tenantId: String(tenantId),
+        userId: user._id?.toString?.() || user.id,
+        roles: user.roles || [],
+      };
+
       this.logger.debug(`TenantGuard - Access granted for tenant: ${tenant.name}`);
       return true;
     } catch (error) {

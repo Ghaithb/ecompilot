@@ -53,6 +53,9 @@ export interface Order {
   currency: string;
   shippingAddress?: ShippingAddress;
   assignedDriverId?: string;
+  trackingNumber?: string;
+  shippingProvider?: string;
+  labelUrl?: string;
   paymentMethod?: string;
   createdAt: string;
   updatedAt: string;

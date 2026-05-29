@@ -9,6 +9,7 @@ import { Loader2, ShoppingCart } from 'lucide-react';
 import { GenerateInvoiceButton } from '@/components/orders/GenerateInvoiceButton';
 import { StatusUpdateButton } from '@/components/orders/StatusUpdateButton';
 import { AssignDriverSelect } from '@/components/orders/AssignDriverSelect';
+import { CreateShipmentPanel } from '@/components/orders/CreateShipmentPanel';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils';
 import { ExportButton } from '@/components/orders/ExportButton';
@@ -255,6 +256,7 @@ const OrdersPage: React.FC = () => {
                 <TableHead>Total</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Livreur</TableHead>
+                <TableHead>Transporteur</TableHead>
                 <TableHead>Paiement</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -293,6 +295,18 @@ const OrdersPage: React.FC = () => {
                       orderStatus={order.status}
                       assignedDriverId={order.assignedDriverId}
                     />
+                  </TableCell>
+                  <TableCell>
+                    <CreateShipmentPanel
+                      orderId={order._id}
+                      orderNumber={order.orderNumber}
+                      hasTracking={Boolean(order.trackingNumber)}
+                    />
+                    {order.trackingNumber && (
+                      <p className="text-xs text-muted-foreground mt-1 font-mono">
+                        {order.trackingNumber}
+                      </p>
+                    )}
                   </TableCell>
                   <TableCell>
                     <StatusUpdateButton

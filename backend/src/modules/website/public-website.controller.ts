@@ -124,7 +124,7 @@ export class PublicWebsiteController {
       slug,
       data,
     );
-    return { success: true, cartId: cart._id.toString() };
+    return { success: true, ...(cart as { mvp?: boolean }) };
   }
 
   /**

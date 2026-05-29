@@ -12,7 +12,6 @@ import { SmartWebsiteGeneratorService } from './services/smart-website-generator
 import { OrdersService } from '../orders/orders.service';
 import { TunisiaPaymentService } from '../payment/tunisia-payment.service';
 import { CustomersService } from '../customers/customers.service';
-import { AbandonedCartService } from '../abandoned-cart/abandoned-cart.service';
 import { ProductsService } from '../products/products.service';
 import { normalizeTunisianPhone } from '../../common/utils/phone.util';
 import { SaveAbandonedCartDto } from './dto/public-website.dto';
@@ -31,7 +30,6 @@ export class WebsiteService {
     private readonly ordersService: OrdersService,
     private readonly tunisiaPaymentService: TunisiaPaymentService,
     private readonly customersService: CustomersService,
-    private readonly abandonedCartService: AbandonedCartService,
     private readonly productsService: ProductsService,
   ) {}
 
@@ -1141,22 +1139,9 @@ export class WebsiteService {
   /**
    * Enregistrer un panier abandonné depuis la boutique publique
    */
-  async savePublicAbandonedCart(tenantId: string, slug: string, data: SaveAbandonedCartDto) {
-    return this.abandonedCartService.recordAbandonedCart(tenantId, {
-      customerEmail: data.customerEmail,
-      customerName: data.customerName,
-      customerPhone: data.customerPhone,
-      sessionId: data.sessionId,
-      storeSlug: slug,
-      items: data.items.map((item) => ({
-        productId: item.productId,
-        productName: item.title,
-        quantity: item.quantity,
-        price: item.price,
-        image: item.image,
-      })),
-      totalAmount: data.total,
-    });
+  async savePublicAbandonedCart(_tenantId: string, _slug: string, data: SaveAbandonedCartDto) {
+    this.logger.debug(`[MVP] panier abandonné ignoré (${data.items?.length ?? 0} articles)`);
+    return { ok: true, mvp: true, message: 'Abandoned cart module archived' };
   }
 
   /**

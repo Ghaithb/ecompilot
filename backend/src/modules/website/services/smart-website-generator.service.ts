@@ -1,7 +1,7 @@
 ﻿import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UltraAIGeneratorService } from './ultra-ai-generator.service';
+import { MvpSiteContentService } from './mvp-site-content.service';
 import {
   generateExpressCheckoutHTML,
   generateExpressCheckoutScript,
@@ -106,7 +106,7 @@ export class SmartWebsiteGeneratorService {
   private readonly logger = new Logger(SmartWebsiteGeneratorService.name);
 
   constructor(
-    private ultraAIGenerator: UltraAIGeneratorService,
+    private siteContent: MvpSiteContentService,
     @InjectModel('Product') private productModel: Model<any>,
   ) {}
 
@@ -137,14 +137,13 @@ export class SmartWebsiteGeneratorService {
                 : null,
         ].filter(Boolean) as string[];
 
-        const aiContent = await this.ultraAIGenerator.generateUltraPersonalizedContent({
+        const aiContent = await this.siteContent.generateUltraPersonalizedContent({
             type: normalized.industry,
             name: normalized.companyName,
             description: normalized.description || normalized.primaryGoal,
             location: normalized.location,
             targetAudience: normalized.targetAudience,
             uniqueSellingPoints,
-            goals: goals.length ? goals : undefined,
         });
 
         // 2. RÃ©cupÃ©rer les VRAIS produits du tenant

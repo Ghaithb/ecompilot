@@ -6,11 +6,10 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { AppRole } from '../../common/enums/app-role.enum';
 import { ProductStockService } from '../products/product-stock.service';
 import { ProductsService } from '../products/products.service';
-import { InventoryService } from '../inventory/inventory.service';
 import { OtpService } from '../notifications/otp.service';
 import { CodTrustService } from '../cod-trust/cod-trust.service';
 import { normalizeTunisianPhone } from '../../common/utils/phone.util';
-import { RealtimeService } from '../realtime/realtime.service';
+import { RealtimeService } from '../../core/stubs/realtime.stub';
 import { WhatsAppService } from '../whatsapp/whatsapp.service';
 import { WhatsappOrderNotificationService } from '../whatsapp/whatsapp-order-notification.service';
 import { OrderStatusService } from './order-status.service';
@@ -26,7 +25,6 @@ export class OrdersService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly productStockService: ProductStockService,
     private readonly productsService: ProductsService,
-    private readonly inventoryService: InventoryService,
     private readonly otpService: OtpService,
     private readonly codTrustService: CodTrustService,
     private readonly realtimeService: RealtimeService,
@@ -133,7 +131,7 @@ export class OrdersService {
     // 4. Vérifier si des produits sont maintenant en stock bas
     setTimeout(async () => {
       try {
-        await this.inventoryService.checkLowStock(tenantId);
+        // MVP: alertes stock avancées désactivées (module inventory archivé)
       } catch (err) {
         this.logger.error('Erreur vérification stock bas:', err);
       }
