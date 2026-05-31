@@ -13,6 +13,7 @@ import {
   Tag,
   GitBranch,
 } from 'lucide-react';
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,10 +57,10 @@ const VersionHistory: React.FC<VersionHistoryProps> = ({ pageId, onRestore }) =>
   const fetchVersions = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const url = `http://localhost:3001/api/v1/website/pages/${pageId}/versions${showAutoSaves ? '?includeAutoSave=true' : ''}`;
+      const url = apiUrl(`/website/pages/${pageId}/versions${showAutoSaves ? '?includeAutoSave=true' : ''}`);
       
       const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -84,10 +85,10 @@ const VersionHistory: React.FC<VersionHistoryProps> = ({ pageId, onRestore }) =>
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(
-        `http://localhost:3001/api/v1/website/pages/versions/${selectedVersion._id}/restore`,
+        apiUrl(`/website/pages/versions/${selectedVersion._id}/restore`),
         {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getAuthHeaders(),
         }
       );
 

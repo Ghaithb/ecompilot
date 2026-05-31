@@ -239,7 +239,7 @@ export default function NotificationsSettingsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Les SMS sont facturés 0.05€/SMS. Recommandé uniquement pour les alertes critiques (stock faible, nouvelles commandes).
+              Les SMS sont facturés 0.05 TND/SMS. Recommandé uniquement pour les alertes critiques (stock faible, nouvelles commandes).
             </p>
           </CardContent>
         </Card>

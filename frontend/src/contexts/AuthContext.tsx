@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authApi } from '@/lib/api';
+import { authApi, getApiErrorMessage } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface ApiError {
@@ -177,10 +177,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: `Bienvenue ${response.user.firstName} !`,
       });
     } catch (error) {
-      const apiError = error as ApiError;
       toast({
         title: 'Erreur de connexion',
-        description: apiError.response?.data?.message || apiError.message || 'Identifiants invalides',
+        description: getApiErrorMessage(error, 'Identifiants invalides'),
         variant: 'destructive',
       });
       throw error;
@@ -207,20 +206,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         window.location.href = '/onboarding/survey';
       }, 1500);
     } catch (error) {
-      const apiError = error as ApiError;
-      // Log full response for debugging
       // eslint-disable-next-line no-console
-      console.error('Register error response:', apiError.response?.data || apiError);
-
-      // If backend returns validation errors (errors array), join them
-      const validationMessages = apiError.response?.data?.errors;
-      const message = validationMessages && Array.isArray(validationMessages)
-        ? validationMessages.join('; ')
-        : apiError.response?.data?.message || apiError.message || 'Erreur lors de la création du compte';
+      console.error('Register error response:', error);
 
       toast({
         title: 'Erreur d\'inscription',
-        description: message,
+        description: getApiErrorMessage(error, 'Erreur lors de la création du compte'),
         variant: 'destructive',
       });
       throw error;

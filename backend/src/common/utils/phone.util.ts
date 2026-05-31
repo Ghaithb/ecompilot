@@ -17,6 +17,28 @@ export function normalizeTunisianPhone(phone: string): string {
   return phone.trim();
 }
 
+/** Normalise vers E.164 — accepte +indicatif ou numéro local tunisien */
+export function normalizePhone(phone: string): string {
+  const trimmed = phone.trim();
+  if (trimmed.startsWith('+')) {
+    const digits = trimmed.replace(/\D/g, '');
+    return digits ? `+${digits}` : trimmed;
+  }
+  return normalizeTunisianPhone(trimmed);
+}
+
+/** Valide numéro tunisien ou international (E.164) */
+export function isValidPhone(phone: string): boolean {
+  const normalized = normalizePhone(phone);
+  if (normalized.startsWith('+216')) {
+    return /^\+216[2-9]\d{7}$/.test(normalized);
+  }
+  if (normalized.startsWith('+')) {
+    return /^\+[1-9]\d{7,14}$/.test(normalized);
+  }
+  return isValidTunisianPhone(normalized);
+}
+
 /** Valide un numéro mobile/fixe tunisien (8 chiffres après +216) */
 export function isValidTunisianPhone(phone: string): boolean {
   const normalized = normalizeTunisianPhone(phone);

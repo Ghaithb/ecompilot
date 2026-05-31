@@ -46,6 +46,43 @@ model Order {
   @@map("orders")
 }
 
+model Customer {
+  id        String   @id @default(cuid())
+  tenantId  String
+  email     String
+  firstName String
+  lastName  String
+  phone     String?
+  status    String   @default("active")
+  tags      String[] @default([])
+  stats     Json?
+  mongoId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, email])
+  @@index([tenantId, phone])
+  @@map("customers")
+}
+
+model Shipment {
+  id             String   @id @default(cuid())
+  tenantId       String
+  mongoOrderId   String?
+  orderNumber    String?
+  provider       String
+  trackingNumber String
+  status         String   @default("created")
+  mock           Boolean  @default(false)
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([tenantId, trackingNumber])
+  @@index([tenantId, status])
+  @@map("shipments")
+}
+
 model OrderLineItem {
   id        String  @id @default(cuid())
   orderId   String

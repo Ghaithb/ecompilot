@@ -21,15 +21,14 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { DeliveryPageShell } from '../components/DeliveryPageShell';
+import { ProviderBadge } from '../components/ProviderBadge';
 import { ShipmentStatusBadge } from '../components/ShipmentStatusBadge';
 import { ShipmentTimeline } from '../components/ShipmentTimeline';
 import {
   cancelShipment,
   fetchShipment,
   syncShipmentTracking,
-  PROVIDER_LABELS,
 } from '../services/deliveryApi';
-import type { DeliveryProviderId } from '../types/delivery.types';
 
 const DeliveryShipmentDetailPage: React.FC = () => {
   const { shipmentId = '' } = useParams();
@@ -175,10 +174,9 @@ const DeliveryShipmentDetailPage: React.FC = () => {
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">
                   Transporteur
                 </p>
-                <p className="font-medium mt-1">
-                  {PROVIDER_LABELS[shipment.provider as DeliveryProviderId] ||
-                    shipment.provider}
-                </p>
+                <div className="mt-2">
+                  <ProviderBadge provider={shipment.provider} />
+                </div>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">
@@ -198,6 +196,16 @@ const DeliveryShipmentDetailPage: React.FC = () => {
                 <p className="text-xs text-amber-600 bg-amber-50 rounded-md p-2">
                   Mode simulation — aucune API réelle appelée.
                 </p>
+              )}
+              {(shipment.lastWebhookAt || shipment.lastSyncedAt) && (
+                <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+                  {shipment.lastWebhookAt && (
+                    <p>Dernier webhook : {new Date(shipment.lastWebhookAt).toLocaleString()}</p>
+                  )}
+                  {shipment.lastSyncedAt && (
+                    <p>Dernière sync : {new Date(shipment.lastSyncedAt).toLocaleString()}</p>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>

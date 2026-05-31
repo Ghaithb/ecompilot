@@ -1,141 +1,43 @@
 import { api } from '@/lib/api';
 
-export interface SubscriptionPlan {
+export type BillingPlan = {
   id: string;
   name: string;
-  description: string;
-  price: number;
-  currency: string;
-  interval: 'month' | 'year';
+  priceTnd: number;
+  maxOrdersPerMonth: number;
+  maxCarriers: number;
+  maxUsers: number;
   features: string[];
-  limits: {
-    maxProducts?: number;
-    maxOrders?: number;
-    maxUsers?: number;
-    maxStorage?: number;
-  };
-}
+  customPricing?: boolean;
+};
 
-export interface Subscription {
-  _id: string;
-  tenantId: string;
-  plan: string;
-  status: 'active' | 'trial' | 'cancelled' | 'past_due' | 'unpaid';
-  stripeSubscriptionId?: string;
-  stripeCustomerId?: string;
-  currentPeriodStart: Date;
-  currentPeriodEnd: Date;
-  cancelAtPeriodEnd: boolean;
-  canceledAt?: Date;
-  trialEndsAt?: Date;
-  limits: {
-    maxProducts: number;
-    maxOrders: number;
-    maxUsers: number;
-    maxStorage: number;
-  };
+export type BillingSubscription = {
+  planId: string;
+  plan: BillingPlan;
   usage: {
-    products: number;
-    orders: number;
-    users: number;
-    storage: number;
+    ordersThisMonth: number;
+    ordersLimit: number;
+    ordersRemaining: number;
+    withinQuota: boolean;
   };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface UsageStats {
-  resource: 'products' | 'orders' | 'users' | 'storage';
-  current: number;
-  limit: number;
-  percentage: number;
-  isOverLimit: boolean;
-}
+  paymentMethods: {
+    konnect: boolean;
+    flouci: boolean;
+    cod: boolean;
+  };
+};
 
 export const billingApi = {
-  /**
-   * Récupérer les plans d'abonnement disponibles
-   */
-  getPlans: async (): Promise<SubscriptionPlan[]> => {
-    const response = await api.get('/subscriptions/plans');
-    return response.data;
+  getPlans: async () => {
+    const { data } = await api.get<BillingPlan[]>('/billing/plans');
+    return data;
   },
-
-  /**
-   * Récupérer l'abonnement actuel du tenant
-   */
-  getCurrentSubscription: async (): Promise<Subscription | null> => {
-    try {
-      const response = await api.get('/subscriptions/current');
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return null;
-      }
-      throw error;
-    }
+  getSubscription: async () => {
+    const { data } = await api.get<BillingSubscription>('/billing/subscription');
+    return data;
   },
-
-  /**
-   * Créer un nouvel abonnement
-   */
-  createSubscription: async (planId: string, stripeCustomerId?: string): Promise<Subscription> => {
-    const response = await api.post('/subscriptions/create', {
-      planId,
-      stripeCustomerId,
-    });
-    return response.data;
-  },
-
-  /**
-   * Mettre à niveau l'abonnement
-   */
-  upgradeSubscription: async (newPlanId: string): Promise<Subscription> => {
-    const response = await api.post('/subscriptions/upgrade', {
-      newPlanId,
-    });
-    return response.data;
-  },
-
-  /**
-   * Annuler l'abonnement
-   */
-  cancelSubscription: async (atPeriodEnd: boolean = true): Promise<Subscription> => {
-    const response = await api.post('/subscriptions/cancel', {
-      atPeriodEnd,
-    });
-    return response.data;
-  },
-
-  /**
-   * Vérifier les limites d'utilisation pour une ressource
-   */
-  checkUsageLimits: async (
-    resource: 'products' | 'orders' | 'users' | 'storage'
-  ): Promise<UsageStats> => {
-    const response = await api.get(`/subscriptions/usage/${resource}`);
-    return response.data;
-  },
-
-  /**
-   * Créer une session Stripe Checkout
-   */
-  createCheckoutSession: async (priceId: string, successUrl?: string, cancelUrl?: string) => {
-    const response = await api.post('/billing/create-checkout-session', {
-      priceId,
-      successUrl: successUrl || `${window.location.origin}/billing/success`,
-      cancelUrl: cancelUrl || `${window.location.origin}/billing/cancel`,
-    });
-    return response.data;
-  },
-
-  /**
-   * Confirmer le paiement réussi
-   */
-  confirmPaymentSuccess: async (sessionId: string) => {
-    const response = await api.post('/billing/payment-success', {
-      sessionId,
-    });
-    return response.data;
+  changePlan: async (planId: string) => {
+    const { data } = await api.patch('/billing/plan', { planId });
+    return data;
   },
 };

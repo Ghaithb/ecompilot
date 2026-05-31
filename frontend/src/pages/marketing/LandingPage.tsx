@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRight,
   Check,
@@ -17,9 +18,15 @@ import {
   SAAS_TAGLINE,
   SAAS_TAGLINE_FR,
   SAAS_USE_CASE,
+  LAUNCH_POSITIONING,
+  PILOT_PROGRAM,
+  CASE_STUDIES,
+  MOAT_FEATURES,
+  SERVICE_PAGES,
 } from '@/content/saas-launch';
 
 const LandingPage: React.FC = () => {
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading } = useAuth();
 
   if (!isLoading && isAuthenticated) {
@@ -39,21 +46,21 @@ const LandingPage: React.FC = () => {
           </div>
           <nav className="hidden sm:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">
-              Fonctionnalités
+              {t('landing.navFeatures')}
             </a>
             <a href="#pricing" className="hover:text-foreground transition-colors">
-              Tarifs
+              {t('landing.navPricing')}
             </a>
             <a href="#how" className="hover:text-foreground transition-colors">
-              Comment ça marche
+              {t('landing.navHow')}
             </a>
           </nav>
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild>
-              <Link to="/login">Connexion</Link>
+              <Link to="/login">{t('landing.login')}</Link>
             </Button>
             <Button asChild>
-              <Link to="/login?signup=1">Essai gratuit</Link>
+              <Link to="/login?signup=1">{t('landing.trial')}</Link>
             </Button>
           </div>
         </div>
@@ -67,31 +74,30 @@ const LandingPage: React.FC = () => {
             {SAAS_TAGLINE}
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight max-w-3xl leading-[1.1]">
-            Expédiez vos commandes e-commerce en Tunisie,{' '}
-            <span className="text-primary">sans chaos</span>.
+            {LAUNCH_POSITIONING.headline}
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl">{SAAS_USE_CASE}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{SAAS_TAGLINE_FR}</p>
+          <p className="mt-6 text-lg text-muted-foreground max-w-2xl">{LAUNCH_POSITIONING.subheadline}</p>
+          <p className="mt-3 text-sm text-muted-foreground">{SAAS_USE_CASE}</p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Button size="lg" className="h-12 px-8 shadow-lg shadow-primary/20" asChild>
               <Link to="/login?signup=1">
-                Démarrer — 14 jours offerts
+                {t('landing.startTrial')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12" asChild>
-              <a href="#pricing">Voir les tarifs</a>
+              <a href="#pricing">{t('landing.seePricing')}</a>
             </Button>
           </div>
           <div className="mt-12 flex flex-wrap gap-6 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
-              <Check className="h-4 w-4 text-emerald-600" /> INTIGO · First Delivery · Shipper
+              <Check className="h-4 w-4 text-emerald-600" /> {t('landing.carriersBadge')}
             </span>
             <span className="flex items-center gap-2">
-              <Check className="h-4 w-4 text-emerald-600" /> Multi-boutique (SaaS)
+              <Check className="h-4 w-4 text-emerald-600" /> {t('landing.multiStore')}
             </span>
             <span className="flex items-center gap-2">
-              <Check className="h-4 w-4 text-emerald-600" /> À partir de 49 DT/mois
+              <Check className="h-4 w-4 text-emerald-600" /> {t('landing.fromPrice')}
             </span>
           </div>
         </div>
@@ -171,6 +177,64 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Pilotes + preuve sociale — Phases 2–3 */}
+      <section className="py-20 border-b bg-violet-50/40">
+        <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12">
+          <div>
+            <p className="text-xs font-medium text-primary uppercase tracking-wide mb-2">Phase 2 · Beachhead</p>
+            <h2 className="text-2xl font-semibold">{PILOT_PROGRAM.title}</h2>
+            <p className="mt-3 text-muted-foreground">{PILOT_PROGRAM.description}</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('landing.pilotSlots', { slots: PILOT_PROGRAM.slots, days: LAUNCH_POSITIONING.trialDays })}
+            </p>
+            <Button className="mt-6" asChild>
+              <Link to="/login?signup=1&pilot=1">{PILOT_PROGRAM.cta}</Link>
+            </Button>
+          </div>
+          <div>
+            <p className="text-xs font-medium text-primary uppercase tracking-wide mb-2">Phase 3 · ROI chiffré</p>
+            <h2 className="text-2xl font-semibold mb-4">Études de cas pilotes</h2>
+            <Button variant="link" className="px-0 mb-4" asChild>
+              <Link to="/case-studies">{t('landing.caseStudiesLink')}</Link>
+            </Button>
+            <div className="space-y-4">
+              {CASE_STUDIES.map((c) => (
+                <div key={c.id} className="rounded-xl border bg-white p-4">
+                  <p className="font-medium">{c.merchant}</p>
+                  <p className="text-lg font-semibold text-primary mt-1">{c.metric}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{c.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Moat — Phase 4 */}
+      <section className="py-16 border-b">
+        <div className="max-w-6xl mx-auto px-6">
+          <p className="text-xs font-medium text-primary uppercase tracking-wide mb-2">Phase 4 · Moat</p>
+          <h2 className="text-2xl font-semibold mb-6">{t('landing.moatTitle')}</h2>
+          <ul className="grid sm:grid-cols-2 gap-3 mb-6">
+            {SERVICE_PAGES.slice(0, 3).map((p) => (
+              <li key={p.slug}>
+                <Link to={`/service/${p.slug}`} className="text-sm text-primary hover:underline">
+                  {p.title} →
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <ul className="grid sm:grid-cols-2 gap-3">
+            {MOAT_FEATURES.map((f) => (
+              <li key={f} className="flex items-start gap-2 text-sm">
+                <Check className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                {f}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

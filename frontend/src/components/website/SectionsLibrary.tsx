@@ -340,7 +340,7 @@ const sections: Section[] = [
           <div class="pricing-card">
             <h3>Starter</h3>
             <div class="price">
-              <span class="amount">19€</span>
+              <span class="amount">19.00 TND</span>
               <span class="period">/mois</span>
             </div>
             <ul class="features-list">
@@ -355,7 +355,7 @@ const sections: Section[] = [
             <div class="badge">Populaire</div>
             <h3>Pro</h3>
             <div class="price">
-              <span class="amount">49€</span>
+              <span class="amount">49.00 TND</span>
               <span class="period">/mois</span>
             </div>
             <ul class="features-list">
@@ -370,7 +370,7 @@ const sections: Section[] = [
           <div class="pricing-card">
             <h3>Enterprise</h3>
             <div class="price">
-              <span class="amount">99€</span>
+              <span class="amount">99.00 TND</span>
               <span class="period">/mois</span>
             </div>
             <ul class="features-list">

@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import LanguageSelector from '@/components/LanguageSelector';
 import { Truck, Package, ArrowRight } from 'lucide-react';
 import { SAAS_TAGLINE, SAAS_TAGLINE_FR } from '@/content/saas-launch';
-import { ACTIVATION_KEY, PLAN_KEY } from '@/pages/onboarding/ActivationFlowPage';
+import { ACTIVATION_KEY, PLAN_KEY, PILOT_KEY } from '@/pages/onboarding/ActivationFlowPage';
 
 const LoginPage: React.FC = () => {
+  const { t } = useTranslation();
   const { login, register, isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('signup') ? 'register' : 'login';
   const urlPlan = searchParams.get('plan');
+  const urlPilot = searchParams.get('pilot');
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({
@@ -30,7 +34,10 @@ const LoginPage: React.FC = () => {
     if (urlPlan === 'starter' || urlPlan === 'pro') {
       localStorage.setItem(PLAN_KEY, urlPlan);
     }
-  }, [urlPlan]);
+    if (urlPilot === '1') {
+      localStorage.setItem(PILOT_KEY, '1');
+    }
+  }, [urlPlan, urlPilot]);
 
   if (isAuthenticated) {
     const isAdmin = user?.roles?.includes('admin');
@@ -46,56 +53,67 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(loginData.email, loginData.password);
-    afterAuth();
+    try {
+      await login(loginData.email, loginData.password);
+      afterAuth();
+    } catch {
+      // toast déjà affiché dans AuthContext
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register({
-      ...registerData,
-      companyName: registerData.companyName || registerData.firstName,
-    });
-    localStorage.removeItem(ACTIVATION_KEY);
-    navigate('/onboarding/activate', { replace: true });
+    try {
+      await register({
+        ...registerData,
+        companyName: registerData.companyName || registerData.firstName,
+      });
+      localStorage.removeItem(ACTIVATION_KEY);
+      navigate('/onboarding/activate', { replace: true });
+    } catch {
+      // toast déjà affiché dans AuthContext
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col">
-      <header className="border-b bg-white px-6 py-4 flex items-center justify-between">
+      <header className="border-b bg-white px-6 py-4 flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-2 font-semibold">
           <Truck className="h-5 w-5 text-primary" />
           EcomPilot
         </Link>
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/">← Retour au site</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/">{t('auth.backToSite')}</Link>
+          </Button>
+        </div>
       </header>
 
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center">
             <p className="text-xs font-medium text-primary uppercase tracking-wide">{SAAS_TAGLINE}</p>
-            <h1 className="text-2xl font-semibold mt-2">Connexion commerçant</h1>
+            <h1 className="text-2xl font-semibold mt-2">{t('auth.merchantLogin')}</h1>
             <p className="text-sm text-muted-foreground mt-1">{SAAS_TAGLINE_FR}</p>
           </div>
 
           <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Connexion</TabsTrigger>
-              <TabsTrigger value="register">Essai gratuit</TabsTrigger>
+              <TabsTrigger value="login">{t('auth.loginTab')}</TabsTrigger>
+              <TabsTrigger value="register">{t('auth.registerTab')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
               <Card>
                 <CardHeader>
-                  <CardTitle>Se connecter</CardTitle>
-                  <CardDescription>Accédez à vos commandes et expéditions</CardDescription>
+                  <CardTitle>{t('auth.loginTitle')}</CardTitle>
+                  <CardDescription>{t('auth.loginDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium">Email</label>
+                      <label className="text-sm font-medium">{t('auth.email')}</label>
                       <input
                         type="email"
                         required
@@ -105,7 +123,7 @@ const LoginPage: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">Mot de passe</label>
+                      <label className="text-sm font-medium">{t('auth.password')}</label>
                       <input
                         type="password"
                         required
@@ -115,7 +133,7 @@ const LoginPage: React.FC = () => {
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={isLoading}>
-                      Connexion
+                      {t('auth.loginSubmit')}
                     </Button>
                   </form>
                 </CardContent>
@@ -125,14 +143,14 @@ const LoginPage: React.FC = () => {
             <TabsContent value="register">
               <Card>
                 <CardHeader>
-                  <CardTitle>14 jours offerts</CardTitle>
-                  <CardDescription>Starter 49 DT · Pro 95 DT après essai</CardDescription>
+                  <CardTitle>{t('auth.registerTitle')}</CardTitle>
+                  <CardDescription>{t('auth.registerDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleRegister} className="space-y-3">
                     <div className="grid grid-cols-2 gap-2">
                       <input
-                        placeholder="Prénom"
+                        placeholder={t('auth.firstName')}
                         required
                         className="rounded-md border px-3 py-2 text-sm"
                         value={registerData.firstName}
@@ -141,7 +159,7 @@ const LoginPage: React.FC = () => {
                         }
                       />
                       <input
-                        placeholder="Nom"
+                        placeholder={t('auth.lastName')}
                         required
                         className="rounded-md border px-3 py-2 text-sm"
                         value={registerData.lastName}
@@ -151,7 +169,7 @@ const LoginPage: React.FC = () => {
                       />
                     </div>
                     <input
-                      placeholder="Boutique / entreprise"
+                      placeholder={t('auth.company')}
                       className="w-full rounded-md border px-3 py-2 text-sm"
                       value={registerData.companyName}
                       onChange={(e) =>
@@ -160,7 +178,7 @@ const LoginPage: React.FC = () => {
                     />
                     <input
                       type="email"
-                      placeholder="Email"
+                      placeholder={t('auth.email')}
                       required
                       className="w-full rounded-md border px-3 py-2 text-sm"
                       value={registerData.email}
@@ -170,7 +188,7 @@ const LoginPage: React.FC = () => {
                     />
                     <input
                       type="tel"
-                      placeholder="Téléphone (+216…)"
+                      placeholder={t('auth.phone')}
                       required
                       className="w-full rounded-md border px-3 py-2 text-sm"
                       value={registerData.phone}
@@ -180,7 +198,7 @@ const LoginPage: React.FC = () => {
                     />
                     <input
                       type="password"
-                      placeholder="Mot de passe (8+ caractères)"
+                      placeholder={t('auth.passwordHint')}
                       required
                       minLength={8}
                       className="w-full rounded-md border px-3 py-2 text-sm"
@@ -190,7 +208,7 @@ const LoginPage: React.FC = () => {
                       }
                     />
                     <Button type="submit" className="w-full" disabled={isLoading}>
-                      Créer mon compte
+                      {t('auth.createAccount')}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </form>
@@ -201,10 +219,10 @@ const LoginPage: React.FC = () => {
 
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Package className="h-3 w-3" /> Commandes COD
+              <Package className="h-3 w-3" /> {t('auth.codOrders')}
             </span>
             <span className="flex items-center gap-1">
-              <Truck className="h-3 w-3" /> Multi-transporteurs
+              <Truck className="h-3 w-3" /> {t('auth.multiCarriers')}
             </span>
           </div>
         </div>

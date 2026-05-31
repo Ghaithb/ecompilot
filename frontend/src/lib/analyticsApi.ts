@@ -1,8 +1,14 @@
 import { api } from '@/lib/api';
+import type { RevenueOpsDashboardData } from '@/components/RevenueOps/types';
 
 export const analyticsApi = {
-  getDashboard: async () => {
+  getDashboard: async (): Promise<RevenueOpsDashboardData> => {
     const res = await api.get('/analytics/dashboard');
+    return res.data;
+  },
+
+  getRevenueOps: async (): Promise<RevenueOpsDashboardData> => {
+    const res = await api.get('/analytics/revenue-ops');
     return res.data;
   },
 
@@ -13,6 +19,11 @@ export const analyticsApi = {
 
   getInventory: async () => {
     const res = await api.get('/analytics/inventory');
+    return res.data;
+  },
+
+  getVisitors: async (days = 30) => {
+    const res = await api.get('/analytics/visitors', { params: { days } });
     return res.data;
   },
 

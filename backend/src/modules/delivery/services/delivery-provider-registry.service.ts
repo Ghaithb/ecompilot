@@ -41,7 +41,7 @@ export class DeliveryProviderRegistry {
   }
 
   getFirstDelivery(): FirstDeliveryProvider {
-    return this.get(DeliveryProviderId.FIRST_DELIVERY) as FirstDeliveryProvider;
+    return this.get(DeliveryProviderId.FIRST_DELIVERY) as unknown as FirstDeliveryProvider;
   }
 
   async listMeta(tenantId?: string) {
@@ -54,7 +54,7 @@ export class DeliveryProviderRegistry {
           name: DELIVERY_PROVIDER_LABELS[id],
           configured,
           priority: index + 1,
-          supportsPickup: Boolean(p.requestPickup),
+          supportsPickup: id === DeliveryProviderId.FIRST_DELIVERY,
           supportsLocalities: Boolean(p.getLocalities),
           supportsRates: Boolean(p.getRates),
         };

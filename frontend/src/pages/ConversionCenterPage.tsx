@@ -1,12 +1,16 @@
+import { api } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { api } from '@/lib/api';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import { abandonedCartApi } from '@/lib/abandonedCartApi';
 import { MessageCircle, ShoppingCart, TrendingUp, Zap, RefreshCw } from 'lucide-react';
+import { WhatsAppFlowBuilder } from '@/components/conversion/WhatsAppFlowBuilder';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface ConversionCenterData {
   total: number;
@@ -30,12 +34,13 @@ interface ConversionCenterData {
 }
 
 export default function ConversionCenterPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const { data, isLoading, refetch } = useQuery<ConversionCenterData>({
     queryKey: ['conversion-center'],
     queryFn: async () => {
-      const res = await api.get('/abandoned-cart/conversion-center');
+      const res = await api.get('/conversion/conversion-center');
       return res.data;
     },
   });
@@ -49,6 +54,23 @@ export default function ConversionCenterPage() {
     onError: () => toast.error('Erreur relance'),
   });
 
+  const { data: recoveryConfig } = useQuery({
+    queryKey: ['recovery-config'],
+    queryFn: async () => {
+      const res = await api.get('/conversion/recovery-config');
+      return res.data as { discountEnabled: boolean; maxDiscountPercent: number };
+    },
+  });
+
+  const configMutation = useMutation({
+    mutationFn: (body: { discountEnabled?: boolean; maxDiscountPercent?: number }) =>
+      api.patch('/conversion/recovery-config', body),
+    onSuccess: () => {
+      toast.success('Configuration enregistrée');
+      queryClient.invalidateQueries({ queryKey: ['recovery-config'] });
+    },
+  });
+
   if (isLoading) {
     return <div className="p-6">Chargement du centre conversion...</div>;
   }
@@ -57,10 +79,10 @@ export default function ConversionCenterPage() {
     <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black">Centre Conversion</h1>
-          <p className="text-gray-500">Actions pour récupérer plus de commandes</p>
+          <h1 className="text-2xl sm:text-3xl font-black">{t('conversion.title')}</h1>
+          <p className="text-gray-500">{t('conversion.subtitle')}</p>
         </div>
-        <Button variant="outline" onClick={() => refetch()}><RefreshCw className="w-4 h-4 mr-2" />Actualiser</Button>
+        <Button variant="outline" onClick={() => refetch()}><RefreshCw className="w-4 h-4 mr-2" />{t('conversion.refresh')}</Button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -69,6 +91,35 @@ export default function ConversionCenterPage() {
         <Card><CardContent className="pt-6"><div className="text-sm text-gray-500">Revenus récupérables</div><div className="text-2xl font-bold text-green-600">{(data?.recoverableRevenue ?? 0).toFixed(0)} DT</div></CardContent></Card>
         <Card><CardContent className="pt-6"><div className="text-sm text-gray-500">Taux récupération</div><div className="text-2xl font-bold">{data?.recoveryRate ?? 0}%</div></CardContent></Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Automatisation recovery (Phase 2)</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row gap-6 sm:items-center">
+          <label className="flex items-center gap-3 text-sm">
+            <Switch
+              checked={recoveryConfig?.discountEnabled ?? true}
+              onCheckedChange={(checked) => configMutation.mutate({ discountEnabled: checked })}
+            />
+            Remise automatique sur paniers abandonnés
+          </label>
+          <div className="flex items-center gap-2 text-sm">
+            <span>Max remise</span>
+            <Input
+              type="number"
+              className="w-20"
+              defaultValue={recoveryConfig?.maxDiscountPercent ?? 10}
+              onBlur={(e) =>
+                configMutation.mutate({ maxDiscountPercent: Number(e.target.value) || 10 })
+              }
+            />
+            <span>%</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <WhatsAppFlowBuilder />
 
       {data?.recommendations?.length ? (
         <Card className="border-primary/20 bg-primary/5">

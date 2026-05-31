@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -26,6 +27,8 @@ interface ProductPerformancePanelProps {
 }
 
 export function ProductPerformancePanel({ data, formatCurrency }: ProductPerformancePanelProps) {
+  const { t } = useTranslation();
+
   if (!data) return null;
 
   const winner = data.winningProduct;
@@ -36,14 +39,17 @@ export function ProductPerformancePanel({ data, formatCurrency }: ProductPerform
         <div>
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Package className="w-5 h-5 text-primary" />
-            Performance produits
+            {t('dashboard.products.title')}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {data.totalArticlesSold} articles vendus · {data.uniqueProductsSold} produits distincts
+            {t('dashboard.products.summary', {
+              articles: data.totalArticlesSold,
+              products: data.uniqueProductsSold,
+            })}
           </p>
         </div>
         <Link to="/analytics?tab=products" className="text-sm text-primary hover:underline">
-          Analyse complète →
+          {t('dashboard.products.fullAnalysis')}
         </Link>
       </div>
 
@@ -55,24 +61,24 @@ export function ProductPerformancePanel({ data, formatCurrency }: ProductPerform
                 <Trophy className="w-8 h-8 text-amber-600" />
               </div>
               <div className="flex-1">
-                <Badge className="mb-2 bg-amber-500">Produit gagnant</Badge>
+                <Badge className="mb-2 bg-amber-500">{t('dashboard.products.winnerBadge')}</Badge>
                 <h3 className="text-xl font-bold text-gray-900">{winner.title}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <p className="text-2xl font-bold text-amber-700">{winner.quantitySold}</p>
-                    <p className="text-xs text-muted-foreground">Unités vendues</p>
+                    <p className="text-xs text-muted-foreground">{t('dashboard.products.unitsSold')}</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-amber-700">{winner.salesPercentage.toFixed(1)}%</p>
-                    <p className="text-xs text-muted-foreground">Part des ventes</p>
+                    <p className="text-xs text-muted-foreground">{t('dashboard.products.salesShare')}</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-amber-700">{formatCurrency(winner.revenue)}</p>
-                    <p className="text-xs text-muted-foreground">Chiffre d&apos;affaires</p>
+                    <p className="text-xs text-muted-foreground">{t('dashboard.products.revenue')}</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-amber-700">{winner.revenuePercentage.toFixed(1)}%</p>
-                    <p className="text-xs text-muted-foreground">Part du CA</p>
+                    <p className="text-xs text-muted-foreground">{t('dashboard.products.revenueShare')}</p>
                   </div>
                 </div>
               </div>
@@ -85,13 +91,13 @@ export function ProductPerformancePanel({ data, formatCurrency }: ProductPerform
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
-            Répartition des ventes par produit
+            {t('dashboard.products.breakdownTitle')}
           </CardTitle>
-          <CardDescription>% du volume et du chiffre d&apos;affaires par article</CardDescription>
+          <CardDescription>{t('dashboard.products.breakdownDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {data.products.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Aucune vente enregistrée</p>
+            <p className="text-center text-muted-foreground py-8">{t('dashboard.products.noSales')}</p>
           ) : (
             <div className="space-y-4">
               {data.products.slice(0, 8).map((product, index) => (
@@ -104,7 +110,7 @@ export function ProductPerformancePanel({ data, formatCurrency }: ProductPerform
                       <span className="text-sm font-medium truncate">{product.title}</span>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0 text-sm">
-                      <Badge variant="secondary">{product.quantitySold} u.</Badge>
+                      <Badge variant="secondary">{t('dashboard.products.unitsShort', { count: product.quantitySold })}</Badge>
                       <span className="font-semibold">{product.salesPercentage.toFixed(1)}%</span>
                       <span className="text-muted-foreground hidden sm:inline">
                         {formatCurrency(product.revenue)}

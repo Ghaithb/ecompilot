@@ -4,12 +4,14 @@ import { Model, Types } from 'mongoose';
 import { Customer, CustomerDocument } from './schemas/customer.schema';
 import { Order, OrderDocument } from '../orders/schemas/order.schema';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
+import { PrismaMirrorService } from '../../prisma/prisma-mirror.service';
 
 @Injectable()
 export class CustomersService {
   constructor(
     @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    private readonly prismaMirror: PrismaMirrorService,
   ) {}
 
   async create(tenantId: string, createCustomerDto: CreateCustomerDto): Promise<Customer> {
@@ -33,7 +35,9 @@ export class CustomersService {
       },
     });
 
-    return customer.save();
+    const saved = await customer.save();
+    void this.prismaMirror.mirrorMongoCustomer(tenantId, saved.toObject?.() ?? saved);
+    return saved;
   }
 
   async findAll(
@@ -133,6 +137,8 @@ export class CustomersService {
     if (!customer) {
       throw new NotFoundException('Customer not found');
     }
+
+    void this.prismaMirror.mirrorMongoCustomer(tenantId, customer);
 
     return customer;
   }
@@ -243,6 +249,7 @@ export class CustomersService {
         codTrust: { score: 70, level: 'normal', deliveryRefusals: 0, cancelledOrders: 0, verifiedOrders: 0 },
       });
       await customer.save();
+      void this.prismaMirror.mirrorMongoCustomer(tenantId, customer.toObject?.() ?? customer);
     }
 
     return customer;
@@ -272,6 +279,7 @@ export class CustomersService {
         codTrust: { score: 70, level: 'normal', deliveryRefusals: 0, cancelledOrders: 0, verifiedOrders: 0 },
       });
       await customer.save();
+      void this.prismaMirror.mirrorMongoCustomer(tenantId, customer.toObject?.() ?? customer);
     }
 
     return customer;

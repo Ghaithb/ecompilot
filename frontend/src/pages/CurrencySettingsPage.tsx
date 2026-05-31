@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DollarSign, TrendingUp, Users, MapPin, Check } from 'lucide-react';
 
 export default function CurrencySettingsPage() {
-  const { selectedCurrency, currencies, setCurrency, formatPrice } = useCurrency();
+  const { selectedCurrency, currencies, loading: currenciesLoading, setCurrency, formatPrice } = useCurrency();
   const [pricing, setPricing] = useState<RegionalPricing | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -55,7 +55,12 @@ export default function CurrencySettingsPage() {
 
       {/* Currency Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {currencies.map((currency) => (
+        {currenciesLoading ? (
+          <p className="text-sm text-muted-foreground col-span-full">Chargement des devises...</p>
+        ) : (currencies ?? []).length === 0 ? (
+          <p className="text-sm text-muted-foreground col-span-full">Aucune devise disponible.</p>
+        ) : (
+          (currencies ?? []).map((currency) => (
           <Card
             key={currency.code}
             className={`cursor-pointer transition-all hover:shadow-lg ${
@@ -96,7 +101,8 @@ export default function CurrencySettingsPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Regional Pricing */}
@@ -123,7 +129,7 @@ export default function CurrencySettingsPage() {
                   </div>
                 </div>
                 <ul className="space-y-2 text-sm">
-                  {pricing.plans.starter.features.map((feature, i) => (
+                  {(pricing.plans.starter.features ?? []).map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                       <span>{feature}</span>
@@ -146,7 +152,7 @@ export default function CurrencySettingsPage() {
                   </div>
                 </div>
                 <ul className="space-y-2 text-sm">
-                  {pricing.plans.pro.features.map((feature, i) => (
+                  {(pricing.plans.pro.features ?? []).map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                       <span>{feature}</span>
@@ -168,7 +174,7 @@ export default function CurrencySettingsPage() {
                   </div>
                 </div>
                 <ul className="space-y-2 text-sm">
-                  {pricing.plans.business.features.map((feature, i) => (
+                  {(pricing.plans.business.features ?? []).map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                       <span>{feature}</span>

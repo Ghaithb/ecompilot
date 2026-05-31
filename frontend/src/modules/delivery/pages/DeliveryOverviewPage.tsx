@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Package, Plug, Truck } from 'lucide-react';
@@ -7,10 +8,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { DeliveryStatCard } from '../components/DeliveryStatCard';
 import { DeliveryPageShell } from '../components/DeliveryPageShell';
 import { CreateShipmentDialog } from '../components/CreateShipmentDialog';
+import { CarrierManifestPanel } from '../components/CarrierManifestPanel';
 import { fetchDeliveryOverview, PROVIDER_LABELS } from '../services/deliveryApi';
 import type { DeliveryProviderId } from '../types/delivery.types';
 
 const DeliveryOverviewPage: React.FC = () => {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['delivery-overview'],
     queryFn: fetchDeliveryOverview,
@@ -22,26 +25,26 @@ const DeliveryOverviewPage: React.FC = () => {
 
   return (
     <DeliveryPageShell
-      title="Vue d'ensemble"
-      description="Pilotez vos expéditions multi-transporteurs — INTIGO, First Delivery et Shipper."
+      title={t('delivery.overviewTitle')}
+      description={t('delivery.overviewDesc')}
       actions={<CreateShipmentDialog />}
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <DeliveryStatCard
-          title="Expéditions"
+          title={t('delivery.statShipments')}
           value={isLoading ? '…' : stats?.total ?? 0}
         />
         <DeliveryStatCard
-          title="Livrées"
+          title={t('delivery.statDelivered')}
           value={isLoading ? '…' : stats?.delivered ?? 0}
-          hint={`${stats?.successRate ?? 0}% taux de succès`}
+          hint={t('delivery.statSuccessRate', { rate: stats?.successRate ?? 0 })}
         />
         <DeliveryStatCard
-          title="En transit"
+          title={t('delivery.statInTransit')}
           value={isLoading ? '…' : stats?.inTransit ?? 0}
         />
         <DeliveryStatCard
-          title="Refus / retours"
+          title={t('delivery.statRefused')}
           value={isLoading ? '…' : stats?.refused ?? 0}
         />
       </div>
@@ -50,7 +53,7 @@ const DeliveryOverviewPage: React.FC = () => {
         <Card className="lg:col-span-2 border-border/60 shadow-sm overflow-hidden">
           <div className="h-1 bg-gradient-to-r from-primary via-violet-500 to-indigo-400" />
           <CardContent className="p-6">
-            <h2 className="font-semibold text-lg mb-4">Transporteurs</h2>
+            <h2 className="font-semibold text-lg mb-4">{t('delivery.carriersTitle')}</h2>
             <div className="space-y-3">
               {providers.map((p) => (
                 <div
@@ -66,7 +69,7 @@ const DeliveryOverviewPage: React.FC = () => {
                         {PROVIDER_LABELS[p.id as DeliveryProviderId] || p.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Priorité {p.priority}
+                        {t('delivery.priority', { n: p.priority })}
                       </p>
                     </div>
                   </div>
@@ -77,14 +80,14 @@ const DeliveryOverviewPage: React.FC = () => {
                         : 'text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full'
                     }
                   >
-                    {p.configured ? 'Connecté' : 'À configurer'}
+                    {p.configured ? t('delivery.connected') : t('delivery.toConfigure')}
                   </span>
                 </div>
               ))}
             </div>
             <Button variant="link" className="mt-4 px-0" asChild>
               <Link to="/delivery/connect">
-                Gérer les connexions
+                {t('delivery.manageConnections')}
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>
@@ -93,27 +96,29 @@ const DeliveryOverviewPage: React.FC = () => {
 
         <Card className="border-border/60 shadow-sm">
           <CardContent className="p-6 space-y-4">
-            <h2 className="font-semibold">Démarrage rapide</h2>
+            <h2 className="font-semibold">{t('delivery.quickStart')}</h2>
             <p className="text-sm text-muted-foreground">
               {connected === 0
-                ? 'Connectez au moins un transporteur pour expédier.'
-                : `${connected} transporteur(s) prêt(s).`}
+                ? t('delivery.connectAtLeastOne')
+                : t('delivery.carriersReady', { count: connected })}
             </p>
             <Button className="w-full" variant="outline" asChild>
               <Link to="/delivery/connect">
                 <Plug className="h-4 w-4 mr-2" />
-                Connecter API
+                {t('delivery.connectApi')}
               </Link>
             </Button>
             <Button className="w-full" asChild>
               <Link to="/delivery/shipments">
                 <Package className="h-4 w-4 mr-2" />
-                Voir expéditions
+                {t('delivery.viewShipments')}
               </Link>
             </Button>
           </CardContent>
         </Card>
       </div>
+
+      <CarrierManifestPanel providers={providers.filter((p) => p.configured)} />
     </DeliveryPageShell>
   );
 };

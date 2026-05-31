@@ -332,7 +332,9 @@ export class ProductsService {
   }
 
   async findByHandle(tenantId: string, handle: string): Promise<Product> {
-    const product = await this.productModel.findOne({ handle, tenantId }).exec();
+    const product = await this.productModel
+      .findOne({ handle, tenantId: this.toTenantObjectId(tenantId) })
+      .exec();
     if (!product) {
       throw new NotFoundException('Produit non trouvé');
     }
@@ -342,7 +344,7 @@ export class ProductsService {
   async update(tenantId: string, id: string, updateProductDto: UpdateProductDto): Promise<Product> {
     const product = await this.productModel
       .findOneAndUpdate(
-        { _id: id, tenantId },
+        { _id: id, tenantId: this.toTenantObjectId(tenantId) },
         { ...updateProductDto, updatedAt: new Date() },
         { new: true }
       )
@@ -356,7 +358,9 @@ export class ProductsService {
   }
 
   async remove(tenantId: string, id: string): Promise<void> {
-    const result = await this.productModel.deleteOne({ _id: id, tenantId }).exec();
+    const result = await this.productModel
+      .deleteOne({ _id: id, tenantId: this.toTenantObjectId(tenantId) })
+      .exec();
     if (result.deletedCount === 0) {
       throw new NotFoundException('Produit non trouvé');
     }
@@ -374,7 +378,7 @@ export class ProductsService {
     
     const updatedProduct = await this.productModel
       .findOneAndUpdate(
-        { _id: productId, tenantId },
+        { _id: productId, tenantId: this.toTenantObjectId(tenantId) },
         { variants: product.variants, updatedAt: new Date() },
         { new: true }
       )
@@ -408,7 +412,7 @@ export class ProductsService {
 
   async getCategories(tenantId: string): Promise<string[]> {
     const categories = await this.productModel
-      .distinct('category', { tenantId, status: 'active' })
+      .distinct('category', { tenantId: this.toTenantObjectId(tenantId), status: 'active' })
       .exec();
     
     return categories.filter(cat => cat && cat.trim() !== '');
@@ -416,7 +420,7 @@ export class ProductsService {
 
   async getTags(tenantId: string): Promise<string[]> {
     const tags = await this.productModel
-      .distinct('tags', { tenantId, status: 'active' })
+      .distinct('tags', { tenantId: this.toTenantObjectId(tenantId), status: 'active' })
       .exec();
     
     return tags.filter(tag => tag && tag.trim() !== '');
@@ -428,7 +432,7 @@ export class ProductsService {
     if (!product.images.includes(imageUrl)) {
       product.images.push(imageUrl);
       await this.productModel.updateOne(
-        { _id: productId, tenantId },
+        { _id: productId, tenantId: this.toTenantObjectId(tenantId) },
         { $set: { images: product.images, updatedAt: new Date() } }
       );
     }
@@ -441,7 +445,7 @@ export class ProductsService {
     
     product.images = product.images.filter(img => img !== imageUrl);
     await this.productModel.updateOne(
-      { _id: productId, tenantId },
+      { _id: productId, tenantId: this.toTenantObjectId(tenantId) },
       { $set: { images: product.images, updatedAt: new Date() } }
     );
     

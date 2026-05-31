@@ -15,6 +15,7 @@ import {
   Home,
   MoreVertical,
 } from 'lucide-react';
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,8 +39,8 @@ const WebsitePagesPage: React.FC = () => {
   const fetchWebsite = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/v1/website', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(apiUrl('/website'), {
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -57,7 +58,7 @@ const WebsitePagesPage: React.FC = () => {
   const handleCreateWebsite = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/v1/website', {
+      const response = await fetch(apiUrl('/website'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -90,8 +91,8 @@ const WebsitePagesPage: React.FC = () => {
   const fetchPages = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/v1/website/pages', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(apiUrl('/website/pages'), {
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) throw new Error('Erreur chargement pages');
@@ -121,10 +122,10 @@ const WebsitePagesPage: React.FC = () => {
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(
-        `http://localhost:3001/api/v1/website/pages/${pageId}/duplicate`,
+        apiUrl(`/website/pages/${pageId}/duplicate`),
         {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getAuthHeaders(),
         }
       );
 
@@ -150,10 +151,10 @@ const WebsitePagesPage: React.FC = () => {
       const token = localStorage.getItem('auth_token');
       const action = isPublished ? 'unpublish' : 'publish';
       const response = await fetch(
-        `http://localhost:3001/api/v1/website/pages/${pageId}/${action}`,
+        apiUrl(`/website/pages/${pageId}/${action}`),
         {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getAuthHeaders(),
         }
       );
 
@@ -180,10 +181,10 @@ const WebsitePagesPage: React.FC = () => {
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(
-        `http://localhost:3001/api/v1/website/pages/${pageId}`,
+        apiUrl(`/website/pages/${pageId}`),
         {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getAuthHeaders(),
         }
       );
 

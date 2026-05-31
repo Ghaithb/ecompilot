@@ -20,9 +20,12 @@ import {
 } from '@/components/ui/table';
 import { DeliveryPageShell } from '../components/DeliveryPageShell';
 import { CreateShipmentDialog } from '../components/CreateShipmentDialog';
+import { ProviderBadge } from '../components/ProviderBadge';
 import { ShipmentStatusBadge } from '../components/ShipmentStatusBadge';
-import { fetchDeliveryShipments, PROVIDER_LABELS } from '../services/deliveryApi';
-import type { DeliveryProviderId, Shipment } from '../types/delivery.types';
+import { fetchDeliveryShipments } from '../services/deliveryApi';
+import type { Shipment } from '../types/delivery.types';
+
+const shipmentId = (s: Shipment) => s.id || s._id;
 
 const DeliveryShipmentsPage: React.FC = () => {
   const [status, setStatus] = useState('all');
@@ -113,17 +116,16 @@ const DeliveryShipmentsPage: React.FC = () => {
             <TableBody>
               {filtered.map((s) => (
                 <TableRow
-                  key={s._id}
+                  key={shipmentId(s)}
                   className="cursor-pointer hover:bg-muted/40 transition-colors"
                 >
                   <TableCell className="font-medium">
-                    <Link to={`/delivery/shipments/${s._id}`} className="hover:underline">
+                    <Link to={`/delivery/shipments/${shipmentId(s)}`} className="hover:underline">
                       {s.orderNumber || '—'}
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {PROVIDER_LABELS[s.provider as DeliveryProviderId] ||
-                      s.provider.replace('_', ' ')}
+                    <ProviderBadge provider={s.provider} />
                   </TableCell>
                   <TableCell className="font-mono text-xs">{s.trackingNumber}</TableCell>
                   <TableCell>
@@ -134,7 +136,7 @@ const DeliveryShipmentsPage: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Link
-                      to={`/delivery/shipments/${s._id}`}
+                      to={`/delivery/shipments/${shipmentId(s)}`}
                       className="inline-flex text-muted-foreground hover:text-primary"
                     >
                       <ChevronRight className="h-5 w-5" />

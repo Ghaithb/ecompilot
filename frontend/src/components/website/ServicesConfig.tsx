@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
+import { formatTND } from '@/lib/currency';
+import {
   Plus, 
   Edit, 
   Trash2, 
@@ -57,18 +59,15 @@ const ServicesConfig: React.FC<ServicesConfigProps> = ({ services, onSave }) => 
   const handleSubmit = async () => {
     const token = localStorage.getItem('auth_token');
     const endpoint = editingService
-      ? `http://localhost:3001/api/v1/website/services/${editingService.id}`
-      : 'http://localhost:3001/api/v1/website/services';
+      ? apiUrl(`/website/services/${editingService.id}`)
+      : apiUrl('/website/services');
 
     const method = editingService ? 'PUT' : 'POST';
 
     try {
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           name: formData.name,
           description: formData.description,
@@ -101,10 +100,10 @@ const ServicesConfig: React.FC<ServicesConfigProps> = ({ services, onSave }) => 
     const token = localStorage.getItem('auth_token');
     try {
       const response = await fetch(
-        `http://localhost:3001/api/v1/website/services/${serviceId}`,
+        apiUrl(`/website/services/${serviceId}`),
         {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getAuthHeaders(),
         }
       );
 
@@ -176,7 +175,7 @@ const ServicesConfig: React.FC<ServicesConfigProps> = ({ services, onSave }) => 
                   </div>
 
                   <div>
-                    <Label>Prix (€)</Label>
+                    <Label>Prix ( TND)</Label>
                     <Input
                       type="number"
                       placeholder="99.99"
@@ -263,9 +262,9 @@ const ServicesConfig: React.FC<ServicesConfigProps> = ({ services, onSave }) => 
                     </p>
 
                     <div className="flex items-center gap-4 text-sm">
-                      {service.price && (
+                      {service.price != null && (
                         <span className="font-semibold text-primary">
-                          {service.price.toFixed(2)}€
+                          {formatTND(service.price)}
                         </span>
                       )}
                       {service.duration && (

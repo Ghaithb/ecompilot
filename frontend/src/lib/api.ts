@@ -1,6 +1,19 @@
 import axios from 'axios';
+import { API_BASE_URL } from './apiConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+/** Message utilisateur pour erreurs réseau / API indisponible */
+export function getApiErrorMessage(error: unknown, fallback = 'Une erreur est survenue'): string {
+  if (axios.isAxiosError(error)) {
+    if (error.code === 'ERR_NETWORK' || !error.response) {
+      return 'Serveur API injoignable. Démarrez le backend (port 3001) avec npm run start:dev dans le dossier backend.';
+    }
+    const msg = error.response?.data?.message;
+    if (typeof msg === 'string') return msg;
+    if (Array.isArray(msg)) return msg.join(', ');
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -34,3 +34,65 @@ export async function toggleDriver(driverId: string, isActive: boolean) {
   const { data } = await api.patch(`/merchants/drivers/${driverId}/toggle`, { isActive });
   return data;
 }
+
+export type DriverReconciliation = {
+  driverId: string;
+  name: string;
+  phone: string | null;
+  isActive: boolean;
+  pendingAmount: number;
+  pendingCount: number;
+  settledAmount: number;
+  settledCount: number;
+};
+
+export type ReconciliationSummary = {
+  summary: {
+    totalToCollect: number;
+    ordersPending: number;
+    driversWithCash: number;
+  };
+  drivers: DriverReconciliation[];
+  updatedAt: string;
+};
+
+export async function fetchReconciliation() {
+  const { data } = await api.get<ReconciliationSummary>('/merchants/drivers/reconciliation');
+  return data;
+}
+
+export type SettleResult = {
+  settledCount: number;
+  settledAmount: number;
+  remittedAt: string;
+};
+
+export async function settleDriver(driverId: string, orderIds?: string[]) {
+  const { data } = await api.post<SettleResult>(
+    `/merchants/drivers/${driverId}/settle`,
+    orderIds ? { orderIds } : {},
+  );
+  return data;
+}
+
+export type ManifestItem = {
+  orderNumber: string;
+  customerName: string;
+  phone: string | null;
+  address: string;
+  region: string | null;
+  codAmount: number;
+  isCod: boolean;
+};
+
+export type DriverManifest = {
+  driver: { id: string; name: string; phone: string | null };
+  generatedAt: string;
+  summary: { parcels: number; codParcels: number; codTotal: number };
+  items: ManifestItem[];
+};
+
+export async function fetchManifest(driverId: string) {
+  const { data } = await api.get<DriverManifest>(`/merchants/drivers/${driverId}/manifest`);
+  return data;
+}

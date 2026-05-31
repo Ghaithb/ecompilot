@@ -15,10 +15,12 @@ import {
   fetchDeliveryProviders,
   fetchDeliveryShipments,
 } from '@/modules/delivery/services/deliveryApi';
+import { pilotsApi } from '@/lib/pilotsApi';
 import { ordersApi } from '@/lib/api';
 
 const PLAN_KEY = 'ecompilot_plan';
 const ACTIVATION_KEY = 'ecompilot_activation_done';
+const PILOT_KEY = 'ecompilot_pilot';
 
 const ActivationFlowPage: React.FC = () => {
   const navigate = useNavigate();
@@ -57,6 +59,9 @@ const ActivationFlowPage: React.FC = () => {
       setPlan(urlPlan);
       localStorage.setItem(PLAN_KEY, urlPlan);
     }
+    if (params.get('pilot') === '1') {
+      localStorage.setItem(PILOT_KEY, '1');
+    }
   }, []);
 
   const selectPlan = (id: PlanId) => {
@@ -64,7 +69,15 @@ const ActivationFlowPage: React.FC = () => {
     localStorage.setItem(PLAN_KEY, id);
   };
 
-  const finish = () => {
+  const finish = async () => {
+    if (localStorage.getItem(PILOT_KEY) === '1') {
+      try {
+        await pilotsApi.enroll('activation');
+      } catch {
+        /* slots full or already enrolled */
+      }
+      localStorage.removeItem(PILOT_KEY);
+    }
     localStorage.setItem(ACTIVATION_KEY, 'true');
     localStorage.setItem(PLAN_KEY, plan);
     navigate('/dashboard', { replace: true });
@@ -222,4 +235,4 @@ const ActivationFlowPage: React.FC = () => {
 
 export default ActivationFlowPage;
 
-export { ACTIVATION_KEY, PLAN_KEY };
+export { ACTIVATION_KEY, PLAN_KEY, PILOT_KEY };

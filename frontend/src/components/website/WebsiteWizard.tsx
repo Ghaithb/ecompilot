@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { FileUpload } from '@/components/ui/file-upload';
-import { 
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
+import {
   Store, 
   Coffee, 
   Utensils, 
@@ -416,7 +417,7 @@ const WebsiteWizard: React.FC = () => {
       };
 
       // Générer automatiquement le site selon les données
-      const response = await fetch('http://localhost:3001/api/v1/website/generate', {
+      const response = await fetch(apiUrl('/website/generate'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

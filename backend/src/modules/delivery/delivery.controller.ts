@@ -11,6 +11,7 @@ import { DeliveryProviderRegistry } from './services/delivery-provider-registry.
 import { DeliveryService } from './services/delivery.service';
 import { DeliveryCredentialsService } from './services/delivery-credentials.service';
 import { OrderRiskEngineService } from './services/order-risk-engine.service';
+import { DeliveryManifestService } from './services/delivery-manifest.service';
 
 @ApiTags('delivery')
 @ApiBearerAuth()
@@ -23,6 +24,7 @@ export class DeliveryController {
     private delivery: DeliveryService,
     private credentials: DeliveryCredentialsService,
     private risk: OrderRiskEngineService,
+    private manifestService: DeliveryManifestService,
   ) {}
 
   @Get('providers')
@@ -110,6 +112,16 @@ export class DeliveryController {
   @Get('localities/first-delivery')
   localities(@TenantId() tenantId: string) {
     return this.registry.getFirstDelivery().getLocalities(tenantId);
+  }
+
+  @Get('manifests/:provider')
+  @ApiOperation({ summary: 'Bordereau de remise transporteur (colis actifs)' })
+  manifest(
+    @TenantId() tenantId: string,
+    @Param('provider') provider: DeliveryProviderId,
+    @Query('format') format?: 'json' | 'html',
+  ) {
+    return this.manifestService.getManifest(tenantId, provider, format === 'html' ? 'html' : 'json');
   }
 
   @Get('settings/credentials')

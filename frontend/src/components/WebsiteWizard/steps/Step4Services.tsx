@@ -114,7 +114,7 @@ export function Step4Services({ data, onChange }: Step4Props) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Prix (€)</Label>
+                  <Label>Prix ( TND)</Label>
                   <Input
                     type="number"
                     placeholder="49.90"

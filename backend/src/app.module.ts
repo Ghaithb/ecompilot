@@ -10,6 +10,7 @@ import { AppI18nModule } from './i18n/i18n.module';
 import configuration from './config/configuration';
 import { PrismaModule } from './prisma/prisma.module';
 import { CoreModule } from './core/core.module';
+import { EventsModule } from './core/events/events.module';
 import { CommerceModule } from './commerce/commerce.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 
@@ -41,6 +42,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
     DatabaseModule,
     PrismaModule,
     CoreModule,
+    EventsModule,
     CommerceModule,
     IntegrationsModule,
     AppI18nModule,

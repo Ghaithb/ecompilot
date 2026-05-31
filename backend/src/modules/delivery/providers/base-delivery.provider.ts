@@ -3,6 +3,15 @@ import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { DeliveryProviderId } from '../enums/delivery-provider.enum';
 import {
+  CreateShipmentData,
+  DeliveryProviderIntegration,
+  PickupRequestData,
+} from '../integration/shipment-provider.interface';
+import {
+  normalizeShipmentResult,
+  normalizeTrackingResult,
+} from '../utils/shipment-response.normalizer';
+import {
   DeliveryOrderContext,
   DeliveryOrderResult,
   DeliveryProvider,
@@ -11,9 +20,13 @@ import {
 import { ResolvedProviderConfig } from '../interfaces/provider-config.interface';
 import { DeliveryCredentialsService } from '../services/delivery-credentials.service';
 
-export abstract class BaseDeliveryProvider implements DeliveryProvider {
+export abstract class BaseDeliveryProvider implements DeliveryProvider, DeliveryProviderIntegration {
   protected readonly logger: Logger;
   protected readonly http: AxiosInstance;
+
+  get providerId(): DeliveryProviderId {
+    return this.id;
+  }
 
   constructor(
     readonly id: DeliveryProviderId,
@@ -85,6 +98,60 @@ export abstract class BaseDeliveryProvider implements DeliveryProvider {
     const cfg = await this.resolveConfig(tenantId || '');
     if (cfg.mock) return true;
     return this.cancelOrderWithConfig(trackingNumber, cfg);
+  }
+
+  /** Integration layer — alias explicites (ShipStation-style) */
+  async createShipment(tenantId: string, data: CreateShipmentData) {
+    const result = await this.createOrder(this.toOrderContext(data));
+    return normalizeShipmentResult(this.id, result);
+  }
+
+  async trackShipment(tenantId: string, trackingNumber: string) {
+    const result = await this.trackOrder(trackingNumber, tenantId);
+    return normalizeTrackingResult(result);
+  }
+
+  async cancelShipment(tenantId: string, trackingNumber: string) {
+    return this.cancelOrder(trackingNumber, tenantId);
+  }
+
+  async requestPickup(tenantId: string, data: PickupRequestData) {
+    if (!this.requestPickupLegacy) {
+      throw new Error(`${this.displayName}: requestPickup non supporté`);
+    }
+    const res = await this.requestPickupLegacy(data.barcodes, tenantId);
+    return {
+      pickupId: res.pickupId,
+      labelUrl: res.labelUrl,
+    };
+  }
+
+  /** Override dans FirstDeliveryProvider */
+  protected requestPickupLegacy?(
+    barcodes: string[],
+    tenantId?: string,
+  ): Promise<{ pickupId: string; labelUrl?: string }>;
+
+  protected toOrderContext(data: CreateShipmentData): DeliveryOrderContext {
+    return {
+      orderId: data.orderId,
+      orderNumber: data.orderNumber,
+      tenantId: data.tenantId,
+      customerName: data.recipient.name,
+      customerPhone: data.recipient.phone,
+      customerEmail: data.recipient.email,
+      address: data.recipient.address,
+      city: data.recipient.city,
+      province: data.recipient.province,
+      country: data.recipient.country,
+      weightKg: data.parcel.weightKg,
+      codAmount: data.parcel.codAmount,
+      currency: data.parcel.currency,
+      total: data.parcel.total,
+      lineItems: data.parcel.lineItems,
+      localityId: data.localityId,
+      notes: data.notes,
+    };
   }
 
   protected abstract createOrderWithConfig(

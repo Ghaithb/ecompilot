@@ -40,9 +40,9 @@ export const generateOrderPDF = (order: Order) => {
   const tableHeaders = [['Article', 'Prix unitaire', 'Quantité', 'Total']];
   const tableData = order.lineItems.map(item => [
     item.title,
-    `${item.price.toFixed(2)} €`,
+    `${item.price.toFixed(2)} TND`,
     item.quantity.toString(),
-    `${item.total.toFixed(2)} €`
+    `${item.total.toFixed(2)} TND`
   ]);
 
   doc.autoTable(doc, {
@@ -58,14 +58,14 @@ export const generateOrderPDF = (order: Order) => {
 
   // Résumé des coûts
   doc.text('Résumé', 20, finalY + 20);
-  doc.text(`Sous-total: ${order.subtotal.toFixed(2)} €`, 20, finalY + 30);
-  doc.text(`TVA: ${order.taxAmount.toFixed(2)} €`, 20, finalY + 40);
-  doc.text(`Frais de livraison: ${order.shippingAmount.toFixed(2)} €`, 20, finalY + 50);
+  doc.text(`Sous-total: ${order.subtotal.toFixed(2)} TND`, 20, finalY + 30);
+  doc.text(`TVA: ${order.taxAmount.toFixed(2)} TND`, 20, finalY + 40);
+  doc.text(`Frais de livraison: ${order.shippingAmount.toFixed(2)} TND`, 20, finalY + 50);
   if (order.discountAmount > 0) {
-    doc.text(`Remise: -${order.discountAmount.toFixed(2)} €`, 20, finalY + 60);
+    doc.text(`Remise: -${order.discountAmount.toFixed(2)} TND`, 20, finalY + 60);
   }
   doc.setFontSize(14);
-  doc.text(`Total: ${order.total.toFixed(2)} €`, 20, finalY + (order.discountAmount > 0 ? 75 : 65));
+  doc.text(`Total: ${order.total.toFixed(2)} TND`, 20, finalY + (order.discountAmount > 0 ? 75 : 65));
 
   // Pied de page
   doc.setFontSize(10);

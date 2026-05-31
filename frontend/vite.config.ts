@@ -31,17 +31,24 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    strictPort: true,
     host: 'localhost',
     https: httpsOption,
+    hmr: {
+      protocol: httpsOption ? 'wss' : 'ws',
+      host: 'localhost',
+      port: 5173,
+      clientPort: 5173,
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
       // Proxy uploads served by backend so <img src="/uploads/..."> works from the frontend origin
       '/uploads': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
       }
     }

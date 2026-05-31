@@ -53,11 +53,11 @@ export function CartIcon() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{item.name}</p>
                       <p className="text-xs text-gray-600">
-                        {item.quantity} × {item.price.toFixed(2)}€
+                        {item.quantity} × {item.price.toFixed(2)} TND
                       </p>
                     </div>
                     <div className="text-sm font-semibold">
-                      {item.subtotal.toFixed(2)}€
+                      {item.subtotal.toFixed(2)} TND
                     </div>
                   </div>
                 ))}
@@ -72,7 +72,7 @@ export function CartIcon() {
               <div className="mt-4 pt-4 border-t">
                 <div className="flex justify-between font-bold">
                   <span>Total:</span>
-                  <span className="text-primary">{total.toFixed(2)}€</span>
+                  <span className="text-primary">{total.toFixed(2)} TND</span>
                 </div>
               </div>
             </div>

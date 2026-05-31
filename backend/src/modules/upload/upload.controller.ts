@@ -9,6 +9,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { mkdirSync } from 'fs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantGuard } from '../../common/guards/tenant.guard';
@@ -120,6 +121,60 @@ export class UploadController {
     return {
       message: 'Image uploadée avec succès',
       url: imageUrl,
+      filename: file.filename,
+      originalName: file.originalname,
+      size: file.size,
+      mimetype: file.mimetype,
+    };
+  }
+
+  @Post('cover')
+  @ApiOperation({ summary: 'Upload image de couverture', description: 'Image bannière pour la boutique' })
+  @ApiResponse({ status: 201, description: 'Couverture uploadée' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('cover', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const dir = './uploads/covers';
+          mkdirSync(dir, { recursive: true });
+          cb(null, dir);
+        },
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+          return cb(
+            new BadRequestException('Seules les images sont acceptées (jpg, png, gif, webp)'),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadCover(
+    @UploadedFile() file: Express.Multer.File,
+    @TenantId() tenantId: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Aucun fichier fourni');
+    }
+
+    const coverUrl = `/uploads/covers/${file.filename}`;
+
+    return {
+      message: 'Image de couverture uploadée avec succès',
+      url: coverUrl,
       filename: file.filename,
       originalName: file.originalname,
       size: file.size,

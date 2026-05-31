@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -28,37 +29,47 @@ interface CodDeliveryPanelProps {
 }
 
 export function CodDeliveryPanel({ data, formatCurrency }: CodDeliveryPanelProps) {
+  const { t } = useTranslation();
+
   if (!data) return null;
 
   const stats = [
     {
-      label: 'Commandes COD',
+      label: t('dashboard.cod.orders'),
       value: data.totalCodOrders,
       icon: Truck,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
     },
     {
-      label: 'Articles livrés',
+      label: t('dashboard.cod.itemsDelivered'),
       value: data.totalItems,
       icon: Package,
       color: 'text-purple-600',
       bg: 'bg-purple-50',
     },
     {
-      label: 'Livraisons réussies',
+      label: t('dashboard.cod.deliveriesSuccess'),
       value: data.delivered,
       icon: CheckCircle2,
       color: 'text-green-600',
       bg: 'bg-green-50',
     },
     {
-      label: 'Non livrées / annulées',
+      label: t('dashboard.cod.notDelivered'),
       value: data.cancelled,
       icon: XCircle,
       color: 'text-red-600',
       bg: 'bg-red-50',
     },
+  ];
+
+  const pipelineRows = [
+    { label: t('dashboard.cod.pendingOtp'), value: data.pendingVerification, total: data.totalCodOrders, color: 'bg-amber-500' },
+    { label: t('dashboard.cod.confirmed'), value: data.confirmed, total: data.totalCodOrders, color: 'bg-blue-500' },
+    { label: t('dashboard.cod.shipped'), value: data.shipped, total: data.totalCodOrders, color: 'bg-indigo-500' },
+    { label: t('dashboard.cod.deliveredSuccess'), value: data.delivered, total: data.totalCodOrders, color: 'bg-green-500' },
+    { label: t('dashboard.cod.cancelledFailed'), value: data.cancelled, total: data.totalCodOrders, color: 'bg-red-500' },
   ];
 
   return (
@@ -67,14 +78,12 @@ export function CodDeliveryPanel({ data, formatCurrency }: CodDeliveryPanelProps
         <div>
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Truck className="w-5 h-5 text-primary" />
-            Paiement à la livraison (COD)
+            {t('dashboard.cod.title')}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Suivi complet des livraisons, articles et encaissements — 30 derniers jours
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">{t('dashboard.cod.subtitle')}</p>
         </div>
         <Badge variant="outline" className="text-sm">
-          {data.deliverySuccessRate.toFixed(0)}% taux de succès
+          {t('dashboard.cod.successRate', { rate: data.deliverySuccessRate.toFixed(0) })}
         </Badge>
       </div>
 
@@ -99,17 +108,11 @@ export function CodDeliveryPanel({ data, formatCurrency }: CodDeliveryPanelProps
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">Pipeline livraison COD</CardTitle>
-            <CardDescription>État de chaque commande paiement à la livraison</CardDescription>
+            <CardTitle className="text-base">{t('dashboard.cod.pipelineTitle')}</CardTitle>
+            <CardDescription>{t('dashboard.cod.pipelineDesc')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[
-              { label: 'En attente OTP', value: data.pendingVerification, total: data.totalCodOrders, color: 'bg-amber-500' },
-              { label: 'Confirmées', value: data.confirmed, total: data.totalCodOrders, color: 'bg-blue-500' },
-              { label: 'Expédiées', value: data.shipped, total: data.totalCodOrders, color: 'bg-indigo-500' },
-              { label: 'Livrées (succès)', value: data.delivered, total: data.totalCodOrders, color: 'bg-green-500' },
-              { label: 'Annulées / échec', value: data.cancelled, total: data.totalCodOrders, color: 'bg-red-500' },
-            ].map((row) => (
+            {pipelineRows.map((row) => (
               <div key={row.label} className="space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-700">{row.label}</span>
@@ -135,32 +138,34 @@ export function CodDeliveryPanel({ data, formatCurrency }: CodDeliveryPanelProps
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Indicateurs COD</CardTitle>
+            <CardTitle className="text-base">{t('dashboard.cod.indicatorsTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-green-600" />
-                  Vérification OTP
+                  {t('dashboard.cod.otpVerification')}
                 </span>
                 <span className="text-sm font-bold">{data.otpVerificationRate.toFixed(0)}%</span>
               </div>
               <Progress value={data.otpVerificationRate} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-1">{data.verifiedOrders} commandes vérifiées</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('dashboard.cod.verifiedOrders', { count: data.verifiedOrders })}
+              </p>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-green-600" />
-                  Taux livraison
+                  {t('dashboard.cod.deliveryRate')}
                 </span>
                 <span className="text-sm font-bold">{data.deliverySuccessRate.toFixed(0)}%</span>
               </div>
               <Progress value={data.deliverySuccessRate} className="h-2" />
               <p className="text-xs text-muted-foreground mt-1">
-                {data.deliveryFailureRate.toFixed(0)}% d&apos;échecs / annulations
+                {t('dashboard.cod.failureRate', { rate: data.deliveryFailureRate.toFixed(0) })}
               </p>
             </div>
 
@@ -168,19 +173,19 @@ export function CodDeliveryPanel({ data, formatCurrency }: CodDeliveryPanelProps
               <div className="flex items-center justify-between">
                 <span className="text-sm flex items-center gap-1.5 text-muted-foreground">
                   <Banknote className="w-4 h-4" />
-                  CA encaissé
+                  {t('dashboard.cod.revenueCollected')}
                 </span>
                 <span className="font-semibold text-green-700">{formatCurrency(data.codRevenueCollected)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm flex items-center gap-1.5 text-muted-foreground">
                   <Clock className="w-4 h-4" />
-                  CA en attente
+                  {t('dashboard.cod.revenuePending')}
                 </span>
                 <span className="font-semibold text-amber-700">{formatCurrency(data.codRevenuePending)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Articles / commande</span>
+                <span className="text-sm text-muted-foreground">{t('dashboard.cod.itemsPerOrder')}</span>
                 <span className="font-semibold">{data.averageItemsPerOrder.toFixed(1)}</span>
               </div>
             </div>

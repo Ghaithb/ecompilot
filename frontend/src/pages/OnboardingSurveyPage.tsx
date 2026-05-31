@@ -630,7 +630,7 @@ export default function OnboardingSurveyPage() {
                       value={formData.avgOrderValue}
                       onChange={(e) => setFormData({ ...formData, avgOrderValue: e.target.value })}
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Montant moyen dépensé par commande (en €)</p>
+                    <p className="text-xs text-muted-foreground mt-1">Montant moyen dépensé par commande (en  TND)</p>
                   </div>
 
                   <div>
@@ -758,11 +758,11 @@ export default function OnboardingSurveyPage() {
                   <RadioGroup value={formData.marketingBudget} onValueChange={(value: string) => setFormData({ ...formData, marketingBudget: value })}>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { value: 'moins_100', label: 'Moins de 100€' },
-                        { value: '100-500', label: '100€ - 500€' },
-                        { value: '500-1000', label: '500€ - 1000€' },
-                        { value: '1000-5000', label: '1000€ - 5000€' },
-                        { value: '5000_plus', label: '5000€+' },
+                        { value: 'moins_100', label: 'Moins de 100.00 TND' },
+                        { value: '100-500', label: '100.00 TND - 500.00 TND' },
+                        { value: '500-1000', label: '500.00 TND - 1000.00 TND' },
+                        { value: '1000-5000', label: '1000.00 TND - 5000.00 TND' },
+                        { value: '5000_plus', label: '5000.00 TND+' },
                         { value: 'pas_encore_defini', label: 'Pas encore défini' },
                       ].map((option) => (
                         <div key={option.value} className="flex items-center space-x-2 border rounded-lg p-2 hover:bg-gray-50">

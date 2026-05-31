@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/analyticsApi';
@@ -16,7 +18,6 @@ import {
   TooltipItem,
 } from 'chart.js';
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -33,13 +34,16 @@ interface RevenueChartWidgetProps {
 }
 
 export function RevenueChartWidget({ days = 7 }: RevenueChartWidgetProps) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language?.startsWith('ar') ? 'ar-TN' : 'fr-FR';
+
   const { data: chartData, isLoading } = useQuery({
     queryKey: ['analytics', 'revenue-chart', days],
     queryFn: () => analyticsApi.getRevenueChart(days),
     staleTime: 60_000,
   });
 
-  const options: ChartOptions<'line'> = {
+  const options: ChartOptions<'line'> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -74,13 +78,11 @@ export function RevenueChartWidget({ days = 7 }: RevenueChartWidgetProps) {
             }
             if (context.parsed.y !== null) {
               if (context.datasetIndex === 0) {
-                // Revenue dataset
-                label += new Intl.NumberFormat('fr-FR', {
+                label += new Intl.NumberFormat(locale, {
                   style: 'currency',
-                  currency: 'EUR',
+                  currency: 'TND',
                 }).format(context.parsed.y);
               } else {
-                // Orders dataset
                 label += context.parsed.y;
               }
             }
@@ -98,9 +100,9 @@ export function RevenueChartWidget({ days = 7 }: RevenueChartWidgetProps) {
         ticks: {
           callback: function (value: string | number) {
             if (typeof value === 'number') {
-              return new Intl.NumberFormat('fr-FR', {
+              return new Intl.NumberFormat(locale, {
                 style: 'currency',
-                currency: 'EUR',
+                currency: 'TND',
                 minimumFractionDigits: 0,
               }).format(value);
             }
@@ -119,17 +121,19 @@ export function RevenueChartWidget({ days = 7 }: RevenueChartWidgetProps) {
       axis: 'x',
       intersect: false,
     },
-  };
+  }), [locale]);
+
+  const title = t('dashboard.revenue.title', { days });
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Ventes {days} derniers jours</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px] flex items-center justify-center">
-            <div className="animate-pulse text-gray-400">Chargement du graphique...</div>
+            <div className="animate-pulse text-gray-400">{t('dashboard.revenue.loading')}</div>
           </div>
         </CardContent>
       </Card>
@@ -140,30 +144,38 @@ export function RevenueChartWidget({ days = 7 }: RevenueChartWidgetProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Ventes {days} derniers jours</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px] flex items-center justify-center text-gray-400">
-            Aucune donnée disponible
+            {t('dashboard.revenue.noData')}
           </div>
         </CardContent>
       </Card>
     );
   }
 
+  const localizedData = {
+    ...chartData,
+    datasets: chartData.datasets?.map((ds, i) => ({
+      ...ds,
+      label: i === 0 ? t('dashboard.revenue.revenueLabel') : t('dashboard.revenue.ordersLabel'),
+    })) ?? chartData.datasets,
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Ventes {days} derniers jours</span>
+          <span>{title}</span>
           <span className="text-sm font-normal text-gray-500">
-            Évolution du chiffre d'affaires
+            {t('dashboard.revenue.subtitle')}
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <Line options={options} data={chartData} />
+          <Line options={options} data={localizedData} />
         </div>
       </CardContent>
     </Card>

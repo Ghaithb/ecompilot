@@ -166,7 +166,7 @@ const StaffPage: React.FC = () => {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="text-2xl font-bold text-orange-600">
-                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(pendingExpensesTotal)}
+                            {formatTND(pendingExpensesTotal)}
                         </div>
                         <div className="text-sm text-muted-foreground">Notes en attente</div>
                     </CardContent>
@@ -297,7 +297,7 @@ const StaffPage: React.FC = () => {
                                                 <TableCell>
                                                     {new Intl.NumberFormat('fr-FR', {
                                                         style: 'currency',
-                                                        currency: 'EUR',
+                                                        currency: 'TND',
                                                     }).format(expense.amount)}
                                                 </TableCell>
                                                 <TableCell>

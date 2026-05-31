@@ -35,6 +35,7 @@ export class DeliveryWebhookHandler {
   async handle(
     provider: DeliveryProviderId,
     payload: Record<string, unknown>,
+    options?: { tenantId?: string },
   ): Promise<WebhookHandleResult> {
     const trackingNumber = this.extractTracking(payload);
     if (!trackingNumber) {
@@ -48,13 +49,18 @@ export class DeliveryWebhookHandler {
 
     const status = mapProviderWebhookStatus(provider, rawStatus);
 
-    const shipment = await this.shipmentModel.findOne({ provider, trackingNumber });
+    const query: Record<string, unknown> = { provider, trackingNumber };
+    if (options?.tenantId) query.tenantId = options.tenantId;
+
+    const shipment = await this.shipmentModel.findOne(query);
     if (!shipment) {
       this.logger.warn(`Webhook ${provider}: expédition ${trackingNumber} introuvable`);
       return { ok: false, reason: 'expédition introuvable' };
     }
 
     shipment.status = status;
+    shipment.lastWebhookAt = new Date();
+    shipment.rawResponse = payload as Record<string, unknown>;
     shipment.trackingHistory.push({
       status,
       description: `Webhook ${provider}${rawStatus ? `: ${rawStatus}` : ''}`,

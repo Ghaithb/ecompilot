@@ -204,7 +204,7 @@ const QuotesInvoicesPage: React.FC = () => {
                                                 <TableCell>
                                                     {new Intl.NumberFormat('fr-FR', {
                                                         style: 'currency',
-                                                        currency: 'EUR',
+                                                        currency: 'TND',
                                                     }).format(quote.total)}
                                                 </TableCell>
                                                 <TableCell>
@@ -307,19 +307,19 @@ const QuotesInvoicesPage: React.FC = () => {
                                                 <TableCell>
                                                     {new Intl.NumberFormat('fr-FR', {
                                                         style: 'currency',
-                                                        currency: 'EUR',
+                                                        currency: 'TND',
                                                     }).format(invoice.total)}
                                                 </TableCell>
                                                 <TableCell>
                                                     {new Intl.NumberFormat('fr-FR', {
                                                         style: 'currency',
-                                                        currency: 'EUR',
+                                                        currency: 'TND',
                                                     }).format(invoice.amountPaid)}
                                                 </TableCell>
                                                 <TableCell>
                                                     {new Intl.NumberFormat('fr-FR', {
                                                         style: 'currency',
-                                                        currency: 'EUR',
+                                                        currency: 'TND',
                                                     }).format(invoice.amountDue)}
                                                 </TableCell>
                                                 <TableCell>

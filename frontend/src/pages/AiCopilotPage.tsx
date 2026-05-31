@@ -279,7 +279,7 @@ const AiCopilotPage: React.FC = () => {
                 <div className="text-sm">
                   <div className="font-medium text-blue-600 dark:text-blue-400">Prévisions</div>
                   <div className="text-xs text-muted-foreground">
-                    CA prévu: {dashboardInsights.salesForecasts?.predictedRevenue || 'N/A'}€
+                    CA prévu: {dashboardInsights.salesForecasts?.predictedRevenue || 'N/A'} TND
                   </div>
                 </div>
                 

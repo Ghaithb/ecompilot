@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,9 +19,12 @@ import {
 import CurrencySettingsPage from './CurrencySettingsPage';
 import NotificationsSettingsPage from './NotificationsSettingsPage';
 import WhatsAppSettingsPage from './WhatsAppSettingsPage';
+import { MerchantApiKeysPanel } from '@/components/settings/MerchantApiKeysPanel';
+import { BillingPanel } from '@/components/settings/BillingPanel';
 import { useAuth } from '@/contexts/AuthContext';
 
 const SettingsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('general');
 
@@ -29,10 +34,10 @@ const SettingsPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Settings className="w-8 h-8 text-primary" />
-            Centre de configuration
+            {t('settings.centerTitle')}
           </h1>
           <p className="text-gray-600 mt-2">
-            Gérez tous les paramètres de votre e-commerce
+            {t('settings.centerSubtitle')}
           </p>
         </div>
       </div>
@@ -41,43 +46,43 @@ const SettingsPage: React.FC = () => {
         <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 gap-2">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
-            <span className="hidden sm:inline">Général</span>
+            <span className="hidden sm:inline">{t('settings.tabs.general')}</span>
           </TabsTrigger>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="w-4 h-4" />
-            <span className="hidden sm:inline">Profil</span>
+            <span className="hidden sm:inline">{t('settings.tabs.profile')}</span>
           </TabsTrigger>
           <TabsTrigger value="store" className="flex items-center gap-2">
             <Store className="w-4 h-4" />
-            <span className="hidden sm:inline">Boutique</span>
+            <span className="hidden sm:inline">{t('settings.tabs.store')}</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="w-4 h-4" />
-            <span className="hidden sm:inline">Notifications</span>
+            <span className="hidden sm:inline">{t('settings.tabs.notifications')}</span>
           </TabsTrigger>
           <TabsTrigger value="currency" className="flex items-center gap-2">
             <DollarSign className="w-4 h-4" />
-            <span className="hidden sm:inline">Devises</span>
+            <span className="hidden sm:inline">{t('settings.tabs.currency')}</span>
           </TabsTrigger>
           <TabsTrigger value="payments" className="flex items-center gap-2">
             <CreditCard className="w-4 h-4" />
-            <span className="hidden sm:inline">Paiements</span>
+            <span className="hidden sm:inline">{t('settings.tabs.payments')}</span>
           </TabsTrigger>
           <TabsTrigger value="whatsapp" className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
-            <span className="hidden sm:inline">WhatsApp</span>
+            <span className="hidden sm:inline">{t('settings.tabs.whatsapp')}</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
-            <span className="hidden sm:inline">Sécurité</span>
+            <span className="hidden sm:inline">{t('settings.tabs.security')}</span>
           </TabsTrigger>
           <TabsTrigger value="integrations" className="flex items-center gap-2">
             <Zap className="w-4 h-4" />
-            <span className="hidden sm:inline">Intégrations</span>
+            <span className="hidden sm:inline">{t('settings.tabs.integrations')}</span>
           </TabsTrigger>
           <TabsTrigger value="advanced" className="flex items-center gap-2">
             <Globe className="w-4 h-4" />
-            <span className="hidden sm:inline">Avancé</span>
+            <span className="hidden sm:inline">{t('settings.tabs.advanced')}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -85,15 +90,15 @@ const SettingsPage: React.FC = () => {
         <TabsContent value="general" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Paramètres généraux</CardTitle>
+              <CardTitle>{t('settings.general.title')}</CardTitle>
               <CardDescription>
-                Configuration de base de votre plateforme
+                {t('settings.general.desc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium">Nom de la boutique</label>
+                  <label className="text-sm font-medium">{t('settings.general.storeName')}</label>
                   <input
                     type="text"
                     className="w-full mt-1 px-3 py-2 border rounded-md"
@@ -102,7 +107,7 @@ const SettingsPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Email de contact</label>
+                  <label className="text-sm font-medium">{t('settings.general.contactEmail')}</label>
                   <input
                     type="email"
                     className="w-full mt-1 px-3 py-2 border rounded-md"
@@ -111,7 +116,7 @@ const SettingsPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Fuseau horaire</label>
+                  <label className="text-sm font-medium">{t('settings.general.timezone')}</label>
                   <select className="w-full mt-1 px-3 py-2 border rounded-md">
                     <option>UTC+1 (Paris)</option>
                     <option>UTC+0 (Londres)</option>
@@ -127,7 +132,7 @@ const SettingsPage: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <Button className="mt-4">Sauvegarder les modifications</Button>
+              <Button className="mt-4">{t('settings.general.save')}</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -183,9 +188,9 @@ const SettingsPage: React.FC = () => {
         <TabsContent value="store" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Configuration de la boutique</CardTitle>
+              <CardTitle>{t('settings.store.title')}</CardTitle>
               <CardDescription>
-                Paramètres de votre magasin en ligne
+                {t('settings.store.desc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -251,6 +256,7 @@ const SettingsPage: React.FC = () => {
 
         {/* Payments Settings */}
         <TabsContent value="payments" className="space-y-6 mt-6">
+          <BillingPanel />
           <Card>
             <CardHeader>
               <CardTitle>Méthodes de paiement</CardTitle>
@@ -302,6 +308,7 @@ const SettingsPage: React.FC = () => {
 
         {/* Security Settings */}
         <TabsContent value="security" className="space-y-6 mt-6">
+          <MerchantApiKeysPanel />
           <Card>
             <CardHeader>
               <CardTitle>Sécurité et confidentialité</CardTitle>
@@ -349,17 +356,17 @@ const SettingsPage: React.FC = () => {
         <TabsContent value="integrations" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Intégrations tierces</CardTitle>
+              <CardTitle>{t('settings.integrationsTab.title')}</CardTitle>
               <CardDescription>
-                Connectez vos outils et services externes
+                {t('settings.integrationsTab.desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8 text-gray-600">
                 <Zap className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                <p>Gérez vos intégrations depuis la section Connexions</p>
-                <Button variant="outline" className="mt-4">
-                  Aller aux intégrations
+                <p>{t('settings.integrationsDesc')}</p>
+                <Button variant="outline" className="mt-4" asChild>
+                  <Link to="/integrations">{t('settings.goIntegrations')}</Link>
                 </Button>
               </div>
             </CardContent>
@@ -370,9 +377,9 @@ const SettingsPage: React.FC = () => {
         <TabsContent value="advanced" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Paramètres avancés</CardTitle>
+              <CardTitle>{t('settings.advanced.title')}</CardTitle>
               <CardDescription>
-                Configuration technique de la plateforme
+                {t('settings.advanced.desc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -53,6 +53,15 @@ export class Shipment {
   @Prop({ default: false })
   mock: boolean;
 
+  @Prop({ type: Object })
+  rawResponse?: Record<string, unknown>;
+
+  @Prop()
+  lastSyncedAt?: Date;
+
+  @Prop()
+  lastWebhookAt?: Date;
+
   @Prop({ type: Object, default: {} })
   metadata: Record<string, unknown>;
 }
@@ -60,3 +69,5 @@ export class Shipment {
 export const ShipmentSchema = SchemaFactory.createForClass(Shipment);
 ShipmentSchema.index({ tenantId: 1, createdAt: -1 });
 ShipmentSchema.index({ tenantId: 1, provider: 1, status: 1 });
+ShipmentSchema.index({ tenantId: 1, trackingNumber: 1 });
+ShipmentSchema.index({ status: 1, lastWebhookAt: 1, lastSyncedAt: 1 });

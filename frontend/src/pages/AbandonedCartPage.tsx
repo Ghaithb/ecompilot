@@ -1,10 +1,11 @@
-﻿import React from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { abandonedCartApi, type AbandonedCart } from '@/lib/abandonedCartApi';
+import { formatTND } from '@/lib/currency';
 import {
   ShoppingCart,
   Mail,
@@ -71,9 +72,9 @@ const AbandonedCartPage: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-600">Total</p><p className="text-2xl font-bold">{stats?.totalAbandoned || 0}</p></div><ShoppingCart className="w-8 h-8 text-orange-500" /></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-600">Valeur</p><p className="text-2xl font-bold">{stats?.totalValue?.toFixed(2) || '0.00'}€</p></div><DollarSign className="w-8 h-8 text-green-500" /></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-600">Valeur</p><p className="text-2xl font-bold">{stats?.totalValue?.toFixed(2) || '0.00'} TND</p></div><DollarSign className="w-8 h-8 text-green-500" /></div></CardContent></Card>
         <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-600">Taux</p><p className="text-2xl font-bold">{stats?.recoveryRate?.toFixed(1) || '0.0'}%</p></div><TrendingUp className="w-8 h-8 text-purple-500" /></div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-600">Récupérés</p><p className="text-2xl font-bold">{stats?.recoveredValue?.toFixed(2) || '0.00'}€</p></div><CheckCircle className="w-8 h-8 text-blue-500" /></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="text-sm text-gray-600">Récupérés</p><p className="text-2xl font-bold">{stats?.recoveredValue?.toFixed(2) || '0.00'} TND</p></div><CheckCircle className="w-8 h-8 text-blue-500" /></div></CardContent></Card>
       </div>
       <Card>
         <CardHeader><CardTitle>Liste des paniers</CardTitle></CardHeader>
@@ -87,7 +88,7 @@ const AbandonedCartPage: React.FC = () => {
                   <div className="flex-1">
                     <div><h3 className="font-semibold">{cart.customerName || 'Client'}</h3><p className="text-sm">{cart.customerEmail}</p></div>
                     {getStatusBadge(cart)}
-                    <div className="flex items-center gap-6 text-sm"><span>{cart.totalAmount.toFixed(2)}€ ({cart.items.length} articles)</span><Clock className="w-4 h-4" />{new Date(cart.createdAt).toLocaleDateString('fr-FR')}</div>
+                    <div className="flex items-center gap-6 text-sm"><span>{formatTND(cart.totalAmount, 2)} ({cart.items.length} articles)</span><Clock className="w-4 h-4" />{new Date(cart.createdAt).toLocaleDateString('fr-FR')}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     {!cart.recovered && (

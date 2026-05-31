@@ -13,8 +13,11 @@ import { RealtimeService } from '../../core/stubs/realtime.stub';
 import { WhatsAppService } from '../whatsapp/whatsapp.service';
 import { WhatsappOrderNotificationService } from '../whatsapp/whatsapp-order-notification.service';
 import { OrderStatusService } from './order-status.service';
+import { PrismaMirrorService } from '../../prisma/prisma-mirror.service';
 import { OrderStatus, normalizeOrderStatus } from '../../common/enums/order-status.enum';
 import { Types } from 'mongoose';
+import { EventBusService } from '../../core/events/event-bus.service';
+import { DomainEvents } from '../../core/events/domain-events.constants';
 
 @Injectable()
 export class OrdersService {
@@ -31,6 +34,8 @@ export class OrdersService {
     private readonly whatsAppService: WhatsAppService,
     private readonly orderStatusService: OrderStatusService,
     private readonly whatsappNotifications: WhatsappOrderNotificationService,
+    private readonly orderPrismaMirror: PrismaMirrorService,
+    private readonly events: EventBusService,
   ) {}
 
   async create(createOrderDto: any, tenantId: string) {
@@ -159,6 +164,17 @@ export class OrdersService {
       customerPhone: createOrderDto.shippingAddress?.phone,
     });
 
+    void this.orderPrismaMirror.mirrorMongoOrder(tenantId, createdOrder.toObject?.() ?? createdOrder);
+
+    this.events.publishSync(DomainEvents.ORDER_CREATED, {
+      tenantId,
+      orderId: createdOrder._id.toString(),
+      orderNumber: createdOrder.orderNumber,
+      total: createdOrder.total,
+      currency: createdOrder.currency || 'TND',
+      paymentMethod: createdOrder.paymentMethod,
+    });
+
     return createdOrder;
   }
 
@@ -235,13 +251,20 @@ export class OrdersService {
   }
 
   async update(id: string, updateOrderDto: any, tenantId: string) {
-    return this.orderModel
+    const updated = await this.orderModel
       .findOneAndUpdate(
         { _id: id, tenantId },
         updateOrderDto,
-        { new: true }
+        { new: true },
       )
       .exec();
+    if (updated) {
+      void this.orderPrismaMirror.mirrorMongoOrder(
+        tenantId,
+        updated.toObject?.() ?? updated,
+      );
+    }
+    return updated;
   }
 
   async updateStatus(
@@ -329,6 +352,8 @@ export class OrdersService {
 
     await order.save();
     this.logger.log(`✅ Statut commande ${id} mis à jour: ${oldStatus} → ${nextStatus}`);
+
+    void this.orderPrismaMirror.mirrorMongoOrder(tenantId, order.toObject?.() ?? order);
 
     await this.whatsappNotifications.notifyStatusChange(tenantId, order, nextStatus);
 

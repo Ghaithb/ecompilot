@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { authApi } from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
@@ -14,6 +15,7 @@ import { User, Mail, Building, Shield, Bell, Palette, Save, Camera, Loader2 } fr
 
 const ProfilePage: React.FC = () => {
   const { user, refreshProfile } = useAuth();
+  const { setTheme } = useTheme();
   const { toast } = useToast();
   
   const [profileData, setProfileData] = useState({
@@ -98,6 +100,7 @@ const ProfilePage: React.FC = () => {
     },
     onSuccess: async (response) => {
       console.log('✅ Preferences saved:', response);
+      setTheme(preferences.darkMode ? 'dark' : 'light');
       toast({
         title: 'Préférences enregistrées',
         description: 'Vos préférences ont été mises à jour.',

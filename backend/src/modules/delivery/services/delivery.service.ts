@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { EventBusService } from '../../../core/events/event-bus.service';
+import { DomainEvents } from '../../../core/events/domain-events.constants';
 import { Order, OrderDocument } from '../../orders/schemas/order.schema';
 import { DeliveryProviderId, MVP_DELIVERY_PROVIDERS } from '../enums/delivery-provider.enum';
 import {
@@ -9,9 +11,15 @@ import {
 } from '../interfaces/delivery-provider.interface';
 import { Shipment, ShipmentDocument } from '../schemas/shipment.schema';
 import { withRetry } from '../utils/retry.util';
+import {
+  normalizeShipmentResult,
+  normalizeTrackingResult,
+  toPublicShipment,
+} from '../utils/shipment-response.normalizer';
 import { DeliveryQueuePayload } from '../constants/delivery-queue.constants';
 import { DeliveryProviderRegistry } from './delivery-provider-registry.service';
 import { DeliveryQueueService } from '../queue/delivery-queue.service';
+import { PrismaMirrorService } from '../../../prisma/prisma-mirror.service';
 
 /**
  * Orchestrateur central : création expédition, retry HTTP, sync tracking, comparaison tarifs.
@@ -23,6 +31,8 @@ export class DeliveryService {
   constructor(
     private registry: DeliveryProviderRegistry,
     private queue: DeliveryQueueService,
+    private events: EventBusService,
+    private readonly prismaMirror: PrismaMirrorService,
     @InjectModel(Shipment.name) private shipmentModel: Model<ShipmentDocument>,
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
   ) {}
@@ -38,10 +48,30 @@ export class DeliveryService {
     return this.shipmentModel.find(q).sort({ createdAt: -1 }).limit(200).lean();
   }
 
+  async listShipmentsPublic(tenantId: string, filters?: { status?: string; provider?: string }) {
+    const rows = await this.listShipments(tenantId, filters);
+    return rows.map((row) => toPublicShipment(row as Record<string, unknown>));
+  }
+
   async getShipment(tenantId: string, shipmentId: string) {
     const shipment = await this.shipmentModel.findOne({ _id: shipmentId, tenantId }).lean();
     if (!shipment) throw new BadRequestException('Expédition introuvable');
     return shipment;
+  }
+
+  async getShipmentPublic(tenantId: string, shipmentId: string) {
+    const shipment = await this.getShipment(tenantId, shipmentId);
+    return toPublicShipment(shipment as Record<string, unknown>);
+  }
+
+  async trackByTrackingNumber(tenantId: string, trackingNumber: string) {
+    const shipment = await this.shipmentModel.findOne({ tenantId, trackingNumber });
+    if (!shipment) throw new BadRequestException('Expédition introuvable');
+
+    const result = await this.syncTracking(tenantId, shipment._id.toString(), {
+      source: 'api',
+    });
+    return toPublicShipment(result.shipment as unknown as Record<string, unknown>);
   }
 
   async getShipmentStats(tenantId: string) {
@@ -125,19 +155,21 @@ export class DeliveryService {
   ) {
     const provider = this.registry.get(providerId);
     const result = await withRetry(() => provider.createOrder(ctx), { maxAttempts: 3 });
+    const normalized = normalizeShipmentResult(providerId, result);
 
     const shipment = await this.shipmentModel.create({
       tenantId,
       orderId: order._id,
       orderNumber: order.orderNumber,
       provider: providerId,
-      trackingNumber: result.trackingNumber,
-      providerRef: result.providerRef,
-      labelUrl: result.labelUrl,
-      status: 'created',
+      trackingNumber: normalized.trackingNumber,
+      providerRef: normalized.providerRef,
+      labelUrl: normalized.labelUrl,
+      status: normalized.status,
       localityId: ctx.localityId,
-      mock: result.mock,
-      trackingHistory: [{ status: 'created', occurredAt: new Date() }],
+      mock: normalized.mock,
+      rawResponse: this.toRawRecord(normalized.rawResponse),
+      trackingHistory: [{ status: normalized.status, occurredAt: new Date() }],
     });
 
     order.trackingNumber = result.trackingNumber;
@@ -146,11 +178,28 @@ export class DeliveryService {
     order.providerRef = result.providerRef;
     await order.save();
 
+    void this.prismaMirror.mirrorMongoOrder(tenantId, order.toObject?.() ?? order);
+    void this.prismaMirror.mirrorMongoShipment(tenantId, shipment.toObject?.() ?? shipment);
+
     this.logger.log(`Shipment ${result.trackingNumber} (${providerId}) #${order.orderNumber}`);
-    return { shipment, result };
+    this.events.publishSync(DomainEvents.SHIPMENT_CREATED, {
+      tenantId,
+      shipmentId: shipment._id.toString(),
+      orderId: order._id.toString(),
+      provider: providerId,
+      trackingNumber: normalized.trackingNumber,
+    });
+    return {
+      shipment: toPublicShipment(shipment.toObject() as unknown as Record<string, unknown>),
+      result: normalized,
+    };
   }
 
-  async syncTracking(tenantId: string, shipmentId: string) {
+  async syncTracking(
+    tenantId: string,
+    shipmentId: string,
+    options?: { source?: 'manual' | 'polling' | 'api' | 'webhook' },
+  ) {
     const shipment = await this.shipmentModel.findOne({ _id: shipmentId, tenantId });
     if (!shipment) throw new BadRequestException('Expédition introuvable');
 
@@ -158,16 +207,27 @@ export class DeliveryService {
     const tracking = await withRetry(() =>
       provider.trackOrder(shipment.trackingNumber, tenantId),
     );
+    const normalized = normalizeTrackingResult(tracking);
 
-    shipment.status = tracking.status;
+    shipment.status = normalized.status;
+    shipment.rawResponse = this.toRawRecord(normalized.rawResponse);
+    shipment.lastSyncedAt = new Date();
     shipment.trackingHistory.push({
-      status: tracking.status,
-      location: tracking.location,
-      occurredAt: tracking.updatedAt,
+      status: normalized.status,
+      location: normalized.location,
+      description:
+        options?.source === 'polling'
+          ? 'Sync automatique (polling)'
+          : options?.source === 'webhook'
+            ? 'Webhook transporteur'
+            : undefined,
+      occurredAt: tracking.updatedAt || new Date(),
     });
     await shipment.save();
 
-    return { shipment, tracking };
+    void this.prismaMirror.mirrorMongoShipment(tenantId, shipment.toObject?.() ?? shipment);
+
+    return { shipment: shipment.toObject(), tracking: normalized };
   }
 
   async cancelShipment(tenantId: string, shipmentId: string) {
@@ -201,6 +261,8 @@ export class DeliveryService {
       occurredAt: new Date(),
     });
     await shipment.save();
+
+    void this.prismaMirror.mirrorMongoShipment(tenantId, shipment.toObject?.() ?? shipment);
 
     return { shipment, cancelled: true, providerCancelled };
   }
@@ -280,6 +342,48 @@ export class DeliveryService {
     return rates.filter(Boolean);
   }
 
+  /** Devis livraison pré-checkout (sans commande existante). */
+  async quoteCheckoutRates(tenantId: string, ctx: DeliveryOrderContext) {
+    const rates = await Promise.all(
+      MVP_DELIVERY_PROVIDERS.map(async (id) => {
+        const p = this.registry.get(id);
+        if (!p.getRates) return null;
+        if (!(await p.isConfigured(tenantId))) return null;
+        try {
+          const r = await p.getRates(ctx);
+          return {
+            provider: id,
+            rate: r.rate,
+            currency: r.currency || 'TND',
+            estimatedDays: r.estimatedDays || 2,
+          };
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    const valid = rates.filter(Boolean) as Array<{
+      provider: DeliveryProviderId;
+      rate: number;
+      currency: string;
+      estimatedDays: number;
+    }>;
+
+    if (valid.length === 0) {
+      const fallback = {
+        provider: DeliveryProviderId.FIRST_DELIVERY,
+        rate: 7,
+        currency: 'TND',
+        estimatedDays: 2,
+      };
+      return { rates: [fallback], best: fallback };
+    }
+
+    const best = [...valid].sort((a, b) => a.rate - b.rate)[0];
+    return { rates: valid, best };
+  }
+
   private mapOrder(
     order: OrderDocument,
     options?: { weightKg?: number; localityId?: number },
@@ -310,5 +414,11 @@ export class DeliveryService {
       lineItems,
       localityId: options?.localityId,
     };
+  }
+
+  private toRawRecord(raw: unknown): Record<string, unknown> | undefined {
+    if (raw === undefined || raw === null) return undefined;
+    if (typeof raw === 'object') return raw as Record<string, unknown>;
+    return { value: raw };
   }
 }

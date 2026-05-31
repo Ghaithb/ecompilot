@@ -11,6 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
+import { TwilioSmsProvider } from './providers/twilio-sms.provider';
 import { CreateNotificationDto } from './dto/notification.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantGuard } from '../../common/guards/tenant.guard';
@@ -22,7 +23,10 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 @Controller('notifications')
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly twilioSms: TwilioSmsProvider,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a notification' })
@@ -69,6 +73,19 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'All notifications marked as read' })
   markAllAsRead(@TenantId() tenantId: string) {
     return this.notificationsService.markAllAsRead(tenantId);
+  }
+
+  @Get('messaging-status')
+  @ApiOperation({ summary: 'SMS / messaging integration status for merchant UI' })
+  getMessagingStatus() {
+    const configured = this.twilioSms.isConfigured();
+    return {
+      sms: {
+        configured,
+        status: configured ? 'live' : 'pilot',
+        provider: 'twilio',
+      },
+    };
   }
 
   @Get('unread-count')

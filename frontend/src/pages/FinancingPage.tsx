@@ -82,7 +82,7 @@ const FinancingPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 items-end">
-            <Input type="number" min={0} placeholder="Total ventes (€)" value={sales} onChange={e => setSales(e.target.value)} />
+            <Input type="number" min={0} placeholder="Total ventes ( TND)" value={sales} onChange={e => setSales(e.target.value)} />
             <Button 
               onClick={() => simulateMutation.mutate()} 
               disabled={!sales || isNaN(Number(sales)) || simulateMutation.isPending}
@@ -93,11 +93,11 @@ const FinancingPage: React.FC = () => {
           </div>
           {simResult && (
             <div className="mt-4 p-4 bg-gray-50 rounded">
-              <div>Montant proposé : <b>{simResult.amountRequested} €</b></div>
+              <div>Montant proposé : <b>{simResult.amountRequested}  TND</b></div>
               <div>Taux RBF : <b>{(simResult.rbfRate * 100).toFixed(2)}%</b></div>
-              <div>Ventes analysées : <b>{simResult.totalSales} €</b></div>
+              <div>Ventes analysées : <b>{simResult.totalSales}  TND</b></div>
               <div className="mt-2">
-                <Input type="number" min={0} placeholder="Montant demandé (€)" value={amountRequested} onChange={e => setAmountRequested(e.target.value)} />
+                <Input type="number" min={0} placeholder="Montant demandé ( TND)" value={amountRequested} onChange={e => setAmountRequested(e.target.value)} />
                 <Button 
                   className="mt-2" 
                   onClick={() => requestMutation.mutate()} 
@@ -120,7 +120,7 @@ const FinancingPage: React.FC = () => {
             <div>
               {dashboard?.active ? (
                 <div className="mb-4 p-4 bg-green-50 rounded">
-                  <div>Financement actif : <b>{dashboard.active.amountRequested} €</b></div>
+                  <div>Financement actif : <b>{dashboard.active.amountRequested}  TND</b></div>
                   <div>Statut : <b>{dashboard.active.status}</b></div>
                   <div>Remboursement : <b>{dashboard.active.repayment?.percentRepaid ?? 0}%</b></div>
                 </div>
@@ -129,7 +129,7 @@ const FinancingPage: React.FC = () => {
               <ul className="space-y-2">
                 {dashboard?.requests?.map((r) => (
                   <li key={r._id} className="p-2 border rounded">
-                    <div>Montant : {r.amountRequested} € | Statut : {r.status}</div>
+                    <div>Montant : {r.amountRequested}  TND | Statut : {r.status}</div>
                     <div>Demandé le : {new Date(r.createdAt).toLocaleDateString()}</div>
                   </li>
                 ))}

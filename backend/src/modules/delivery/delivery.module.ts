@@ -7,6 +7,7 @@ import { Order, OrderSchema } from '../orders/schemas/order.schema';
 import { DELIVERY_QUEUE_NAME } from './constants/delivery-queue.constants';
 import { DeliveryController } from './delivery.controller';
 import { DeliveryWebhookController } from './delivery-webhook.controller';
+import { ShipmentsController } from './shipments.controller';
 import { FirstDeliveryProvider } from './providers/first-delivery.provider';
 import { IntigoProvider } from './providers/intigo.provider';
 import { ShipperProvider } from './providers/shipper.provider';
@@ -19,7 +20,9 @@ import { DeliveryProviderRegistry } from './services/delivery-provider-registry.
 import { DeliveryService } from './services/delivery.service';
 import { DeliveryShipmentService } from './services/delivery-shipment.service';
 import { DeliveryWebhookHandler } from './services/delivery-webhook.handler';
+import { DeliveryPollingService } from './services/delivery-polling.service';
 import { OrderRiskEngineService } from './services/order-risk-engine.service';
+import { DeliveryManifestService } from './services/delivery-manifest.service';
 
 @Module({
   imports: [
@@ -42,16 +45,18 @@ import { OrderRiskEngineService } from './services/order-risk-engine.service';
     }),
     BullModule.registerQueue({ name: DELIVERY_QUEUE_NAME }),
   ],
-  controllers: [DeliveryController, DeliveryWebhookController],
+  controllers: [DeliveryController, DeliveryWebhookController, ShipmentsController],
   providers: [
     DeliveryProviderRegistry,
     DeliveryService,
     DeliveryShipmentService,
     DeliveryCredentialsService,
     DeliveryWebhookHandler,
+    DeliveryPollingService,
     DeliveryQueueService,
     DeliveryQueueProcessor,
     OrderRiskEngineService,
+    DeliveryManifestService,
     IntigoProvider,
     FirstDeliveryProvider,
     ShipperProvider,
@@ -61,6 +66,7 @@ import { OrderRiskEngineService } from './services/order-risk-engine.service';
     DeliveryShipmentService,
     DeliveryProviderRegistry,
     OrderRiskEngineService,
+    DeliveryManifestService,
   ],
 })
 export class DeliveryModule {}

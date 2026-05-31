@@ -10,7 +10,7 @@ import { aiApi } from '@/lib/api';
 import { analyticsApi } from '../lib/analyticsApi';
 import { exportAnalyticsCsv } from '@/utils/exportCsv';
 import { formatCurrency as formatCurrencyUtil } from '@/utils/analyticsHelpers';
-import { RefreshCw, Download, FileText, Shield, TrendingUp, DollarSign, Package, AlertTriangle, Bot } from 'lucide-react';
+import { RefreshCw, Download, FileText, Shield, TrendingUp, DollarSign, Package, AlertTriangle, Bot, Users, ShoppingCart } from 'lucide-react';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -165,6 +165,12 @@ const AnalyticsPage: React.FC = () => {
   const { data: inventoryMetrics, isLoading: loadingInv } = useQuery({
     queryKey: ['analytics', 'inventory'],
     queryFn: typedAnalyticsApi.getInventory,
+    staleTime: 60_000,
+  });
+
+  const { data: visitorMetrics } = useQuery({
+    queryKey: ['analytics', 'visitors'],
+    queryFn: () => analyticsApi.getVisitors(30),
     staleTime: 60_000,
   });
 
@@ -346,6 +352,44 @@ const AnalyticsPage: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {visitorMetrics && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <Users className="h-4 w-4" />
+                Visiteurs (30j)
+              </div>
+              <p className="text-2xl font-bold mt-1">{visitorMetrics.views?.toLocaleString() || 0}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <ShoppingCart className="h-4 w-4" />
+                Ajouts panier
+              </div>
+              <p className="text-2xl font-bold mt-1">{visitorMetrics.addToCart?.toLocaleString() || 0}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground text-sm">Checkouts démarrés</p>
+              <p className="text-2xl font-bold mt-1">{visitorMetrics.checkoutsStarted?.toLocaleString() || 0}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground text-sm">Achats confirmés</p>
+              <p className="text-2xl font-bold mt-1">{visitorMetrics.purchases?.toLocaleString() || 0}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Conv. {visitorMetrics.conversionRate ?? 0}%
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <Tabs defaultValue="forecasts" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">

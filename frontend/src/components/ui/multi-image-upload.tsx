@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from './button';
 import { useToast } from '@/hooks/use-toast';
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
 
 interface MultiImageUploadProps {
   onUploadSuccess: (urls: string[]) => void;
@@ -52,15 +53,15 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
         formData.append('image', file);
 
         const token = localStorage.getItem('auth_token');
-        const response = await fetch('http://localhost:3001/api/v1/upload/image', {
+        const response = await fetch(apiUrl('/upload/image'), {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: formData,
         });
 
         if (response.ok) {
           const result = await response.json();
-          uploadedUrls.push(`http://localhost:3001${result.url}`);
+          uploadedUrls.push(resolveUploadUrl(result.url));
         }
       }
 

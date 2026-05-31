@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, Users, TrendingUp, Clock, Monitor, Smartphone, Tablet } from 'lucide-react';
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
 
 interface AnalyticsProps {
   pageId: string;
@@ -19,8 +20,8 @@ export const WebsiteAnalytics: React.FC<AnalyticsProps> = ({ pageId }) => {
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(
-        `http://localhost:3001/api/v1/website/pages/${pageId}/analytics?period=${period}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        apiUrl(`/website/pages/${pageId}/analytics?period=${period}`),
+        { headers: getAuthHeaders() }
       );
       
       if (response.ok) {

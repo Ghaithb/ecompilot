@@ -4,6 +4,7 @@ async function main() {
   const ts = Date.now();
   const email = `refresh_${ts}@ecompilot.local`;
   const password = 'TestPass123!';
+  const companyName = `Refresh Shop ${ts}`;
 
   let res = await fetch(`${BASE}/auth/register`, {
     method: 'POST',
@@ -14,8 +15,8 @@ async function main() {
       firstName: 'T',
       lastName: 'U',
       country: 'TN',
-      phone: '+21620000000',
-      companyName: 'Refresh Shop',
+      phone: `+21620${String(ts).slice(-6)}`,
+      companyName,
     }),
   });
   let data = await res.json();
@@ -32,7 +33,7 @@ async function main() {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      companyName: 'Refresh Shop',
+      companyName,
       business: { industry: 'ecommerce', description: 'test', primaryGoal: 'sell' },
       contact: { email, phone: '+21620123456', city: 'Tunis', country: 'Tunisie' },
       branding: { primaryColor: '#2563eb', secondaryColor: '#7c3aed' },

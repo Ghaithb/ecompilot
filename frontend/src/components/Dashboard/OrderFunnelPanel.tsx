@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, CheckCircle, Truck, Package, XCircle, CreditCard } from 'lucide-react';
@@ -20,22 +21,24 @@ interface OrderFunnelPanelProps {
 }
 
 export function OrderFunnelPanel({ funnel }: OrderFunnelPanelProps) {
+  const { t } = useTranslation();
+
   if (!funnel || funnel.totalOrders === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Pipeline commandes</CardTitle>
-          <CardDescription>Le funnel apparaîtra après vos premières commandes</CardDescription>
+          <CardTitle>{t('dashboard.funnel.title')}</CardTitle>
+          <CardDescription>{t('dashboard.funnel.emptyDesc')}</CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   const steps = [
-    { label: 'Commandes reçues', value: funnel.totalOrders, icon: ShoppingCart, color: '#3b82f6' },
-    { label: 'Confirmées', value: funnel.confirmed + funnel.shipped + funnel.delivered, icon: CheckCircle, color: '#10b981' },
-    { label: 'Expédiées', value: funnel.shipped + funnel.delivered, icon: Package, color: '#8b5cf6' },
-    { label: 'Livrées', value: funnel.delivered, icon: Truck, color: '#059669' },
+    { label: t('dashboard.funnel.received'), value: funnel.totalOrders, icon: ShoppingCart, color: '#3b82f6' },
+    { label: t('dashboard.funnel.confirmed'), value: funnel.confirmed + funnel.shipped + funnel.delivered, icon: CheckCircle, color: '#10b981' },
+    { label: t('dashboard.funnel.shipped'), value: funnel.shipped + funnel.delivered, icon: Package, color: '#8b5cf6' },
+    { label: t('dashboard.funnel.delivered'), value: funnel.delivered, icon: Truck, color: '#059669' },
   ];
 
   const maxValue = steps[0].value;
@@ -45,12 +48,12 @@ export function OrderFunnelPanel({ funnel }: OrderFunnelPanelProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Pipeline commandes</CardTitle>
-            <CardDescription>De la commande à la livraison — 30 derniers jours</CardDescription>
+            <CardTitle>{t('dashboard.funnel.title')}</CardTitle>
+            <CardDescription>{t('dashboard.funnel.subtitle')}</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Badge variant="outline">{funnel.codOrders} COD</Badge>
-            <Badge variant="outline">{funnel.onlinePaidOrders} en ligne</Badge>
+            <Badge variant="outline">{t('dashboard.funnel.codBadge', { count: funnel.codOrders })}</Badge>
+            <Badge variant="outline">{t('dashboard.funnel.onlineBadge', { count: funnel.onlinePaidOrders })}</Badge>
           </div>
         </div>
       </CardHeader>
@@ -89,28 +92,28 @@ export function OrderFunnelPanel({ funnel }: OrderFunnelPanelProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
           <div className="text-center">
             <p className="text-2xl font-bold text-green-600">{funnel.conversionToDelivered.toFixed(0)}%</p>
-            <p className="text-xs text-muted-foreground">Taux livraison</p>
+            <p className="text-xs text-muted-foreground">{t('dashboard.funnel.deliveryRate')}</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-blue-600">{funnel.conversionToConfirmed.toFixed(0)}%</p>
-            <p className="text-xs text-muted-foreground">Taux confirmation</p>
+            <p className="text-xs text-muted-foreground">{t('dashboard.funnel.confirmationRate')}</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-red-600">{funnel.cancelled}</p>
             <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-              <XCircle className="w-3 h-3" /> Annulées
+              <XCircle className="w-3 h-3" /> {t('dashboard.funnel.cancelled')}
             </p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-amber-600">{funnel.pending}</p>
-            <p className="text-xs text-muted-foreground">En attente</p>
+            <p className="text-xs text-muted-foreground">{t('dashboard.funnel.pending')}</p>
           </div>
         </div>
 
         {funnel.onlinePaidOrders > 0 && (
           <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
             <CreditCard className="w-4 h-4" />
-            {funnel.onlinePaidOrders} commande(s) payées en ligne (hors COD)
+            {t('dashboard.funnel.onlinePaid', { count: funnel.onlinePaidOrders })}
           </div>
         )}
       </CardContent>

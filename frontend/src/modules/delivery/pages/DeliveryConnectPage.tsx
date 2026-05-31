@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,12 +9,11 @@ import {
   fetchDeliveryProviders,
   fetchProviderCredentials,
   PROVIDER_LABELS,
+  ALL_DELIVERY_PROVIDER_IDS,
 } from '../services/deliveryApi';
-import type { DeliveryProviderId } from '../types/delivery.types';
-
-const MVP_IDS: DeliveryProviderId[] = ['intigo', 'first_delivery', 'shipper'];
 
 const DeliveryConnectPage: React.FC = () => {
+  const { t } = useTranslation();
   const { data: providers = [] } = useQuery({
     queryKey: ['delivery-providers'],
     queryFn: fetchDeliveryProviders,
@@ -26,11 +26,11 @@ const DeliveryConnectPage: React.FC = () => {
 
   return (
     <DeliveryPageShell
-      title="Connecter un transporteur"
-      description="Apportez votre propre clé API (BYO). Les tokens sont chiffrés et isolés par boutique."
+      title={t('delivery.connectTitle')}
+      description={t('delivery.connectDesc')}
     >
       <div className="space-y-6 max-w-2xl">
-        {MVP_IDS.map((id) => {
+        {ALL_DELIVERY_PROVIDER_IDS.map((id) => {
           const meta = providers.find((p) => p.id === id);
           const cred = credentials.find((c) => c.provider === id);
           const configured = meta?.configured ?? cred?.hasToken;
@@ -49,9 +49,7 @@ const DeliveryConnectPage: React.FC = () => {
                   <div>
                     <CardTitle className="text-lg">{PROVIDER_LABELS[id]}</CardTitle>
                     <CardDescription className="mt-1">
-                      {configured
-                        ? 'Connexion active pour votre boutique'
-                        : 'Ajoutez votre token pour activer les expéditions'}
+                      {configured ? t('delivery.connectActive') : t('delivery.connectInactive')}
                     </CardDescription>
                   </div>
                   {configured ? (

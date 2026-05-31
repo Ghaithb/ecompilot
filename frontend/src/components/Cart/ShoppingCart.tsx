@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import { ShoppingCart as CartIcon, Trash2, Plus, Minus, Tag, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { formatTND } from '@/lib/currency';
 
 export function ShoppingCart() {
   const navigate = useNavigate();
@@ -99,7 +100,7 @@ export function ShoppingCart() {
                   {/* Infos produit */}
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{item.name}</h3>
-                    <p className="text-gray-600">{item.price.toFixed(2)}€</p>
+                    <p className="text-gray-600">{formatTND(item.price)}</p>
                     
                     {/* Options */}
                     {item.options && Object.keys(item.options).length > 0 && (
@@ -154,7 +155,7 @@ export function ShoppingCart() {
                   {/* Sous-total */}
                   <div className="text-right">
                     <p className="font-bold text-lg">
-                      {item.subtotal.toFixed(2)}€
+                      {formatTND(item.subtotal)}
                     </p>
                   </div>
                 </div>
@@ -221,14 +222,14 @@ export function ShoppingCart() {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Sous-total:</span>
                   <span className="font-medium">
-                    {cart?.totals.subtotal.toFixed(2)}€
+                    {formatTND(cart?.totals.subtotal)}
                   </span>
                 </div>
 
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">TVA (20%):</span>
                   <span className="font-medium">
-                    {cart?.totals.tax.toFixed(2)}€
+                    {formatTND(cart?.totals.tax)}
                   </span>
                 </div>
 
@@ -238,7 +239,7 @@ export function ShoppingCart() {
                     {cart?.totals.shipping === 0 ? (
                       <span className="text-green-600 font-semibold">GRATUITE</span>
                     ) : (
-                      `${cart?.totals.shipping.toFixed(2)}€`
+                      formatTND(cart?.totals.shipping)
                     )}
                   </span>
                 </div>
@@ -247,7 +248,7 @@ export function ShoppingCart() {
                   <div className="flex justify-between text-sm text-green-600">
                     <span>Réduction:</span>
                     <span className="font-medium">
-                      -{cart.totals.discount.toFixed(2)}€
+                      -{formatTND(cart.totals.discount)}
                     </span>
                   </div>
                 )}
@@ -257,7 +258,7 @@ export function ShoppingCart() {
                 <div className="flex justify-between text-lg font-bold pt-2">
                   <span>Total:</span>
                   <span className="text-primary">
-                    {cart?.totals.total.toFixed(2)}€
+                    {formatTND(cart?.totals.total)}
                   </span>
                 </div>
               </div>
@@ -266,7 +267,7 @@ export function ShoppingCart() {
               {cart && cart.totals.subtotal < 50 && (
                 <div className="bg-blue-50 p-3 rounded-lg text-sm">
                   <p className="text-blue-800">
-                    🚚 Plus que <strong>{(50 - cart.totals.subtotal).toFixed(2)}€</strong> pour la livraison gratuite !
+                    🚚 Plus que <strong>{formatTND(50 - cart.totals.subtotal)}</strong> pour la livraison gratuite !
                   </p>
                 </div>
               )}

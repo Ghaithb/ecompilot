@@ -9,12 +9,19 @@ import {
   Zap, 
   Globe, 
   Save,
-  RefreshCw 
+  RefreshCw,
+  Link2,
+  BarChart3,
+  LayoutTemplate,
 } from 'lucide-react';
 import FeaturesConfig from '@/components/website/FeaturesConfig';
 import ThemeConfig from '@/components/website/ThemeConfig';
 import SeoConfig from '@/components/website/SeoConfig';
 import ServicesConfig from '@/components/website/ServicesConfig';
+import DomainConfig from '@/components/website/DomainConfig';
+import AnalyticsConfig from '@/components/website/AnalyticsConfig';
+import TemplatePicker from '@/components/website/TemplatePicker';
+import { apiUrl, getAuthHeaders } from '@/lib/apiConfig';
 
 const WebsiteSettingsPage: React.FC = () => {
   const { toast } = useToast();
@@ -28,9 +35,8 @@ const WebsiteSettingsPage: React.FC = () => {
 
   const fetchConfig = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/v1/website/config', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(apiUrl('/website/config'), {
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -51,15 +57,10 @@ const WebsiteSettingsPage: React.FC = () => {
   const handleSave = async (section: string, data: any) => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      const endpoint = section === 'features' ? '/features' : '';
-      
-      const response = await fetch(`http://localhost:3001/api/v1/website${endpoint}`, {
+      const endpoint = section === 'features' ? '/website/features' : '/website';
+      const response = await fetch(apiUrl(endpoint), {
         method: section === 'features' ? 'PATCH' : 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -126,7 +127,7 @@ const WebsiteSettingsPage: React.FC = () => {
 
       {/* Configuration Tabs */}
       <Tabs defaultValue="features" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 h-auto gap-1">
           <TabsTrigger value="features">
             <Zap className="w-4 h-4 mr-2" />
             Fonctionnalités
@@ -134,6 +135,18 @@ const WebsiteSettingsPage: React.FC = () => {
           <TabsTrigger value="theme">
             <Palette className="w-4 h-4 mr-2" />
             Thème
+          </TabsTrigger>
+          <TabsTrigger value="templates">
+            <LayoutTemplate className="w-4 h-4 mr-2" />
+            Templates
+          </TabsTrigger>
+          <TabsTrigger value="domain">
+            <Link2 className="w-4 h-4 mr-2" />
+            Domaine
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Analytics
           </TabsTrigger>
           <TabsTrigger value="seo">
             <Globe className="w-4 h-4 mr-2" />
@@ -159,6 +172,18 @@ const WebsiteSettingsPage: React.FC = () => {
             onSave={(theme) => handleSave('theme', { theme })}
             saving={saving}
           />
+        </TabsContent>
+
+        <TabsContent value="templates">
+          <TemplatePicker currentTemplate={config.storeTemplate} onApplied={fetchConfig} />
+        </TabsContent>
+
+        <TabsContent value="domain">
+          <DomainConfig />
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <AnalyticsConfig analytics={config.analytics || {}} onSaved={fetchConfig} />
         </TabsContent>
 
         <TabsContent value="seo">

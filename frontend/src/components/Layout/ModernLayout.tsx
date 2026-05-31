@@ -12,22 +12,16 @@ const ModernLayout = () => {
 
   return (
     <div className="modern-layout">
-      {/* Sidebar */}
       <div className={`sidebar-container ${sidebarOpen ? 'mobile-open' : ''}`}>
         <ModernSidebar />
       </div>
 
-      {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div className="mobile-overlay" onClick={toggleSidebar}></div>
+        <div className="mobile-overlay" onClick={toggleSidebar} aria-hidden="true" />
       )}
 
-      {/* Main Content */}
       <div className="main-container">
-        {/* Navbar */}
         <ModernNavbar onMenuToggle={toggleSidebar} />
-
-        {/* Page Content */}
         <main className="page-content">
           <Outlet />
         </main>
@@ -36,52 +30,81 @@ const ModernLayout = () => {
       <style>{`
         .modern-layout {
           display: flex;
-          min-height: 100vh;
-          background: #f9fafb;
+          height: 100vh;
+          max-height: 100vh;
+          overflow: hidden;
+          background: var(--background, #f9fafb);
         }
 
         .sidebar-container {
-          width: 220px;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 240px;
+          height: 100vh;
+          max-height: 100vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+          z-index: 40;
           flex-shrink: 0;
         }
 
         .main-container {
           flex: 1;
-          margin-left: 0;
+          margin-left: 240px;
           display: flex;
           flex-direction: column;
-          max-width: calc(100vw - 220px);
+          height: 100vh;
+          max-height: 100vh;
+          min-width: 0;
+          max-width: calc(100vw - 240px);
+          overflow: hidden;
         }
 
         .page-content {
           flex: 1;
-          padding: 0;
-          margin-top: 60px; /* Navbar height */
-          min-height: calc(100vh - 60px);
+          min-height: 0;
+          overflow-y: auto;
+          overflow-x: hidden;
           width: 100%;
+          -webkit-overflow-scrolling: touch;
         }
 
         .mobile-overlay {
           display: none;
         }
 
+        [dir="rtl"] .sidebar-container {
+          left: auto;
+          right: 0;
+        }
+
+        [dir="rtl"] .main-container {
+          margin-left: 0;
+          margin-right: 240px;
+        }
+
         @media (max-width: 768px) {
           .sidebar-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
             transform: translateX(-100%);
-            transition: transform 0.3s;
+            transition: transform 0.3s ease;
             z-index: 50;
           }
 
-          .sidebar-container.mobile-open {
+          [dir="rtl"] .sidebar-container {
+            transform: translateX(100%);
+          }
+
+          .sidebar-container.mobile-open,
+          [dir="rtl"] .sidebar-container.mobile-open {
             transform: translateX(0);
           }
 
-          .main-container {
+          .main-container,
+          [dir="rtl"] .main-container {
             margin-left: 0;
+            margin-right: 0;
+            max-width: 100vw;
           }
 
           .mobile-overlay {
@@ -90,10 +113,6 @@ const ModernLayout = () => {
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
             z-index: 40;
-          }
-
-          .page-content {
-            padding: 1rem;
           }
         }
       `}</style>

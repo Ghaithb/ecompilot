@@ -15,6 +15,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { CodTrustModule } from '../cod-trust/cod-trust.module';
 import { CoreModule } from '../../core/core.module';
 import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { PrismaModule } from '../../prisma/prisma.module';
 import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
@@ -29,6 +30,7 @@ import { User, UserSchema } from '../users/schemas/user.schema';
     NotificationsModule,
     CodTrustModule,
     WhatsAppModule,
+    PrismaModule,
   ],
   controllers: [OrdersController, OrdersApiController, PublicOrdersController],
   providers: [OrdersService, OrderStatusService, ReturnsService, OrdersRepository, OrdersQueryService],

@@ -4,6 +4,7 @@ import { DriverController } from './driver.controller';
 import { MerchantDriversController } from './merchant-drivers.controller';
 import { DriverService } from './driver.service';
 import { DriverManagementService } from './driver-management.service';
+import { DriverReconciliationService } from './driver-reconciliation.service';
 import { Order, OrderSchema } from '../orders/schemas/order.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { OrderStatusService } from '../orders/order-status.service';
@@ -22,9 +23,10 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
   providers: [
     DriverService,
     DriverManagementService,
+    DriverReconciliationService,
     OrderStatusService,
     ReturnsService,
   ],
-  exports: [DriverService, DriverManagementService],
+  exports: [DriverService, DriverManagementService, DriverReconciliationService],
 })
 export class DriverModule {}

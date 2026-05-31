@@ -153,7 +153,7 @@ const AccountingPage: React.FC = () => {
                             <span className="text-sm text-muted-foreground">Solde total</span>
                         </div>
                         <div className="text-2xl font-bold mt-2">
-                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(totalBalance)}
+                            {formatTND(totalBalance)}
                         </div>
                     </CardContent>
                 </Card>
@@ -164,7 +164,7 @@ const AccountingPage: React.FC = () => {
                             <span className="text-sm text-muted-foreground">Revenus</span>
                         </div>
                         <div className="text-2xl font-bold mt-2 text-green-600">
-                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(summary?.summary.totalIncome || 0)}
+                            {formatTND(summary?.summary.totalIncome || 0)}
                         </div>
                     </CardContent>
                 </Card>
@@ -175,7 +175,7 @@ const AccountingPage: React.FC = () => {
                             <span className="text-sm text-muted-foreground">Dépenses</span>
                         </div>
                         <div className="text-2xl font-bold mt-2 text-red-600">
-                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(summary?.summary.totalExpenses || 0)}
+                            {formatTND(summary?.summary.totalExpenses || 0)}
                         </div>
                     </CardContent>
                 </Card>
@@ -186,7 +186,7 @@ const AccountingPage: React.FC = () => {
                             <span className="text-sm text-muted-foreground">Bénéfice net</span>
                         </div>
                         <div className={`text-2xl font-bold mt-2 ${(summary?.summary.netProfit || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(summary?.summary.netProfit || 0)}
+                            {formatTND(summary?.summary.netProfit || 0)}
                         </div>
                         <div className="text-sm text-muted-foreground">
                             Marge: {summary?.summary.profitMargin || 0}%
@@ -215,7 +215,7 @@ const AccountingPage: React.FC = () => {
                                             <div key={category} className="flex justify-between items-center">
                                                 <span className="text-sm">{category}</span>
                                                 <span className="font-medium text-green-600">
-                                                    {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount)}
+                                                    {formatTND(amount)}
                                                 </span>
                                             </div>
                                         ))}
@@ -236,7 +236,7 @@ const AccountingPage: React.FC = () => {
                                             <div key={category} className="flex justify-between items-center">
                                                 <span className="text-sm">{category}</span>
                                                 <span className="font-medium text-red-600">
-                                                    {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount)}
+                                                    {formatTND(amount)}
                                                 </span>
                                             </div>
                                         ))}
@@ -291,7 +291,7 @@ const AccountingPage: React.FC = () => {
                                                         ) : (
                                                             <ArrowDownRight className="w-4 h-4" />
                                                         )}
-                                                        {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(tx.amount)}
+                                                        {formatTND(tx.amount)}
                                                     </div>
                                                 </TableCell>
                                             </TableRow>

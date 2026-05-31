@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingBag, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatTND } from '@/lib/currency';
 
 export function RecentOrders() {
   const orders = [
@@ -108,7 +109,7 @@ export function RecentOrders() {
 
               <div className="flex flex-col items-end gap-2">
                 <span className="text-sm font-bold text-gray-900">
-                  {order.total.toFixed(2)}€
+                  {formatTND(order.total, 2)}
                 </span>
                 <Button
                   variant="ghost"

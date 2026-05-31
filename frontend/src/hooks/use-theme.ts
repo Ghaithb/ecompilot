@@ -1,22 +1,20 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
+/**
+ * @deprecated Utiliser ThemeContext + ThemeBootstrap. Conserve pour compatibilite imports.
+ */
 export function useTheme() {
   const { user } = useAuth();
 
   useEffect(() => {
-    const isDark = user?.preferences?.darkMode ?? false;
-    
-    if (isDark) {
+    // Ne plus forcer le mode clair — ThemeContext gere le theme via localStorage.
+    if (user?.preferences?.darkMode && !localStorage.getItem('theme')) {
       document.documentElement.classList.add('dark');
-      console.log('🌙 Dark mode activated');
-    } else {
-      document.documentElement.classList.remove('dark');
-      console.log('☀️ Light mode activated');
     }
   }, [user?.preferences?.darkMode]);
 
   return {
-    isDark: user?.preferences?.darkMode ?? false,
+    isDark: document.documentElement.classList.contains('dark'),
   };
 }

@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
   Bell,
@@ -14,6 +14,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { useTranslation } from 'react-i18next';
 
 interface ModernNavbarProps {
   onMenuToggle?: () => void;
@@ -21,6 +22,8 @@ interface ModernNavbarProps {
 
 const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
   const { user, logout, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAllRead } = useRealtimeNotifications(isAuthenticated);
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -62,10 +65,18 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const displayName = useMemo(() => {
+    if (user?.firstName) {
+      return [user.firstName, user.lastName].filter(Boolean).join(' ');
+    }
+    return user?.companyName || user?.tenant?.name || t('navbar.user');
+  }, [user, t]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Recherche:', searchQuery);
-    // Implement global search
+    const q = searchQuery.trim();
+    if (!q) return;
+    navigate(`/products?search=${encodeURIComponent(q)}`);
   };
 
   const handleLogout = () => {
@@ -84,7 +95,7 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
         <Search size={20} className="search-icon" />
         <input
           type="text"
-          placeholder="Rechercher produits, commandes, clients..."
+          placeholder={t('navbar.searchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input"
@@ -101,16 +112,16 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
             target="_blank"
             rel="noopener noreferrer"
             className="view-site-btn"
-            title="Voir mon site"
+            title={t('navbar.viewSite')}
           >
             <Eye size={18} />
-            <span>Voir mon site</span>
+            <span>{t('navbar.viewSite')}</span>
             <ExternalLink size={14} className="external-icon" />
           </a>
         )}
 
         {/* Help Button */}
-        <button className="icon-btn" title="Aide">
+        <button className="icon-btn" title={t('navbar.help')}>
           <HelpCircle size={20} />
         </button>
 
@@ -129,14 +140,14 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
           {showNotifications && (
             <div className="dropdown-menu notifications-menu">
               <div className="dropdown-header">
-                <h3>Notifications</h3>
-                <button className="text-btn" onClick={markAllRead}>Tout marquer comme lu</button>
+                <h3>{t('navbar.notifications')}</h3>
+                <button className="text-btn" onClick={markAllRead}>{t('navbar.markAllRead')}</button>
               </div>
               <div className="notifications-list">
                 {notifications.length === 0 ? (
                   <div className="notification-item">
                     <div className="notification-content">
-                      <div className="notification-message">Aucune notification pour le moment</div>
+                      <div className="notification-message">{t('navbar.noNotifications')}</div>
                     </div>
                   </div>
                 ) : (
@@ -152,7 +163,7 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
                 )}
               </div>
               <div className="dropdown-footer">
-                <Link to="/notifications" className="text-btn">Voir toutes les notifications</Link>
+                <Link to="/notifications" className="text-btn">{t('navbar.seeAll')}</Link>
               </div>
             </div>
           )}
@@ -168,7 +179,7 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
               {user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div className="profile-info">
-              <div className="profile-name">{user?.tenant?.name || 'Utilisateur'}</div>
+              <div className="profile-name">{displayName}</div>
               <div className="profile-email">{user?.email}</div>
             </div>
           </button>
@@ -180,7 +191,7 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
                   {user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div>
-                  <div className="profile-name-large">{user?.tenant?.name || 'Utilisateur'}</div>
+                  <div className="profile-name-large">{displayName}</div>
                   <div className="profile-email-small">{user?.email}</div>
                 </div>
               </div>
@@ -189,19 +200,19 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
 
               <Link to="/profile" className="menu-item">
                 <User size={18} />
-                <span>Mon Profil</span>
+                <span>{t('navbar.myProfile')}</span>
               </Link>
 
               <Link to="/settings" className="menu-item">
                 <Settings size={18} />
-                <span>Paramètres</span>
+                <span>{t('navbar.settings')}</span>
               </Link>
 
               <div className="menu-divider"></div>
 
               <button onClick={handleLogout} className="menu-item logout">
                 <LogOut size={18} />
-                <span>Déconnexion</span>
+                <span>{t('navbar.logout')}</span>
               </button>
             </div>
           )}
@@ -211,16 +222,15 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
       <style>{`
         .modern-navbar {
           height: 60px;
-          background: #ffffff;
-          border-bottom: 1px solid #e5e7eb;
+          min-height: 60px;
+          flex-shrink: 0;
+          background: var(--background, #ffffff);
+          border-bottom: 1px solid var(--border, #e5e7eb);
           padding: 0 1rem;
           display: flex;
           align-items: center;
           gap: 1rem;
-          position: fixed;
-          top: 0;
-          left: 220px;
-          right: 0;
+          position: relative;
           z-index: 30;
           justify-content: space-between;
         }
@@ -558,10 +568,6 @@ const ModernNavbar = ({ onMenuToggle }: ModernNavbarProps) => {
         }
 
         @media (max-width: 768px) {
-          .modern-navbar {
-            left: 0;
-          }
-
           .mobile-menu-btn {
             display: block;
           }

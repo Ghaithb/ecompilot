@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function WhatsAppSettingsPage() {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<any>(null);
   const [statistics, setStatistics] = useState<WhatsAppStatistics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,8 +56,8 @@ export default function WhatsAppSettingsPage() {
   const handleSendTestMessage = async () => {
     if (!testPhone || !testMessage) {
       toast({
-        title: 'Champs requis',
-        description: 'Veuillez remplir le numéro et le message',
+        title: t('whatsapp.requiredFields'),
+        description: t('whatsapp.fillPhoneMessage'),
         variant: 'destructive',
       });
       return;
@@ -68,8 +70,8 @@ export default function WhatsAppSettingsPage() {
       });
 
       toast({
-        title: '✅ Message envoyé',
-        description: 'Votre message test a été envoyé avec succès',
+        title: t('whatsapp.sent'),
+        description: t('whatsapp.sentDesc'),
       });
 
       setTestPhone('');
@@ -77,8 +79,8 @@ export default function WhatsAppSettingsPage() {
       loadData();
     } catch (error) {
       toast({
-        title: 'Erreur',
-        description: 'Échec d\'envoi du message',
+        title: t('common.error'),
+        description: t('whatsapp.sendError'),
         variant: 'destructive',
       });
     }
@@ -99,8 +101,8 @@ export default function WhatsAppSettingsPage() {
     await navigator.clipboard.writeText(widgetCode);
     
     toast({
-      title: '✅ Copié!',
-      description: 'Code du widget copié dans le presse-papiers',
+      title: t('whatsapp.copied'),
+      description: t('whatsapp.widgetCopied'),
     });
   };
 
@@ -109,7 +111,7 @@ export default function WhatsAppSettingsPage() {
       <div className="p-6 flex items-center justify-center">
         <div className="text-center">
           <Clock className="h-12 w-12 animate-spin mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-500">Chargement...</p>
+          <p className="text-gray-500">{t('whatsapp.loading')}</p>
         </div>
       </div>
     );
@@ -120,10 +122,10 @@ export default function WhatsAppSettingsPage() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <MessageSquare className="h-8 w-8 text-green-600" />
-          WhatsApp Business
+          {t('whatsapp.title')}
         </h1>
         <p className="text-gray-500">
-          Automatisez vos notifications et gérez vos conversations WhatsApp
+          {t('whatsapp.subtitle')}
         </p>
       </div>
 
@@ -136,22 +138,22 @@ export default function WhatsAppSettingsPage() {
             ) : (
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
             )}
-            Statut de Configuration
+            {t('whatsapp.configStatus')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {config?.configured ? (
             <div className="space-y-2">
               <p className="text-green-700 dark:text-green-300 font-medium">
-                ✅ WhatsApp Business est configuré et prêt à l'emploi
+                ✅ {t('whatsapp.configured')}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <p className="text-sm text-gray-600">Provider:</p>
+                  <p className="text-sm text-gray-600">{t('whatsapp.provider')}:</p>
                   <p className="font-medium">{config.provider}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Numéro Business:</p>
+                  <p className="text-sm text-gray-600">{t('whatsapp.businessNumber')}:</p>
                   <p className="font-medium">{config.businessNumber}</p>
                 </div>
               </div>
@@ -159,13 +161,13 @@ export default function WhatsAppSettingsPage() {
           ) : (
             <div className="space-y-2">
               <p className="text-yellow-700 dark:text-yellow-300 font-medium">
-                ⚠️ Configuration requise
+                ⚠️ {t('whatsapp.notConfigured')}
               </p>
               <p className="text-sm text-gray-600">
-                Configurez vos clés API Africa's Talking dans les variables d'environnement.
+                {t('whatsapp.notConfiguredHint')}
               </p>
-              <Button variant="outline" className="mt-2" onClick={() => window.open('https://africastalking.com', '_blank')}>
-                Créer un compte Africa's Talking
+              <Button variant="outline" className="mt-2" onClick={() => window.open('https://business.facebook.com', '_blank')}>
+                {t('whatsapp.createAccount')}
                 <ExternalLink className="h-4 w-4 ml-2" />
               </Button>
             </div>
@@ -178,52 +180,52 @@ export default function WhatsAppSettingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Messages envoyés</CardDescription>
+              <CardDescription>{t('whatsapp.messagesSent')}</CardDescription>
               <CardTitle className="text-2xl">{statistics.total}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Send className="h-4 w-4" />
-                <span>Total</span>
+                <span>{t('whatsapp.total')}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Délivrés</CardDescription>
+              <CardDescription>{t('whatsapp.delivered')}</CardDescription>
               <CardTitle className="text-2xl text-green-600">{statistics.delivered}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 text-sm text-green-600">
                 <CheckCircle className="h-4 w-4" />
-                <span>Succès</span>
+                <span>{t('whatsapp.success')}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Échecs</CardDescription>
+              <CardDescription>{t('whatsapp.failed')}</CardDescription>
               <CardTitle className="text-2xl text-red-600">{statistics.failed}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 text-sm text-red-600">
                 <XCircle className="h-4 w-4" />
-                <span>Erreurs</span>
+                <span>{t('whatsapp.errors')}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Taux de succès</CardDescription>
+              <CardDescription>{t('whatsapp.successRate')}</CardDescription>
               <CardTitle className="text-2xl">{statistics.successRate.toFixed(1)}%</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <BarChart3 className="h-4 w-4" />
-                <span>Performance</span>
+                <span>{t('whatsapp.performance')}</span>
               </div>
             </CardContent>
           </Card>
@@ -235,19 +237,19 @@ export default function WhatsAppSettingsPage() {
         <TabsList>
           <TabsTrigger value="test">
             <Send className="h-4 w-4 mr-2" />
-            Test de Message
+            {t('whatsapp.tabTest')}
           </TabsTrigger>
           <TabsTrigger value="templates">
             <Bell className="h-4 w-4 mr-2" />
-            Templates
+            {t('whatsapp.tabTemplates')}
           </TabsTrigger>
           <TabsTrigger value="notifications">
             <Settings className="h-4 w-4 mr-2" />
-            Notifications
+            {t('whatsapp.tabNotifications')}
           </TabsTrigger>
           <TabsTrigger value="widget">
             <MessageSquare className="h-4 w-4 mr-2" />
-            Widget
+            {t('whatsapp.tabWidget')}
           </TabsTrigger>
         </TabsList>
 
@@ -255,26 +257,26 @@ export default function WhatsAppSettingsPage() {
         <TabsContent value="test">
           <Card>
             <CardHeader>
-              <CardTitle>Envoyer un Message Test</CardTitle>
+              <CardTitle>{t('whatsapp.testTitle')}</CardTitle>
               <CardDescription>
-                Testez l'envoi de messages WhatsApp avant de l'automatiser
+                {t('whatsapp.testDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Numéro de téléphone</label>
+                <label className="text-sm font-medium">{t('whatsapp.phoneLabel')}</label>
                 <Input
                   placeholder="+2250709876543"
                   value={testPhone}
                   onChange={(e) => setTestPhone(e.target.value)}
                 />
                 <p className="text-xs text-gray-500">
-                  Format international: +[code pays][numéro]
+                  {t('whatsapp.phoneHint')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Message</label>
+                <label className="text-sm font-medium">{t('whatsapp.messageLabel')}</label>
                 <Textarea
                   placeholder="Bonjour! Ceci est un message test..."
                   value={testMessage}
@@ -285,7 +287,7 @@ export default function WhatsAppSettingsPage() {
 
               <Button onClick={handleSendTestMessage} disabled={!config?.configured}>
                 <Send className="h-4 w-4 mr-2" />
-                Envoyer le test
+                {t('whatsapp.sendTest')}
               </Button>
             </CardContent>
           </Card>

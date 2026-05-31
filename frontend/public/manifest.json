@@ -1,10 +1,21 @@
 {
-  "name": "EcomPilot Livreur",
-  "short_name": "Livreur",
-  "description": "Application livreur EcomPilot — tournées COD Tunisie",
-  "start_url": "/driver",
+  "name": "EcomPilot",
+  "short_name": "EcomPilot",
+  "description": "Système de revenu, livraison et conversion pour l'e-commerce COD en Tunisie",
+  "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
-  "orientation": "portrait"
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "dir": "auto",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

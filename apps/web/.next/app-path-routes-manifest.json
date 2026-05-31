@@ -1,0 +1,11 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/page": "/",
+  "/login/page": "/login",
+  "/(merchant)/dashboard/page": "/dashboard",
+  "/(merchant)/orders/page": "/orders",
+  "/(merchant)/delivery/page": "/delivery",
+  "/(merchant)/delivery/analytics/page": "/delivery/analytics",
+  "/(merchant)/delivery/connect/page": "/delivery/connect",
+  "/(merchant)/delivery/shipments/page": "/delivery/shipments"
+}

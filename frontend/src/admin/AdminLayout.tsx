@@ -12,6 +12,7 @@ const AdminLayout: React.FC = () => {
           <div className="font-bold">Admin</div>
           <div className="flex gap-4 text-sm">
             <Link className={isActive('/admin/users') ? 'text-black' : 'text-gray-600'} to="/admin/users">Utilisateurs</Link>
+            <Link className={isActive('/admin/store-template') ? 'text-black' : 'text-gray-600'} to="/admin/store-template">Templates</Link>
             <Link className={isActive('/admin/settings') ? 'text-black' : 'text-gray-600'} to="/admin/settings">Paramètres</Link>
           </div>
         </div>

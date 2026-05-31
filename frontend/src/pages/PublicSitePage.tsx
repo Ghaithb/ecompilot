@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, ExternalLink, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
 
 interface SiteData {
   website: {
@@ -44,7 +45,7 @@ export function PublicSitePage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`http://localhost:3001/api/v1/public/website/${slug}`);
+      const response = await fetch(apiUrl(`/public/website/${slug}`));
 
       if (!response.ok) {
         if (response.status === 404) {

@@ -120,8 +120,11 @@ export class FirstDeliveryProvider extends BaseDeliveryProvider {
     return data?.result || [];
   }
 
-  async requestPickup(barcodes: string[], tenantId?: string) {
+  protected async requestPickupLegacy(barcodes: string[], tenantId?: string) {
     const cfg = await this.resolveConfig(tenantId || '');
+    if (cfg.mock) {
+      return { pickupId: `MOCK-PICKUP-${Date.now()}`, labelUrl: undefined };
+    }
     const { data } = await this.http.post(
       `${cfg.apiUrl}/pickup`,
       { barCodes: barcodes },

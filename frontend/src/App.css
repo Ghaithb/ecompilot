@@ -42,7 +42,17 @@
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.875rem;
+
+  /* EcomPilot brand tokens (Free Growth Mode) */
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
+  --brand-primary-soft: #60a5fa;
+  --brand-success: #10b981;
+  --brand-warning: #f59e0b;
+  --brand-danger: #ef4444;
+  --brand-surface: #111827;
+  --brand-canvas: #0b1220;
   
   /* Couleurs modernes avec dégradés */
   --background: oklch(0.99 0.002 264);
@@ -54,8 +64,8 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.01 264);
   
-  /* Primary - Bleu violet moderne */
-  --primary: oklch(0.55 0.22 264);
+  /* Primary — blue-600 SaaS trust */
+  --primary: oklch(0.546 0.214 262.5);
   --primary-foreground: oklch(0.99 0 0);
   
   /* Secondary - Violet clair */
@@ -548,6 +558,31 @@
       0 10px 40px oklch(0.55 0.22 264 / 0.3),
       0 0 60px oklch(0.55 0.22 264 / 0.2);
   }
+
+  /* SaaS premium cards */
+  .saas-card {
+    @apply rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.04),
+      0 8px 24px rgb(15 23 42 / 0.06);
+  }
+
+  .dark .saas-card {
+    background: color-mix(in srgb, var(--brand-surface) 92%, transparent);
+    border-color: rgb(255 255 255 / 0.08);
+  }
+
+  .saas-card-interactive {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .saas-card-interactive:hover {
+    transform: scale(1.02);
+    box-shadow:
+      0 4px 12px rgb(37 99 235 / 0.08),
+      0 12px 32px rgb(15 23 42 / 0.1);
+    border-color: rgb(37 99 235 / 0.25);
+  }
   
   /* Effet de rotation douce */
   .hover-rotate {
@@ -714,4 +749,414 @@
   50% {
     box-shadow: 0 0 0 8px var(--primary), 0 0 30px var(--primary);
   }
+}
+
+/* ============================================================
+   STOREFRONT DESIGN SYSTEM — Tunisia COD boutiques
+   Scoped to .storefront-root (public /store/:slug pages)
+   ============================================================ */
+
+.storefront-root {
+  --store-primary: #2563eb;
+  --store-secondary: #1d4ed8;
+  --store-accent: #10b981;
+  --store-bg: #ffffff;
+  --store-text: #111827;
+  --store-primary-soft: #2563eb18;
+  --store-radius: 1rem;
+  --store-radius-lg: 1.5rem;
+  --store-gutter: 1.25rem;
+  --store-max: 90rem;
+  background-color: var(--store-bg);
+  color: var(--store-text);
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography scale */
+.storefront-root .store-display {
+  font-size: clamp(1.875rem, 4vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.storefront-root .store-hero-title {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.storefront-root .store-section-title {
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.storefront-root .store-section-subtitle,
+.storefront-root .store-hero-subtitle {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.storefront-root .store-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.storefront-root .store-price {
+  font-weight: 700;
+  color: var(--store-primary);
+}
+
+.storefront-root .store-price--lg {
+  font-size: clamp(1.5rem, 4vw, 1.875rem);
+}
+
+/* Hero panels per layout */
+.storefront-root .store-hero-panel {
+  border-radius: var(--store-radius-lg);
+  border: 1px solid transparent;
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .storefront-root .store-hero-panel {
+    padding: 2.5rem;
+  }
+}
+
+.storefront-root .store-hero-panel--classic {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--store-primary) 8%, white), color-mix(in srgb, var(--store-secondary) 6%, white));
+  border-color: color-mix(in srgb, var(--store-primary) 15%, transparent);
+}
+
+/* Cover hero — slogan sur l'image, hauteur compacte */
+.storefront-root .store-cover-hero {
+  position: relative;
+  height: min(42vh, 420px);
+  max-height: 420px;
+  min-height: 220px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.storefront-root .store-cover-hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: color-mix(in srgb, var(--store-primary) 70%, #111);
+}
+
+.storefront-root .store-cover-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+.storefront-root .store-cover-hero__content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem var(--store-gutter, 1rem) 1.5rem;
+  max-width: var(--store-max, 72rem);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.storefront-root .store-cover-hero__content--slogan-only {
+  justify-content: center;
+}
+
+.storefront-root .store-cover-hero__center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+
+.storefront-root .store-cover-hero__slogan {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  max-width: 36rem;
+  line-height: 1.3;
+}
+
+.storefront-root .store-cover-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.storefront-root .store-header-brand {
+  text-decoration: none;
+  color: inherit;
+}
+
+.storefront-root .store-header-logo {
+  border: 1px solid color-mix(in srgb, var(--border, #e5e7eb) 80%, transparent);
+  background: var(--background, #fff);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Header Wave */
+.storefront-root .store-header-wave {
+  background: #fff;
+}
+
+.storefront-root .store-header-name {
+  color: var(--foreground, #111);
+}
+
+.storefront-root .store-trust-advantage__icon {
+  display: inline-flex;
+  height: 3rem;
+  width: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--store-primary) 10%, white);
+  color: var(--store-primary);
+}
+
+.storefront-root .store-product-badge {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 2;
+  border-radius: 9999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.storefront-root .store-product-badge--best-seller {
+  background: #111827;
+}
+
+.storefront-root .store-product-badge--new {
+  background: var(--store-primary, #2563eb);
+}
+
+.storefront-root .store-product-badge--promo {
+  background: #dc2626;
+}
+
+.storefront-root .store-product-card--premium .store-product-card__inner {
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.storefront-root .store-product-card--premium {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.storefront-root .store-product-card--premium:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.storefront-root .store-product-add-secondary {
+  border-color: var(--border, #e5e7eb);
+  color: var(--foreground, #111);
+}
+
+.storefront-root .store-footer {
+  margin-top: 1rem;
+}
+
+.storefront-root .store-hero-panel--minimal {
+  background: var(--store-bg);
+  border-color: var(--border, #e5e7eb);
+  text-align: center;
+}
+
+.storefront-root .store-hero-panel--service {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--store-primary) 12%, white), color-mix(in srgb, var(--store-accent) 8%, white));
+  border-color: color-mix(in srgb, var(--store-primary) 18%, transparent);
+}
+
+.storefront-root .store-hero-panel--dark {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border-color: #334155;
+  color: #fff;
+}
+
+.storefront-root .store-hero-panel--dark .store-hero-subtitle {
+  color: #cbd5e1;
+}
+
+/* Commerce */
+.storefront-root .store-cod-badge {
+  background: color-mix(in srgb, var(--store-accent) 15%, white);
+  color: color-mix(in srgb, var(--store-accent) 85%, black);
+}
+
+.storefront-root .store-btn-primary {
+  background: var(--store-primary);
+}
+
+.storefront-root .store-btn-primary:hover {
+  background: var(--store-secondary);
+}
+
+.storefront-root .store-btn-outline {
+  border: 2px solid var(--store-primary);
+  color: var(--store-primary);
+}
+
+.storefront-root .store-trust-item {
+  border-color: color-mix(in srgb, var(--store-primary) 12%, transparent);
+}
+
+.storefront-root .store-promo-banner {
+  background: color-mix(in srgb, var(--store-accent) 10%, #fffbeb);
+  border-color: color-mix(in srgb, var(--store-accent) 25%, transparent);
+  color: color-mix(in srgb, var(--store-accent) 90%, black);
+}
+
+.storefront-root .store-pill--active {
+  background: var(--store-primary);
+  border-color: transparent;
+  color: #fff;
+}
+
+.storefront-root .store-input:focus {
+  outline: none;
+  border-color: var(--store-primary);
+  box-shadow: 0 0 0 3px var(--store-primary-soft);
+}
+
+/* Product cards */
+.storefront-root .store-product-card {
+  border-radius: var(--store-radius-lg);
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.storefront-root .store-product-card:hover {
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--store-primary) 8%, transparent);
+  transform: translateY(-1px);
+}
+
+.storefront-root .store-product-card--premium {
+  border-radius: 0.25rem;
+}
+
+.storefront-root .store-product-card--premium:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.storefront-root .store-product-add {
+  background: var(--store-primary);
+}
+
+.storefront-root .store-product-add:hover {
+  background: var(--store-secondary);
+}
+
+/* Layout variants */
+.store-layout-classic .store-hero-title {
+  font-weight: 700;
+}
+
+.store-layout-product-focus {
+  --store-gutter: 1.25rem;
+}
+
+.store-layout-product-focus main {
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.store-layout-catalog .store-section-title {
+  font-weight: 700;
+}
+
+.store-layout-premium {
+  --store-radius-lg: 0.25rem;
+}
+
+.store-layout-premium .store-section-title {
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.store-layout-service .store-hero-panel {
+  border-radius: var(--store-radius-lg);
+}
+
+.storefront-root .store-empty {
+  color: var(--muted-foreground, #6b7280);
+}
+
+.storefront-root .store-sticky-cta {
+  border-color: var(--border, #e5e7eb);
+}
+
+.storefront-root select {
+  color-scheme: light;
+}
+
+.storefront-root select option {
+  background-color: #fff;
+  color: #111827;
+}
+
+.storefront-root .store-whatsapp-float {
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
+}
+
+.storefront-root .store-trust-advantages {
+  margin-bottom: 0.25rem;
+}
+
+.storefront-root .store-category-section {
+  padding-top: 2rem;
+}
+
+.storefront-root .store-category-tile:focus-visible {
+  outline: 2px solid var(--store-primary);
+  outline-offset: 2px;
+}
+
+.storefront-root .store-product-card__inner,
+.storefront-root .store-product-body {
+  background: #fff;
+  color: #111827;
+}
+
+.storefront-root .store-catalog-toolbar .store-pill--active {
+  background: var(--store-primary);
+  border-color: var(--store-primary);
+  color: #fff;
 }

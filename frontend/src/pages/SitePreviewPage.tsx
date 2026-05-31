@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
+import {
   Eye, 
   ExternalLink, 
   ArrowRight, 
@@ -66,7 +67,7 @@ const SitePreviewPage: React.FC = () => {
       const token = localStorage.getItem('auth_token');
       
       // Récupérer le site actuel du tenant
-      const response = await fetch('http://localhost:3001/api/v1/website', {
+      const response = await fetch(apiUrl('/website'), {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -84,7 +85,7 @@ const SitePreviewPage: React.FC = () => {
       const websiteData = await response.json();
       
       // Récupérer la page d'accueil
-      const pagesResponse = await fetch('http://localhost:3001/api/v1/website/pages', {
+      const pagesResponse = await fetch(apiUrl('/website/pages'), {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

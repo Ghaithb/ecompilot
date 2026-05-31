@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,9 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/analyticsApi';
 import { Link } from 'react-router-dom';
+import {
+  RevenueCommandCenter,
+} from '@/components/dashboard/RevenueCommandCenter';
 import {
   RevenueChartWidget,
   TopProductsWidget,
@@ -66,6 +70,7 @@ function CountUp({ value, decimals = 1, duration = 800, suffix = '' }: { value: 
 }
 
 const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { recommendations } = useAi();
   const { formatPrice } = useCurrency();
@@ -106,24 +111,30 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="w-full px-4 py-4 space-y-6">
+      <RevenueCommandCenter
+        data={dashboard}
+        formatPrice={formatPrice}
+        loading={loadingDashboard}
+      />
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
-            Bonjour {user?.firstName} 👋
+            {t('dashboard.page.greeting', { name: user?.firstName || '' })}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Tableau de bord · 30 derniers jours · Données en temps réel
+            {t('dashboard.page.subtitle')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="hover-lift" onClick={() => setShowOnboarding(!showOnboarding)}>
             <HelpCircle className="w-4 h-4 mr-2" />
-            Guide
+            {t('dashboard.page.guide')}
           </Button>
-          <Link to="/conversion">
+          <Link to="/conversion/center">
             <Button variant="default" size="sm" className="hover-lift">
               <Target className="w-4 h-4 mr-2" />
-              Centre conversion
+              {t('dashboard.page.conversionCenter')}
             </Button>
           </Link>
         </div>
@@ -135,7 +146,7 @@ const DashboardPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Rocket className="w-5 h-5 text-primary" />
-                Guide de Démarrage Rapide
+                {t('dashboard.page.onboardingTitle')}
               </CardTitle>
               <Button variant="ghost" size="sm" onClick={() => setShowOnboarding(false)}>✕</Button>
             </div>
@@ -146,27 +157,27 @@ const DashboardPage: React.FC = () => {
                 <div className="p-4 rounded-lg bg-gradient-primary text-white hover-scale-glow cursor-pointer">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle2 className="w-5 h-5" />
-                    <span className="font-semibold">Étape 1</span>
+                    <span className="font-semibold">{t('dashboard.page.step1')}</span>
                   </div>
-                  <p className="text-sm opacity-90">Ajouter vos premiers produits</p>
+                  <p className="text-sm opacity-90">{t('dashboard.page.step1Desc')}</p>
                 </div>
               </Link>
               <Link to="/website">
                 <div className="p-4 rounded-lg bg-gradient-secondary text-white hover-scale-glow cursor-pointer">
                   <div className="flex items-center gap-2 mb-2">
                     <Target className="w-5 h-5" />
-                    <span className="font-semibold">Étape 2</span>
+                    <span className="font-semibold">{t('dashboard.page.step2')}</span>
                   </div>
-                  <p className="text-sm opacity-90">Créer votre boutique (2 clics)</p>
+                  <p className="text-sm opacity-90">{t('dashboard.page.step2Desc')}</p>
                 </div>
               </Link>
               <Link to="/orders">
                 <div className="p-4 rounded-lg bg-gradient-accent text-white hover-scale-glow cursor-pointer">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="w-5 h-5" />
-                    <span className="font-semibold">Étape 3</span>
+                    <span className="font-semibold">{t('dashboard.page.step3')}</span>
                   </div>
-                  <p className="text-sm opacity-90">Gérer vos commandes COD</p>
+                  <p className="text-sm opacity-90">{t('dashboard.page.step3Desc')}</p>
                 </div>
               </Link>
             </div>
@@ -178,19 +189,17 @@ const DashboardPage: React.FC = () => {
 
       {!loadingDashboard && (
         <>
-          {/* KPIs principaux */}
+          {/* KPIs secondaires */}
           <motion.div
-            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             {[
-              { title: 'Revenus', value: formatPrice(stats.revenue), change: stats.revenueChange, icon: DollarSign, href: '/analytics?tab=revenue', gradient: 'bg-gradient-primary' },
-              { title: 'Commandes', value: stats.orders, change: stats.ordersChange, icon: ShoppingCart, href: '/orders', gradient: 'bg-gradient-secondary' },
-              { title: 'Articles vendus', value: stats.articlesSold, icon: Package, href: '/products', gradient: 'bg-gradient-accent' },
-              { title: 'Livraisons COD', value: stats.codDelivered, sub: `${stats.codSuccessRate.toFixed(0)}% succès`, icon: Truck, href: '/orders', gradient: 'bg-green-600' },
-              { title: 'Produits actifs', value: stats.products, icon: Package, href: '/products', gradient: 'bg-purple-600' },
-              { title: 'Clients', value: stats.customers, icon: Users, href: '/customers', gradient: 'bg-orange-500' },
+              { title: t('dashboard.page.kpiRevenue'), value: formatPrice(stats.revenue), change: stats.revenueChange, icon: DollarSign, href: '/analytics?tab=revenue', gradient: 'bg-gradient-primary' },
+              { title: t('dashboard.page.kpiOrders'), value: stats.orders, change: stats.ordersChange, icon: ShoppingCart, href: '/orders', gradient: 'bg-gradient-secondary' },
+              { title: t('dashboard.page.kpiCodDeliveries'), value: stats.codDelivered, sub: t('dashboard.page.kpiSuccess', { rate: stats.codSuccessRate.toFixed(0) }), icon: Truck, href: '/orders', gradient: 'bg-green-600' },
+              { title: t('dashboard.page.kpiCustomers'), value: stats.customers, icon: Users, href: '/customers', gradient: 'bg-orange-500' },
             ].map((kpi) => (
               <Link key={kpi.title} to={kpi.href}>
                 <Card className="shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
@@ -254,29 +263,29 @@ const DashboardPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Trophy className="w-5 h-5 text-amber-500" />
-                  Résumé rapide
+                  {t('dashboard.page.quickSummary')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-2xl font-bold">{cod?.totalCodOrders ?? 0}</p>
-                    <p className="text-xs text-muted-foreground">Commandes COD</p>
+                    <p className="text-xs text-muted-foreground">{t('dashboard.page.codOrders')}</p>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg">
                     <p className="text-2xl font-bold text-green-700">{cod?.delivered ?? 0}</p>
-                    <p className="text-xs text-muted-foreground">Livrées</p>
+                    <p className="text-xs text-muted-foreground">{t('dashboard.page.delivered')}</p>
                   </div>
                   <div className="p-3 bg-red-50 rounded-lg">
                     <p className="text-2xl font-bold text-red-700">{cod?.cancelled ?? 0}</p>
-                    <p className="text-xs text-muted-foreground">Non livrées</p>
+                    <p className="text-xs text-muted-foreground">{t('dashboard.page.notDelivered')}</p>
                   </div>
                   <div className="p-3 bg-amber-50 rounded-lg">
                     <p className="text-2xl font-bold text-amber-700">
                       {productAnalytics.winningProduct.salesPercentage.toFixed(0)}%
                     </p>
                     <p className="text-xs text-muted-foreground truncate" title={productAnalytics.winningProduct.title}>
-                      Top : {productAnalytics.winningProduct.title}
+                      {t('dashboard.page.topProduct', { name: productAnalytics.winningProduct.title })}
                     </p>
                   </div>
                 </div>
@@ -290,13 +299,13 @@ const DashboardPage: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <Lightbulb className="w-6 h-6 text-blue-600" />
                   <div>
-                    <h3 className="font-semibold text-blue-900">Bienvenue dans votre tableau de bord !</h3>
+                    <h3 className="font-semibold text-blue-900">{t('dashboard.page.welcomeTitle')}</h3>
                     <p className="text-blue-700 mt-1 text-sm">
-                      Ajoutez des produits et recevez vos premières commandes COD pour voir livraisons, articles vendus et produit gagnant ici.
+                      {t('dashboard.page.welcomeDesc')}
                     </p>
                     <div className="flex gap-2 mt-3">
-                      <Link to="/products"><Button size="sm"><Plus className="w-4 h-4 mr-1" />Produits</Button></Link>
-                      <Link to="/website"><Button size="sm" variant="outline">Créer ma boutique</Button></Link>
+                      <Link to="/products"><Button size="sm"><Plus className="w-4 h-4 mr-1" />{t('dashboard.page.addProducts')}</Button></Link>
+                      <Link to="/website"><Button size="sm" variant="outline">{t('dashboard.page.createStore')}</Button></Link>
                     </div>
                   </div>
                 </div>
@@ -312,9 +321,9 @@ const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Bot className="w-5 h-5 text-primary" />
-              Recommandations IA
+              {t('dashboard.page.aiRecommendations')}
             </CardTitle>
-            <Badge>Nouveau</Badge>
+            <Badge>{t('dashboard.page.newBadge')}</Badge>
           </div>
         </CardHeader>
         <CardContent>
@@ -334,7 +343,7 @@ const DashboardPage: React.FC = () => {
           ) : (
             <div className="text-center py-4 text-gray-500">
               <Bot className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">L&apos;IA analyse vos données pour générer des recommandations</p>
+              <p className="text-sm">{t('dashboard.page.aiAnalyzing')}</p>
             </div>
           )}
         </CardContent>

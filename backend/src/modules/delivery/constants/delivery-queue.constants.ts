@@ -10,6 +10,7 @@ export type DeliveryQueuePayload = {
   tenantId: string;
   orderId: string;
   providerId: string;
+  shipmentId?: string;
   weightKg?: number;
   localityId?: number;
   attempt?: number;

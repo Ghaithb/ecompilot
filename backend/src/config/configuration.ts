@@ -54,6 +54,9 @@ export default () => ({
     queueEnabled: process.env.DELIVERY_QUEUE_ENABLED === 'true',
     webhookSecret: process.env.DELIVERY_WEBHOOK_SECRET || '',
     allowMock: process.env.DELIVERY_ALLOW_MOCK === 'true',
+    pollingEnabled: process.env.DELIVERY_POLLING_ENABLED !== 'false',
+    pollingStaleMinutes: parseInt(process.env.DELIVERY_POLLING_STALE_MINUTES || '120', 10),
+    pollingBatchSize: parseInt(process.env.DELIVERY_POLLING_BATCH_SIZE || '50', 10),
     shipper: {
       apiUrl: process.env.SHIPPER_API_URL || 'https://server.shipper.network/api/v1',
       apiKey: process.env.SHIPPER_API_KEY || '',
@@ -62,6 +65,18 @@ export default () => ({
       apiUrl: process.env.MYLERZ_API_URL || '',
       apiKey: process.env.MYLERZ_API_KEY || '',
     },
+  },
+
+  cart: {
+    abandonmentMinutes: parseInt(process.env.CART_ABANDONMENT_MINUTES || '30', 10),
+    recoveryEnabled: process.env.CART_RECOVERY_ENABLED !== 'false',
+    recoveryMaxReminders: parseInt(process.env.CART_RECOVERY_MAX_REMINDERS || '2', 10),
+    recoveryIntervalMinutes: parseInt(process.env.CART_RECOVERY_INTERVAL_MINUTES || '60', 10),
+    recoveryBaseUrl: process.env.CART_RECOVERY_BASE_URL || 'http://localhost:5173',
+    recoveryDiscountEnabled: process.env.CART_RECOVERY_DISCOUNT_ENABLED !== 'false',
+    recoveryMaxDiscountPercent: parseInt(process.env.CART_RECOVERY_MAX_DISCOUNT_PERCENT || '10', 10),
+    freeShippingThreshold: parseInt(process.env.CART_FREE_SHIPPING_THRESHOLD || '150', 10),
+    defaultShippingTnd: parseInt(process.env.CART_DEFAULT_SHIPPING_TND || '7', 10),
   },
 
   shipping: {

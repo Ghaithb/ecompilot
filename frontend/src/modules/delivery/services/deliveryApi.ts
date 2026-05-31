@@ -19,12 +19,28 @@ export async function fetchDeliveryShipments(params?: {
   status?: string;
   provider?: string;
 }): Promise<Shipment[]> {
-  const { data } = await api.get('/delivery/shipments', { params });
+  const { data } = await api.get('/shipments', { params });
   return data;
 }
 
 export async function fetchShipment(shipmentId: string): Promise<Shipment> {
-  const { data } = await api.get(`/delivery/shipments/${shipmentId}`);
+  const { data } = await api.get(`/shipments/${shipmentId}`);
+  return data;
+}
+
+export async function trackShipmentByNumber(trackingNumber: string): Promise<Shipment> {
+  const { data } = await api.get(`/shipments/track/${encodeURIComponent(trackingNumber)}`);
+  return data;
+}
+
+export async function createShipment(payload: {
+  orderId: string;
+  provider: DeliveryProviderId;
+  weightKg?: number;
+  localityId?: number;
+  async?: boolean;
+}) {
+  const { data } = await api.post('/shipments/create', payload);
   return data;
 }
 
@@ -64,8 +80,7 @@ export async function createShipmentFromOrder(
     async?: boolean;
   },
 ) {
-  const { data } = await api.post(`/delivery/shipments/from-order/${orderId}`, payload);
-  return data;
+  return createShipment({ orderId, ...payload });
 }
 
 export async function syncShipmentTracking(shipmentId: string) {
@@ -88,14 +103,55 @@ export async function fetchFirstDeliveryLocalities() {
   return data;
 }
 
+export interface CarrierManifest {
+  provider: DeliveryProviderId;
+  providerLabel: string;
+  generatedAt: string;
+  summary: { parcels: number; codParcels: number; codTotal: number };
+  items: Array<{
+    index: number;
+    trackingNumber: string;
+    orderNumber?: string;
+    customerName: string;
+    phone: string;
+    address: string;
+    codAmount: number;
+    status: string;
+  }>;
+  html?: string;
+}
+
+export async function fetchCarrierManifest(
+  provider: DeliveryProviderId,
+  format: 'json' | 'html' = 'json',
+): Promise<CarrierManifest> {
+  const { data } = await api.get(`/delivery/manifests/${provider}`, { params: { format } });
+  return data;
+}
+
+export const ALL_DELIVERY_PROVIDER_IDS: DeliveryProviderId[] = [
+  'intigo',
+  'first_delivery',
+  'shipper',
+  'aramex',
+  'rapid_poste',
+  'mylerz',
+];
+
 export const PROVIDER_LABELS: Record<DeliveryProviderId, string> = {
   intigo: 'INTIGO',
   first_delivery: 'First Delivery',
   shipper: 'Shipper',
+  aramex: 'Aramex',
+  rapid_poste: 'Rapid Poste (La Poste)',
+  mylerz: 'Mylerz',
 };
 
 export const PROVIDER_DESCRIPTIONS: Record<DeliveryProviderId, string> = {
   intigo: 'Livraison express Tunisie — API partenaire',
   first_delivery: 'Réseau First Delivery Group — localités & pickups',
   shipper: 'Shipper Network — API Open v1',
+  aramex: 'Aramex Tunisie — express international',
+  rapid_poste: 'Rapid Poste — réseau La Poste Tunisienne',
+  mylerz: 'Mylerz — livraison e-commerce',
 };

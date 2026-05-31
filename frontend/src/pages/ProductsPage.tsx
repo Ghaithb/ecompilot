@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useRef, type ChangeEvent } from 'react';
+import React, { useState, useMemo, useRef, useEffect, type ChangeEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,8 @@ import { EmptyState, EmptyBoxIllustration } from '@/components/ui/empty-state';
 import { Checkbox } from '@/components/ui/checkbox';
 import { productsApi, aiApi } from '@/lib/api';
 import { api } from '@/lib/api';
+import { formatTND } from '@/lib/currency';
+import { useTranslation } from 'react-i18next';
 
 type ProductStatus = 'active' | 'draft' | 'archived';
 
@@ -134,13 +137,20 @@ const ProductImageUpload: React.FC<{ onUpload: (url: string) => void }> = ({ onU
 
 const ProductsPage: React.FC = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
 
   const [filters, setFilters] = useState<FiltersState>({
-    search: '',
+    search: searchParams.get('search') || '',
     category: 'all',
     status: 'all',
   });
+
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q) setFilters((prev) => ({ ...prev, search: q }));
+  }, [searchParams]);
 
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
@@ -161,7 +171,7 @@ const ProductsPage: React.FC = () => {
     title: '',
     description: '',
     category: '',
-    status: 'draft',
+    status: 'active',
     sku: '',
     variantName: '',
     price: 0,
@@ -182,12 +192,18 @@ const ProductsPage: React.FC = () => {
   const updateProductMutation = useMutation({
     mutationFn: async () => {
       if (!editProduct || !editForm) return;
-      if (!editForm.title || !editForm.sku || isNaN(editForm.price) || isNaN(editForm.inventory)) {
-        throw new Error('All required fields must be filled correctly');
+      if (
+        !editForm.title.trim() ||
+        !editForm.description.trim() ||
+        !editForm.sku.trim() ||
+        isNaN(editForm.price) ||
+        isNaN(editForm.inventory)
+      ) {
+        throw new Error('Remplissez le titre, la description, le SKU, le prix et le stock.');
       }
       const payload = {
-        title: editForm.title,
-        description: editForm.description,
+        title: editForm.title.trim(),
+        description: editForm.description.trim(),
         category: editForm.category || undefined,
         status: editForm.status,
         variants: [
@@ -231,12 +247,18 @@ const ProductsPage: React.FC = () => {
 
   const createProduct = useMutation({
     mutationFn: async () => {
-      if (!newProduct.title || !newProduct.sku || isNaN(newProduct.price) || isNaN(newProduct.inventory)) {
-        throw new Error('All required fields must be filled correctly');
+      if (
+        !newProduct.title.trim() ||
+        !newProduct.description.trim() ||
+        !newProduct.sku.trim() ||
+        isNaN(newProduct.price) ||
+        isNaN(newProduct.inventory)
+      ) {
+        throw new Error('Remplissez le titre, la description, le SKU, le prix et le stock.');
       }
       const payload = {
-        title: newProduct.title,
-        description: newProduct.description,
+        title: newProduct.title.trim(),
+        description: newProduct.description.trim(),
         category: newProduct.category || undefined,
         status: newProduct.status,
         variants: [
@@ -253,11 +275,12 @@ const ProductsPage: React.FC = () => {
       return await productsApi.create(payload);
     },
     onSuccess: () => {
+      const wasActive = newProduct.status === 'active';
       setNewProduct({
         title: '',
         description: '',
         category: '',
-        status: 'draft',
+        status: 'active',
         sku: '',
         variantName: '',
         price: 0,
@@ -266,7 +289,12 @@ const ProductsPage: React.FC = () => {
       });
       setCreateDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast({ title: 'Produit créé', description: 'Le produit a été ajouté avec succès.' });
+      toast({
+        title: 'Produit créé',
+        description: wasActive
+          ? 'Visible sur votre boutique publique.'
+          : 'Statut brouillon — activez-le pour l\'afficher sur la boutique.',
+      });
     },
     onError: (err: Error) => {
       toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
@@ -406,17 +434,12 @@ const ProductsPage: React.FC = () => {
   const totalPages = Math.ceil((filteredProducts.length || 0) / itemsPerPage);
   const paginatedProducts = filteredProducts.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
-  const formatPrice = (price: number, currency: string = 'EUR') => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency,
-    }).format(price);
-  };
+  const formatPrice = (price: number) => formatTND(price);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin" aria-label="Chargement des produits" />
+        <Loader2 className="w-8 h-8 animate-spin" aria-label={t('products.loading')} />
       </div>
     );
   }
@@ -442,8 +465,8 @@ const ProductsPage: React.FC = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Produits</CardTitle>
-              <CardDescription>Gérez votre catalogue de produits</CardDescription>
+              <CardTitle>{t('products.title')}</CardTitle>
+              <CardDescription>{t('products.subtitle')}</CardDescription>
             </div>
             <div className="flex gap-2">
               <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
@@ -455,9 +478,9 @@ const ProductsPage: React.FC = () => {
                 </DialogTrigger>
                 <DialogContent aria-labelledby="create-product-title" aria-describedby="create-product-description">
                   <DialogHeader>
-                    <DialogTitle id="create-product-title">Ajouter un produit</DialogTitle>
+                    <DialogTitle id="create-product-title">{t('products.add')}</DialogTitle>
                     <DialogDescription id="create-product-description">
-                      Créez un nouveau produit dans votre catalogue.
+                      Créez un produit actif pour qu&apos;il apparaisse sur votre boutique COD.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
@@ -476,10 +499,11 @@ const ProductsPage: React.FC = () => {
                       />
                     </div>
                     <Input
-                      placeholder="Description"
+                      placeholder="Description (obligatoire)"
                       value={newProduct.description}
                       onChange={(e) => setNewProduct((p) => ({ ...p, description: e.target.value }))}
                       aria-label="Description du produit"
+                      required
                     />
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Select
@@ -492,8 +516,8 @@ const ProductsPage: React.FC = () => {
                           <SelectValue placeholder="Statut" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="active">Actif (visible boutique)</SelectItem>
                           <SelectItem value="draft">Brouillon</SelectItem>
-                          <SelectItem value="active">Actif</SelectItem>
                           <SelectItem value="archived">Archivé</SelectItem>
                         </SelectContent>
                       </Select>
@@ -512,7 +536,7 @@ const ProductsPage: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Input
-                        placeholder="Prix (€)"
+                        placeholder="Prix (TND)"
                         type="number"
                         value={newProduct.price || ''}
                         onChange={(e) =>
@@ -545,8 +569,9 @@ const ProductsPage: React.FC = () => {
                     <Button
                       onClick={() => createProduct.mutate()}
                       disabled={
-                        !newProduct.title ||
-                        !newProduct.sku ||
+                        !newProduct.title.trim() ||
+                        !newProduct.description.trim() ||
+                        !newProduct.sku.trim() ||
                         isNaN(newProduct.price) ||
                         isNaN(newProduct.inventory) ||
                         createProduct.isPending
@@ -562,9 +587,9 @@ const ProductsPage: React.FC = () => {
 
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline" aria-label="Importer des produits">
+                  <Button variant="outline" aria-label={t('products.import')}>
                     <UploadCloud className="w-4 h-4 mr-2" />
-                    Importer
+                    {t('products.import')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent aria-labelledby="import-products-title" aria-describedby="import-products-description">
@@ -670,7 +695,7 @@ const ProductsPage: React.FC = () => {
           <div className="flex gap-4 mb-6">
             <div className="flex-1">
               <Input
-                placeholder="Rechercher un produit..."
+                placeholder={t('products.searchPlaceholder')}
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                 className="flex-1"
@@ -745,11 +770,11 @@ const ProductsPage: React.FC = () => {
           {filteredProducts.length === 0 ? (
             <EmptyState
               icon={Package}
-              title="Aucun produit"
-              description="Commencez par créer votre premier produit pour votre boutique en ligne"
+              title={t('products.emptyTitle')}
+              description={t('products.emptyDesc')}
               illustration={<EmptyBoxIllustration />}
               action={{
-                label: "Créer un produit",
+                label: t('products.add'),
                 onClick: () => setCreateDialogOpen(true)
               }}
             />
@@ -764,13 +789,13 @@ const ProductsPage: React.FC = () => {
                     aria-label="Sélectionner tous les produits"
                   />
                 </TableHead>
-                <TableHead>Produit</TableHead>
+                <TableHead>{t('products.col.product')}</TableHead>
                 <TableHead>SKU</TableHead>
-                <TableHead>Prix</TableHead>
-                <TableHead>Stock</TableHead>
+                <TableHead>{t('products.col.price')}</TableHead>
+                <TableHead>{t('products.col.stock')}</TableHead>
                 <TableHead>Catégorie</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t('products.col.status')}</TableHead>
+                <TableHead>{t('products.col.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -926,10 +951,11 @@ const ProductsPage: React.FC = () => {
                 />
               </div>
               <Input
-                placeholder="Description"
+                placeholder="Description (obligatoire)"
                 value={editForm.description}
                 onChange={(e) => setEditForm((p) => ({ ...p!, description: e.target.value }))}
                 aria-label="Description du produit"
+                required
               />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Select
@@ -960,7 +986,7 @@ const ProductsPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  placeholder="Prix (€)"
+                  placeholder="Prix (TND)"
                   type="number"
                   value={editForm.price || ''}
                   onChange={(e) => setEditForm((p) => ({ ...p!, price: Number(e.target.value) || 0 }))}
@@ -990,8 +1016,9 @@ const ProductsPage: React.FC = () => {
             <Button
               onClick={() => updateProductMutation.mutate()}
               disabled={
-                !editForm?.title ||
-                !editForm?.sku ||
+                !editForm?.title.trim() ||
+                !editForm?.description.trim() ||
+                !editForm?.sku.trim() ||
                 isNaN(editForm?.price) ||
                 isNaN(editForm?.inventory) ||
                 updateProductMutation.isPending
@@ -1113,7 +1140,7 @@ const ProductsPage: React.FC = () => {
                   </ul>
                   <div className="mt-3 pt-3 border-t">
                     <span className="font-medium">
-                      {bulkAction === 'price' && `Nouveau prix: ${bulkEditValue} €`}
+                      {bulkAction === 'price' && `Nouveau prix: ${bulkEditValue} TND`}
                       {bulkAction === 'status' && `Nouveau statut: ${bulkEditValue}`}
                       {bulkAction === 'category' && `Nouvelle catégorie: ${bulkEditValue}`}
                     </span>

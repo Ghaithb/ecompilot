@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   Select,
   SelectContent,
@@ -7,6 +6,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Languages } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Language {
   code: string;
@@ -17,37 +17,17 @@ interface Language {
 
 const LANGUAGES: Language[] = [
   { code: 'fr', name: 'Français', flag: '🇫🇷', direction: 'ltr' },
-  { code: 'en', name: 'English', flag: '🇬🇧', direction: 'ltr' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦', direction: 'rtl' },
+  { code: 'ar', name: 'العربية', flag: '🇹🇳', direction: 'rtl' },
 ];
 
 export default function LanguageSelector() {
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(() => {
-    return localStorage.getItem('selectedLanguage') || 'fr';
-  });
-
-  useEffect(() => {
-    // Apply RTL direction if Arabic
-    const lang = LANGUAGES.find(l => l.code === selectedLanguage);
-    if (lang) {
-      document.documentElement.dir = lang.direction;
-      document.documentElement.lang = lang.code;
-    }
-  }, [selectedLanguage]);
+  const { i18n } = useTranslation();
+  const selectedLanguage = LANGUAGES.some((l) => l.code === i18n.language)
+    ? i18n.language
+    : 'fr';
 
   const handleLanguageChange = (code: string) => {
-    setSelectedLanguage(code);
-    localStorage.setItem('selectedLanguage', code);
-    
-    // Apply direction immediately
-    const lang = LANGUAGES.find(l => l.code === code);
-    if (lang) {
-      document.documentElement.dir = lang.direction;
-      document.documentElement.lang = lang.code;
-    }
-
-    // TODO: Integrate with i18n library when implemented
-    // i18n.changeLanguage(code);
+    i18n.changeLanguage(code);
   };
 
   const currentLanguage = LANGUAGES.find(l => l.code === selectedLanguage);

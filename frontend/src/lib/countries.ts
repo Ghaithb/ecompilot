@@ -26,7 +26,7 @@ export const COUNTRIES: Country[] = [
   { code: 'LU', name: 'Luxembourg', dialCode: '+352', flag: '🇱🇺', phoneLength: 9, phonePattern: /^\d{9}$/ },
   { code: 'MA', name: 'Maroc', dialCode: '+212', flag: '🇲🇦', phoneLength: 9, phonePattern: /^\d{9}$/ },
   { code: 'DZ', name: 'Algérie', dialCode: '+213', flag: '🇩🇿', phoneLength: 9, phonePattern: /^\d{9}$/ },
-  { code: 'TN', name: 'Tunisie', dialCode: '+216', flag: '🇹🇳', phoneLength: 8, phonePattern: /^\d{8}$/ },
+  { code: 'TN', name: 'Tunisie', dialCode: '+216', flag: '🇹🇳', phoneLength: 8, phonePattern: /^[2-9]\d{7}$/ },
   { code: 'SN', name: 'Sénégal', dialCode: '+221', flag: '🇸🇳', phoneLength: 9, phonePattern: /^\d{9}$/ },
   { code: 'CI', name: 'Côte d\'Ivoire', dialCode: '+225', flag: '🇨🇮', phoneLength: 10, phonePattern: /^\d{10}$/ },
 ];

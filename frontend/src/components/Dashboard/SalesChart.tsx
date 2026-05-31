@@ -36,7 +36,7 @@ export function SalesChart() {
         <div className="space-y-4">
           {/* Total */}
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-gray-900">3,720€</span>
+            <span className="text-3xl font-bold text-gray-900">3.72 TND</span>
             <span className="text-sm text-green-600 font-medium flex items-center gap-1">
               <TrendingUp className="w-4 h-4" />
               +15.3%
@@ -56,7 +56,7 @@ export function SalesChart() {
                     {/* Tooltip on hover */}
                     <div className="absolute inset-x-0 -top-10 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded text-center">
-                        {data.amount}€
+                        {data.amount} TND
                       </div>
                     </div>
                   </div>
@@ -75,7 +75,7 @@ export function SalesChart() {
               </div>
             </div>
             <div className="text-sm text-gray-600">
-              Moyenne: <span className="font-semibold text-gray-900">531€/jour</span>
+              Moyenne: <span className="font-semibold text-gray-900">531.00 TND/jour</span>
             </div>
           </div>
         </div>

@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { api } from '@/lib/api';
 
 export interface Currency {
   code: string;
@@ -49,69 +47,76 @@ export interface RegionalPricing {
 }
 
 class CurrencyService {
-  private token: string | null = null;
-
-  setToken(token: string) {
-    this.token = token;
-  }
-
-  private getHeaders() {
-    return {
-      Authorization: `Bearer ${this.token}`,
-      'Content-Type': 'application/json',
-    };
-  }
-
   async convert(amount: number, from: string, to: string): Promise<ConversionResult> {
-    const response = await axios.get(`${API_URL}/currency/convert`, {
+    const response = await api.get('/currency/convert', {
       params: { amount, from, to },
-      headers: this.getHeaders(),
     });
     return response.data;
   }
 
   async getExchangeRates(base: string): Promise<Record<string, number>> {
-    const response = await axios.get(`${API_URL}/currency/rates/${base}`, {
-      headers: this.getHeaders(),
-    });
+    const response = await api.get(`/currency/rates/${base}`);
     return response.data;
   }
 
   async getCurrencyInfo(code: string): Promise<Currency> {
-    const response = await axios.get(`${API_URL}/currency/info/${code}`, {
-      headers: this.getHeaders(),
-    });
+    const response = await api.get(`/currency/info/${code}`);
     return response.data;
   }
 
   async getAllCurrencies(): Promise<Currency[]> {
-    const response = await axios.get(`${API_URL}/currency/list`, {
-      headers: this.getHeaders(),
-    });
+    const response = await api.get('/currency/list');
     const data = response.data;
     if (Array.isArray(data)) return data;
     if (Array.isArray(data?.currencies)) return data.currencies;
     return [];
   }
 
+  private normalizePricing(raw: Record<string, unknown>, currency: string): RegionalPricing {
+    const fallback = (raw.fallback as RegionalPricing | undefined)?.plans;
+    const plans = (raw.plans || fallback) as RegionalPricing['plans'];
+    const defaultFeatures = {
+      starter: ['1 site web', '10 produits', '100 commandes/mois', 'Support email'],
+      pro: ['3 sites web', '100 produits', 'Commandes illimitees', 'Support prioritaire', 'Analytics avances'],
+      business: ['10 sites web', 'Produits illimites', 'Multi-utilisateurs', 'Support 24/7', 'API access'],
+    };
+
+    return {
+      currency: String(raw.currency || currency).toUpperCase(),
+      region: String(raw.region || 'Regional'),
+      plans: {
+        starter: {
+          monthly: plans?.starter?.monthly ?? 0,
+          yearly: plans?.starter?.yearly ?? 0,
+          features: plans?.starter?.features ?? defaultFeatures.starter,
+        },
+        pro: {
+          monthly: plans?.pro?.monthly ?? 0,
+          yearly: plans?.pro?.yearly ?? 0,
+          features: plans?.pro?.features ?? defaultFeatures.pro,
+        },
+        business: {
+          monthly: plans?.business?.monthly ?? 0,
+          yearly: plans?.business?.yearly ?? 0,
+          features: plans?.business?.features ?? defaultFeatures.business,
+        },
+      },
+    };
+  }
+
   async getPricingByCurrency(currency: string): Promise<RegionalPricing> {
-    const response = await axios.get(`${API_URL}/currency/pricing/${currency}`, {
-      headers: this.getHeaders(),
-    });
-    return response.data;
+    const response = await api.get(`/currency/pricing/${currency}`);
+    return this.normalizePricing(response.data, currency);
   }
 
   async getPricingByCountry(country: string): Promise<RegionalPricing> {
-    const response = await axios.get(`${API_URL}/currency/pricing-by-country/${country}`, {
-      headers: this.getHeaders(),
-    });
-    return response.data;
+    const response = await api.get(`/currency/pricing-by-country/${country}`);
+    return this.normalizePricing(response.data, country);
   }
 
   async validateAmount(amount: number, currency: string): Promise<{ valid: boolean; message?: string }> {
-    const response = await axios.get(`${API_URL}/currency/validate`, {
+    const response = await api.get('/currency/validate', {
       params: { amount, currency },
-      headers: this.getHeaders(),
     });
     return response.data;
   }

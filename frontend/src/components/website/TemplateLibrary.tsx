@@ -241,21 +241,21 @@ const templates: Template[] = [
               <h3>Entrées</h3>
               <div class="dish">
                 <span class="dish-name">Salade César</span>
-                <span class="price">12€</span>
+                <span class="price">12.00 TND</span>
               </div>
             </div>
             <div class="menu-item">
               <h3>Plats</h3>
               <div class="dish">
                 <span class="dish-name">Filet Mignon</span>
-                <span class="price">28€</span>
+                <span class="price">28.00 TND</span>
               </div>
             </div>
             <div class="menu-item">
               <h3>Desserts</h3>
               <div class="dish">
                 <span class="dish-name">Tiramisu</span>
-                <span class="price">8€</span>
+                <span class="price">8.00 TND</span>
               </div>
             </div>
           </div>

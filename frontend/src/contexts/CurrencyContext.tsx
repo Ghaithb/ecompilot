@@ -29,6 +29,17 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
       setCurrencies(data);
     } catch (error) {
       console.error('Error loading currencies:', error);
+      setCurrencies([
+        {
+          code: 'TND',
+          name: 'Dinar tunisien',
+          symbol: 'DT',
+          countries: ['TN'],
+          population: 12000000,
+          minAmount: 0,
+          decimals: 3,
+        },
+      ]);
     } finally {
       setLoading(false);
     }

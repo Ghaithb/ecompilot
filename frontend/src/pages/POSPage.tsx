@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button';
 
 const POSPage = () => {
   const stats = [
-    { label: 'Ventes aujourd\'hui', value: '1,234€', icon: TrendingUp, color: '#3b82f6' },
+    { label: 'Ventes aujourd\'hui', value: '1.23 TND', icon: TrendingUp, color: '#3b82f6' },
     { label: 'Transactions', value: '45', icon: CreditCard, color: '#10b981' },
     { label: 'Produits vendus', value: '128', icon: Package, color: '#f59e0b' },
     { label: 'Boutiques', value: '3', icon: Store, color: '#8b5cf6' },
   ];
 
   const recentSales = [
-    { id: 1, time: '14:32', items: 3, total: '89.99€', payment: 'Carte' },
-    { id: 2, time: '14:15', items: 1, total: '45.00€', payment: 'Espèces' },
-    { id: 3, time: '13:58', items: 5, total: '156.50€', payment: 'Carte' },
+    { id: 1, time: '14:32', items: 3, total: '89.99 TND', payment: 'Carte' },
+    { id: 2, time: '14:15', items: 1, total: '45.00 TND', payment: 'Espèces' },
+    { id: 3, time: '13:58', items: 5, total: '156.50 TND', payment: 'Carte' },
   ];
 
   return (

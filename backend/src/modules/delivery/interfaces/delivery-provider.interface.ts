@@ -63,7 +63,6 @@ export interface DeliveryProvider {
   bulkCreate?(ctxs: DeliveryOrderContext[]): Promise<DeliveryOrderResult[]>;
   trackOrder(trackingNumber: string, tenantId?: string): Promise<DeliveryTrackingResult>;
   cancelOrder(trackingNumber: string, tenantId?: string): Promise<boolean>;
-  requestPickup?(barcodes: string[], tenantId?: string): Promise<{ pickupId: string; labelUrl?: string }>;
   getLocalities?(tenantId?: string): Promise<DeliveryLocality[]>;
   generateLabel?(trackingNumber: string, tenantId?: string): Promise<{ labelUrl: string }>;
   getRates?(ctx: DeliveryOrderContext): Promise<{ rate: number; currency: string; estimatedDays: number }>;

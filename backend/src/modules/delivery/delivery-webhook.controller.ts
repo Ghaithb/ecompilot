@@ -14,8 +14,9 @@ export class DeliveryWebhookController {
     @Param('provider') provider: DeliveryProviderId,
     @Body() body: Record<string, unknown>,
     @Headers('x-webhook-secret') secret?: string,
+    @Headers('x-tenant-id') tenantId?: string,
   ) {
     this.handler.assertSecret(secret);
-    return this.handler.handle(provider, body);
+    return this.handler.handle(provider, body, { tenantId });
   }
 }

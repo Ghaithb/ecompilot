@@ -6,7 +6,7 @@ export function NavbarCenter() {
     {
       icon: DollarSign,
       label: 'Revenus',
-      value: '2,450€',
+      value: '2.45 TND',
       change: '+12%',
       color: 'text-green-600',
       bgColor: 'bg-green-50',

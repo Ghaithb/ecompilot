@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { formatTND } from '@/lib/currency';
 import { 
   ShoppingCart, 
   Package, 
@@ -110,12 +111,12 @@ export default function WebsiteOrdersPage() {
   const parseOrderDetails = (message: string): OrderDetails | null => {
     try {
       const lines = message.split('\n');
-      const itemsMatch = message.match(/- (.+?) x(\d+) = ([\d,]+)€/g);
+      const itemsMatch = message.match(/- (.+?) x(\d+) = ([\d,]+) TND/g);
       
       if (!itemsMatch) return null;
       
       const items = itemsMatch.map(item => {
-        const match = item.match(/- (.+?) x(\d+) = ([\d,]+)€/);
+        const match = item.match(/- (.+?) x(\d+) = ([\d,]+) TND/);
         if (!match) return null;
         return {
           title: match[1],
@@ -124,7 +125,7 @@ export default function WebsiteOrdersPage() {
         };
       }).filter(Boolean) as OrderDetails['items'];
       
-      const totalMatch = message.match(/Total: ([\d,]+)€/);
+      const totalMatch = message.match(/Total: ([\d,]+) TND/);
       const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : 0;
       
       return {
@@ -202,7 +203,7 @@ export default function WebsiteOrdersPage() {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.revenue.toFixed(2)}€</div>
+            <div className="text-2xl font-bold">{formatTND(stats.revenue, 2)}</div>
           </CardContent>
         </Card>
       </div>
@@ -285,7 +286,7 @@ export default function WebsiteOrdersPage() {
                       </TableCell>
                       <TableCell>
                         <span className="font-bold text-green-600">
-                          {details?.total.toFixed(2)}€
+                          {formatTND(details?.total, 2)}
                         </span>
                       </TableCell>
                       <TableCell>

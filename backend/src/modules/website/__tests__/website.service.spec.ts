@@ -10,6 +10,9 @@ import { NewsletterSubscriber } from '../schemas/newsletter.schema';
 import { SmartWebsiteGeneratorService } from '../services/smart-website-generator.service';
 import { OrdersService } from '../../orders/orders.service';
 import { TunisiaPaymentService } from '../../payment/tunisia-payment.service';
+import { CustomersService } from '../../customers/customers.service';
+import { ProductsService } from '../../products/products.service';
+import { CartAbandonmentService } from '../../cart/cart-abandonment.service';
 
 describe('WebsiteService (__tests__)', () => {
   let service: WebsiteService;
@@ -52,6 +55,18 @@ describe('WebsiteService (__tests__)', () => {
             initiateOrderPayment: jest.fn(),
             getPublicPaymentMethods: jest.fn().mockResolvedValue({ methods: [] }),
           },
+        },
+        {
+          provide: CustomersService,
+          useValue: { findOrCreateByPhone: jest.fn() },
+        },
+        {
+          provide: ProductsService,
+          useValue: { resolveVariantRef: jest.fn() },
+        },
+        {
+          provide: CartAbandonmentService,
+          useValue: { recordPublicAbandonedCart: jest.fn() },
         },
       ],
     }).compile();

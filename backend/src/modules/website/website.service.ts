@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Website, WebsiteDocument } from './schemas/website.schema';
@@ -6,15 +6,22 @@ import { Page, PageDocument } from './schemas/page.schema';
 import { Booking } from './schemas/booking.schema';
 import { ContactMessage } from './schemas/contact-message.schema';
 import { NewsletterSubscriber } from './schemas/newsletter.schema';
-import { CreatePublicOrderDto, ContactMessageDto, CreateBookingDto, NewsletterSubscribeDto } from './dto/public-website.dto';
+import { CreatePublicOrderDto, ContactMessageDto, CreateBookingDto, NewsletterSubscribeDto, SaveAbandonedCartDto } from './dto/public-website.dto';
 import { GenerateWebsiteDto } from './dto/generate-website.dto';
 import { SmartWebsiteGeneratorService } from './services/smart-website-generator.service';
 import { OrdersService } from '../orders/orders.service';
 import { TunisiaPaymentService } from '../payment/tunisia-payment.service';
 import { CustomersService } from '../customers/customers.service';
 import { ProductsService } from '../products/products.service';
-import { normalizeTunisianPhone } from '../../common/utils/phone.util';
-import { SaveAbandonedCartDto } from './dto/public-website.dto';
+import { normalizePhone, normalizeTunisianPhone } from '../../common/utils/phone.util';
+import { CartAbandonmentService } from '../cart/cart-abandonment.service';
+import {
+  DEFAULT_STORE_TEMPLATE,
+  STORE_TEMPLATES,
+  StoreTemplateId,
+} from './constants/store-templates';
+import { STARTER_CATALOG, resolveShopNiche } from './constants/starter-catalog';
+import { UpdateWebsiteAnalyticsDto, UpdateBrandingDto } from './dto/website-settings.dto';
 
 @Injectable()
 export class WebsiteService {
@@ -31,6 +38,8 @@ export class WebsiteService {
     private readonly tunisiaPaymentService: TunisiaPaymentService,
     private readonly customersService: CustomersService,
     private readonly productsService: ProductsService,
+    @Inject(forwardRef(() => CartAbandonmentService))
+    private readonly cartAbandonment: CartAbandonmentService,
   ) {}
 
   /**
@@ -95,7 +104,16 @@ export class WebsiteService {
    * Récupérer le site web d'un tenant
    */
   async findByTenant(tenantId: string) {
-    const website = await this.websiteModel.findOne({ tenantId, isActive: true });
+    let website = await this.websiteModel.findOne({ tenantId, isActive: true });
+    if (!website) {
+      website = await this.websiteModel.findOne({ tenantId }).sort({ updatedAt: -1 });
+      if (website) {
+        website.isActive = true;
+        website.published = true;
+        await website.save();
+        this.logger.log(`Boutique réactivée pour tenant ${tenantId}: ${website.slug}`);
+      }
+    }
     if (!website) {
       throw new NotFoundException('Aucun site web trouvé');
     }
@@ -282,14 +300,133 @@ export class WebsiteService {
   /**
    * Générer automatiquement un site web complet selon les données du formulaire
    */
+  private resolveStoreTemplateId(templateId?: string): StoreTemplateId {
+    const id = (templateId || DEFAULT_STORE_TEMPLATE) as StoreTemplateId;
+    return STORE_TEMPLATES[id] ? id : DEFAULT_STORE_TEMPLATE;
+  }
+
+  private buildDefaultSlogan(companyName: string): string {
+    return `Livraison rapide · Paiement à la livraison — ${companyName}`;
+  }
+
+  private whatsappUrlFromPhone(phone?: string): string | undefined {
+    if (!phone?.trim()) return undefined;
+    const normalized = normalizePhone(phone);
+    const digits = normalized.replace(/\D/g, '');
+    if (digits.length < 10) return undefined;
+    return `https://wa.me/${digits}`;
+  }
+
+  private async seedStarterCatalog(tenantId: string, niche?: string): Promise<number> {
+    const existing = await this.productsService.findAll(tenantId, { limit: 1, page: 1 });
+    if (existing.total > 0) return 0;
+
+    const catalog = STARTER_CATALOG[resolveShopNiche(niche)];
+    let created = 0;
+    for (const item of catalog) {
+      await this.productsService.create(tenantId, {
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        status: 'active',
+        images: [item.imageUrl],
+        variants: [{ sku: item.sku, name: 'Default', price: item.price, inventory: 25 }],
+      });
+      created++;
+    }
+    this.logger.log(`Catalogue démarrage: ${created} produit(s) pour tenant ${tenantId}`);
+    return created;
+  }
+
+  /** Met à jour la boutique existante — une seule instance par tenant, pas de nouveau slug */
+  private async syncExistingWebsiteFromWizard(
+    website: WebsiteDocument,
+    wizardData: GenerateWebsiteDto,
+    tenantId: string,
+  ) {
+    const colors = this.resolveThemeColors(wizardData.branding);
+    const location = this.buildLocationString(wizardData);
+    const templateId = wizardData.storeTemplate
+      ? this.resolveStoreTemplateId(wizardData.storeTemplate)
+      : (website.storeTemplate as StoreTemplateId) || DEFAULT_STORE_TEMPLATE;
+    const preset = STORE_TEMPLATES[templateId];
+    const slogan =
+      wizardData.branding?.slogan?.trim() || website.theme?.slogan || this.buildDefaultSlogan(wizardData.companyName);
+
+    website.name = wizardData.companyName;
+    website.businessType = wizardData.business.industry;
+    const currentTheme = website.theme || {
+      primaryColor: colors.primary,
+      secondaryColor: colors.secondary,
+      accentColor: colors.secondary,
+      backgroundColor: '#FFFFFF',
+      textColor: '#111827',
+      font: 'Inter',
+    };
+    website.theme = {
+      ...preset.theme,
+      ...currentTheme,
+      primaryColor: wizardData.branding?.primaryColor || preset.theme.primaryColor,
+      secondaryColor: wizardData.branding?.secondaryColor || preset.theme.secondaryColor,
+      logo: currentTheme.logo ?? wizardData.branding?.logoUrl,
+      slogan,
+    };
+    website.storeTemplate = templateId;
+    website.businessConfig = {
+      ...(website.businessConfig || {}),
+      industry: wizardData.business.industry,
+      targetAudience: wizardData.business.targetAudience,
+      customFields: {
+        ...(website.businessConfig?.customFields || {}),
+        primaryGoal: wizardData.business.primaryGoal,
+        location,
+        phone: wizardData.contact.phone,
+        email: wizardData.contact.email,
+      },
+    };
+    website.published = true;
+    website.isActive = true;
+
+    await website.save();
+
+    let starterProducts = 0;
+    if (wizardData.seedStarterProducts !== false) {
+      starterProducts = await this.seedStarterCatalog(tenantId, wizardData.business.niche);
+    }
+
+    this.logger.log(`Boutique existante synchronisée (slug conservé: ${website.slug})`);
+
+    const homePage = await this.getHomePage(website._id.toString());
+
+    return {
+      websiteId: website._id,
+      homePageId: homePage?._id,
+      slug: website.slug,
+      name: website.name,
+      message: 'Boutique mise à jour — même lien public conservé',
+      updated: true,
+      starterProducts,
+      website,
+      homePage,
+    };
+  }
+
   async generateWebsite(tenantId: string, wizardData: GenerateWebsiteDto) {
     try {
-      // Désactiver tous les sites existants du tenant (au lieu de les supprimer)
-      await this.websiteModel.updateMany(
-        { tenantId },
-        { isActive: false }
-      );
-      this.logger.log(`Sites existants du tenant ${tenantId} désactivés`);
+      const existingActive = await this.websiteModel.findOne({ tenantId, isActive: true });
+      if (existingActive) {
+        return this.syncExistingWebsiteFromWizard(existingActive, wizardData, tenantId);
+      }
+
+      const existingInactive = await this.websiteModel
+        .findOne({ tenantId, isActive: false })
+        .sort({ updatedAt: -1 });
+      if (existingInactive) {
+        existingInactive.isActive = true;
+        existingInactive.published = true;
+        await existingInactive.save();
+        return this.syncExistingWebsiteFromWizard(existingInactive, wizardData, tenantId);
+      }
 
       const slug = await this.generateUniqueSlug(wizardData.companyName);
       const colors = this.resolveThemeColors(wizardData.branding);
@@ -298,6 +435,10 @@ export class WebsiteService {
       const seoTitle = this.buildSeoTitle(wizardData);
       const seoDescription = this.buildSeoDescription(wizardData);
       const location = this.buildLocationString(wizardData);
+      const templateId = this.resolveStoreTemplateId(wizardData.storeTemplate);
+      const preset = STORE_TEMPLATES[templateId];
+      const slogan =
+        wizardData.branding?.slogan?.trim() || this.buildDefaultSlogan(wizardData.companyName);
 
       const website = new this.websiteModel({
         tenantId,
@@ -305,13 +446,11 @@ export class WebsiteService {
         name: wizardData.companyName,
         businessType: wizardData.business.industry,
         theme: {
-          primaryColor: colors.primary,
-          secondaryColor: colors.secondary,
-          accentColor: colors.secondary,
-          backgroundColor: '#FFFFFF',
-          textColor: '#111827',
-          font: 'Inter',
+          ...preset.theme,
+          primaryColor: wizardData.branding?.primaryColor || preset.theme.primaryColor,
+          secondaryColor: wizardData.branding?.secondaryColor || preset.theme.secondaryColor,
           logo: wizardData.branding?.logoUrl,
+          slogan,
         },
         seo: {
           title: seoTitle,
@@ -326,7 +465,7 @@ export class WebsiteService {
           language: 'fr',
           timezone: 'Africa/Tunis',
         },
-        features: this.buildDefaultFeatures(wizardData.contact.email),
+        features: this.buildDefaultFeatures(wizardData.contact.email, wizardData.contact.phone),
         businessConfig: {
           industry: wizardData.business.industry,
           targetAudience: wizardData.business.targetAudience,
@@ -349,6 +488,7 @@ export class WebsiteService {
         },
         published: true, // ✅ Publier automatiquement après génération
         isActive: true, // Nouveau site = actif par défaut
+        storeTemplate: templateId,
       });
 
       await website.save();
@@ -360,7 +500,7 @@ export class WebsiteService {
         industry: wizardData.business.industry,
         businessType: wizardData.business.industry,
         description: wizardData.business.description,
-        slogan: wizardData.branding?.slogan,
+        slogan,
         phone: wizardData.contact.phone,
         email: wizardData.contact.email,
         contactEmail: wizardData.contact.email,
@@ -425,13 +565,20 @@ export class WebsiteService {
       });
 
       await homePage.save();
+
+      let starterProducts = 0;
+      if (wizardData.seedStarterProducts !== false) {
+        starterProducts = await this.seedStarterCatalog(tenantId, wizardData.business.niche);
+      }
+
       this.logger.log(`Site web généré automatiquement pour ${wizardData.companyName} (${wizardData.business.industry})`);
-      
+
       return {
         websiteId: website._id,
         homePageId: homePage._id,
         slug: website.slug,
         message: 'Site web généré avec succès',
+        starterProducts,
         website,
         homePage,
       };
@@ -494,7 +641,7 @@ export class WebsiteService {
     return { slug: website.slug, refreshed: true };
   }
 
-  private buildDefaultFeatures(notificationEmail: string) {
+  private buildDefaultFeatures(notificationEmail: string, phone?: string) {
     return {
       ecommerce: {
         enabled: false,
@@ -512,6 +659,8 @@ export class WebsiteService {
         enabled: true,
         autoReply: false,
         notificationEmail,
+        phone: phone || undefined,
+        whatsapp: this.whatsappUrlFromPhone(phone),
       },
       newsletter: {
         enabled: true,
@@ -1005,7 +1154,9 @@ export class WebsiteService {
    * Récupérer la configuration complète d'un site
    */
   async getWebsiteConfig(tenantId: string) {
-    const website = await this.websiteModel.findOne({ tenantId });
+    const website =
+      (await this.websiteModel.findOne({ tenantId, isActive: true })) ||
+      (await this.websiteModel.findOne({ tenantId }));
     if (!website) {
       throw new NotFoundException('Site web non trouvé');
     }
@@ -1022,9 +1173,79 @@ export class WebsiteService {
       features: website.features,
       businessConfig: website.businessConfig,
       analytics: website.analytics,
-      domain: website.domain,
+      storeTemplate: website.storeTemplate || DEFAULT_STORE_TEMPLATE,
       createdAt: website.createdAt,
       updatedAt: website.updatedAt,
+    };
+  }
+
+  async updateAnalytics(tenantId: string, dto: UpdateWebsiteAnalyticsDto) {
+    const website = await this.websiteModel.findOne({ tenantId });
+    if (!website) throw new NotFoundException('Site web non trouvé');
+
+    website.analytics = {
+      ...(website.analytics || { enableTracking: true }),
+      ...(dto.googleAnalyticsId !== undefined ? { googleAnalyticsId: dto.googleAnalyticsId || undefined } : {}),
+      ...(dto.facebookPixelId !== undefined ? { facebookPixelId: dto.facebookPixelId || undefined } : {}),
+      ...(dto.enableTracking !== undefined ? { enableTracking: dto.enableTracking } : {}),
+    };
+    await website.save();
+    return website.analytics;
+  }
+
+  async updateBranding(tenantId: string, dto: UpdateBrandingDto) {
+    const website = await this.websiteModel.findOne({ tenantId });
+    if (!website) throw new NotFoundException('Site web non trouvé');
+
+    const current = website.theme || {
+      primaryColor: '#2563eb',
+      secondaryColor: '#7c3aed',
+      accentColor: '#7c3aed',
+      backgroundColor: '#FFFFFF',
+      textColor: '#111827',
+      font: 'Inter',
+    };
+
+    if (dto.logo !== undefined) current.logo = dto.logo || undefined;
+    if (dto.coverImage !== undefined) current.coverImage = dto.coverImage || undefined;
+    if (dto.slogan !== undefined) current.slogan = dto.slogan || undefined;
+
+    website.theme = current;
+    website.markModified('theme');
+    await website.save();
+
+    return {
+      theme: website.theme,
+      slug: website.slug,
+      name: website.name,
+    };
+  }
+
+  async updateStoreTemplate(tenantId: string, templateId: string) {
+    const id = templateId as StoreTemplateId;
+    const preset = STORE_TEMPLATES[id];
+    if (!preset) throw new BadRequestException('Template inconnu');
+
+    const website =
+      (await this.websiteModel.findOne({ tenantId, isActive: true })) ||
+      (await this.websiteModel.findOne({ tenantId }));
+    if (!website) throw new NotFoundException('Site web non trouvé');
+
+    website.storeTemplate = id;
+    website.theme = {
+      ...(website.theme || {}),
+      ...preset.theme,
+      logo: website.theme?.logo,
+      favicon: website.theme?.favicon,
+      coverImage: website.theme?.coverImage,
+      slogan: website.theme?.slogan,
+    };
+    await website.save();
+
+    return {
+      storeTemplate: id,
+      theme: website.theme,
+      preset,
     };
   }
 
@@ -1139,9 +1360,21 @@ export class WebsiteService {
   /**
    * Enregistrer un panier abandonné depuis la boutique publique
    */
-  async savePublicAbandonedCart(_tenantId: string, _slug: string, data: SaveAbandonedCartDto) {
-    this.logger.debug(`[MVP] panier abandonné ignoré (${data.items?.length ?? 0} articles)`);
-    return { ok: true, mvp: true, message: 'Abandoned cart module archived' };
+  async savePublicAbandonedCart(tenantId: string, slug: string, data: SaveAbandonedCartDto) {
+    return this.cartAbandonment.recordPublicAbandonedCart(tenantId, slug, {
+      sessionId: data.sessionId,
+      customerName: data.customerName,
+      customerPhone: data.customerPhone,
+      customerEmail: data.customerEmail,
+      items: (data.items || []).map((i) => ({
+        productId: i.productId,
+        productName: i.title || 'Produit',
+        quantity: i.quantity,
+        price: i.price,
+        image: i.image,
+      })),
+      totalAmount: data.total,
+    });
   }
 
   /**

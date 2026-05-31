@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ShoppingBag, Search, Filter } from 'lucide-react';
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
 
 interface Product {
   _id: string;
@@ -60,8 +61,8 @@ const ProductsIntegration: React.FC<ProductsIntegrationProps> = ({ onInsertProdu
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/v1/products', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(apiUrl('/products'), {
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -138,7 +139,7 @@ const ProductsIntegration: React.FC<ProductsIntegrationProps> = ({ onInsertProdu
           <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description || ''}</p>
-            ${showPrice ? `<div class="product-price">${product.price}€</div>` : ''}
+            ${showPrice ? `<div class="product-price">${product.price} TND</div>` : ''}
             ${showStock ? `<div class="product-stock">${product.stock > 0 ? `En stock (${product.stock})` : 'Rupture de stock'}</div>` : ''}
             ${showAddToCart && product.stock > 0 ? `<button class="add-to-cart-btn" data-product-id="${product._id}">Ajouter au Panier</button>` : ''}
           </div>
@@ -386,7 +387,7 @@ const ProductsIntegration: React.FC<ProductsIntegrationProps> = ({ onInsertProdu
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{product.name}</p>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>{product.price}€</span>
+                        <span>{product.price} TND</span>
                         <span>•</span>
                         <span>Stock: {product.stock}</span>
                       </div>

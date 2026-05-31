@@ -1,4 +1,10 @@
-export type DeliveryProviderId = 'intigo' | 'first_delivery' | 'shipper';
+export type DeliveryProviderId =
+  | 'intigo'
+  | 'first_delivery'
+  | 'shipper'
+  | 'aramex'
+  | 'rapid_poste'
+  | 'mylerz';
 
 export type DeliveryProviderMeta = {
   id: DeliveryProviderId;
@@ -31,6 +37,7 @@ export type TrackingEvent = {
 };
 
 export type Shipment = {
+  id?: string;
   _id: string;
   tenantId: string;
   orderId?: string;
@@ -43,6 +50,8 @@ export type Shipment = {
   trackingHistory: TrackingEvent[];
   localityId?: number;
   mock?: boolean;
+  lastSyncedAt?: string;
+  lastWebhookAt?: string;
   createdAt?: string;
   updatedAt?: string;
 };

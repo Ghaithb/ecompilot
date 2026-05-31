@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WebsiteController } from './website.controller';
 import { PublicWebsiteController } from './public-website.controller';
@@ -15,8 +15,10 @@ import { ProductsModule } from '../products/products.module';
 import { OrdersModule } from '../orders/orders.module';
 import { PaymentModule } from '../payment/payment.module';
 import { CustomersModule } from '../customers/customers.module';
+import { CartModule } from '../cart/cart.module';
 import { MvpSiteContentService } from './services/mvp-site-content.service';
 import { SmartWebsiteGeneratorService } from './services/smart-website-generator.service';
+import { WebsiteDomainService } from './website-domain.service';
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ import { SmartWebsiteGeneratorService } from './services/smart-website-generator
     OrdersModule,
     PaymentModule,
     CustomersModule,
+    forwardRef(() => CartModule),
   ],
   controllers: [WebsiteController, PublicWebsiteController, PublicStoreController],
   providers: [
@@ -39,6 +42,7 @@ import { SmartWebsiteGeneratorService } from './services/smart-website-generator
     PageService,
     MvpSiteContentService,
     SmartWebsiteGeneratorService,
+    WebsiteDomainService,
   ],
   exports: [
     WebsiteService,

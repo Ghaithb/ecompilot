@@ -31,6 +31,11 @@ class BusinessProfileDto {
 
   @IsString()
   @IsOptional()
+  @IsIn(['general', 'mode', 'tech', 'maison', 'beaute'])
+  niche?: string;
+
+  @IsString()
+  @IsOptional()
   @MaxLength(200)
   targetAudience?: string;
 
@@ -147,4 +152,14 @@ export class GenerateWebsiteDto {
   @Type(() => ContentStrategyDto)
   @IsOptional()
   contentStrategy?: ContentStrategyDto;
+
+  /** Thème storefront React (cod-classic, cod-minimal, …) — appliqué à la création uniquement */
+  @IsString()
+  @IsOptional()
+  @MaxLength(64)
+  storeTemplate?: string;
+
+  /** Créer 3 produits exemples si le catalogue est vide (défaut: true côté API si omis) */
+  @IsOptional()
+  seedStarterProducts?: boolean;
 }

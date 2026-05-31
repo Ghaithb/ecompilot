@@ -18,6 +18,14 @@ import { NotificationsModule } from '../modules/notifications/notifications.modu
 import { UploadModule } from '../modules/upload/upload.module';
 import { OnboardingModule } from '../modules/onboarding/onboarding.module';
 import { WhatsAppModule } from '../modules/whatsapp/whatsapp.module';
+import { ConversionIntelligenceModule } from '../modules/conversion-intelligence/conversion-intelligence.module';
+import { AnalyticsModule } from '../modules/analytics/analytics.module';
+import { AutomationModule } from '../modules/automation/automation.module';
+import { PilotsModule } from '../modules/pilots/pilots.module';
+import { MerchantApiModule } from '../modules/merchant-api/merchant-api.module';
+import { BillingModule } from '../modules/billing/billing.module';
+import { StaffModule } from '../modules/staff/staff.module';
+import { StorefrontModule } from '../modules/storefront/storefront.module';
 
 /**
  * Commerce MVP — vente en ligne TN (boutique, commandes, COD, livreurs internes).
@@ -43,6 +51,14 @@ import { WhatsAppModule } from '../modules/whatsapp/whatsapp.module';
     UploadModule,
     OnboardingModule,
     WhatsAppModule,
+    ConversionIntelligenceModule,
+    AnalyticsModule,
+    StorefrontModule,
+    AutomationModule,
+    PilotsModule,
+    MerchantApiModule,
+    BillingModule,
+    StaffModule,
   ],
   exports: [
     AuthModule,
@@ -52,6 +68,13 @@ import { WhatsAppModule } from '../modules/whatsapp/whatsapp.module';
     WebsiteModule,
     DriverModule,
     WhatsAppModule,
+    ConversionIntelligenceModule,
+    AnalyticsModule,
+    StorefrontModule,
+    AutomationModule,
+    PilotsModule,
+    MerchantApiModule,
+    BillingModule,
   ],
 })
 export class CommerceModule {}

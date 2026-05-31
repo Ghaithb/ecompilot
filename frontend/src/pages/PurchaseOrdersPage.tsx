@@ -65,7 +65,7 @@ const PurchaseOrdersPage: React.FC = () => {
             <Input 
               type="number" 
               min={0} 
-              placeholder="Montant (€)" 
+              placeholder="Montant ( TND)" 
               value={form.amount} 
               onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} 
             />
@@ -93,7 +93,7 @@ const PurchaseOrdersPage: React.FC = () => {
             <ul className="space-y-2">
               {orders.map((po) => (
                 <li key={po._id} className="p-2 border rounded">
-                  <div>Montant : {po.amount} € | Statut : {po.status}</div>
+                  <div>Montant : {po.amount}  TND | Statut : {po.status}</div>
                   <div>Financement : {po.financingRequestId}</div>
                   <div>Créé le : {new Date(po.createdAt).toLocaleDateString()}</div>
                   <div>Description : {po.details?.description}</div>

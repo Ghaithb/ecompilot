@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, Plug } from 'lucide-react';
+import { LayoutDashboard, Package, Plug, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const tabs = [
   { to: '/delivery', label: 'Vue d\'ensemble', icon: LayoutDashboard, end: true },
   { to: '/delivery/shipments', label: 'Expéditions', icon: Package },
+  { to: '/delivery/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/delivery/connect', label: 'Connecter', icon: Plug },
 ];
 

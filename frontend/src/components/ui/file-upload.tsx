@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Upload, X, Check, Loader2 } from 'lucide-react';
 import { Button } from './button';
 import { useToast } from '@/hooks/use-toast';
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
 
 interface FileUploadProps {
   onUploadSuccess: (url: string) => void;
@@ -58,11 +59,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   formData.append(fieldName, file);
 
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3001/api/v1/${endpoint}`, {
+      const response = await fetch(apiUrl(`/${endpoint}`), {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
 
@@ -78,7 +77,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         description: 'Fichier uploadé avec succès',
       });
 
-      onUploadSuccess(`http://localhost:3001${result.url}`);
+      onUploadSuccess(resolveUploadUrl(result.url));
     } catch (error: any) {
       toast({
         title: 'Erreur',

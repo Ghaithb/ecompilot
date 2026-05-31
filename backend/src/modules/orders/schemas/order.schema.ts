@@ -111,6 +111,12 @@ export class Order {
   amountToCollect?: number;
 
   @Prop()
+  codRemittedAt?: Date;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  codRemittedBy?: Types.ObjectId;
+
+  @Prop()
   refusalReason?: string;
 
   @Prop()

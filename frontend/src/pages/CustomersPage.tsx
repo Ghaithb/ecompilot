@@ -54,7 +54,7 @@ const CustomersPage = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'TND',
     }).format(amount);
   };
 

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
+import {
   Sparkles, 
   ArrowRight, 
   Check,
@@ -126,12 +127,9 @@ const WebsiteTemplateGallery: React.FC = () => {
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3001/api/v1/website/generate', {
+      const response = await fetch(apiUrl('/website/generate'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           businessType: selectedTemplate,
           companyName: formData.companyName,

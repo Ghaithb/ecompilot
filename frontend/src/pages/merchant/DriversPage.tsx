@@ -11,9 +11,12 @@ import {
   toggleDriver,
   type DriverSummary,
 } from '@/services/driverManagementService';
+import DriverReconciliationPanel from '@/components/drivers/DriverReconciliationPanel';
+import { useTranslation } from 'react-i18next';
 
 const DriversPage: React.FC = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [drivers, setDrivers] = useState<DriverSummary[]>([]);
   const [inviting, setInviting] = useState(false);
@@ -72,10 +75,10 @@ const DriversPage: React.FC = () => {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Truck className="w-7 h-7 text-primary" />
-          Mes livreurs
+          {t('drivers.title')}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Créez des comptes livreurs pour assigner les commandes COD.
+          {t('drivers.subtitle')}
         </p>
       </div>
 
@@ -83,14 +86,14 @@ const DriversPage: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserPlus className="w-5 h-5" />
-            Inviter un livreur
+            {t('drivers.invite')}
           </CardTitle>
-          <CardDescription>Un compte + mot de passe temporaire sera envoyé par WhatsApp.</CardDescription>
+          <CardDescription>{t('drivers.inviteHint')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label>Nom complet *</Label>
+              <Label>{t('drivers.fullName')} *</Label>
               <Input
                 value={form.fullName}
                 onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
@@ -98,7 +101,7 @@ const DriversPage: React.FC = () => {
               />
             </div>
             <div>
-              <Label>Téléphone *</Label>
+              <Label>{t('drivers.phone')} *</Label>
               <Input
                 value={form.phone}
                 onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
@@ -106,7 +109,7 @@ const DriversPage: React.FC = () => {
               />
             </div>
             <div>
-              <Label>Email (optionnel)</Label>
+              <Label>{t('drivers.emailOptional')}</Label>
               <Input
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
@@ -114,7 +117,7 @@ const DriversPage: React.FC = () => {
               />
             </div>
             <div>
-              <Label>Véhicule</Label>
+              <Label>{t('drivers.vehicle')}</Label>
               <Input
                 value={form.vehicleType}
                 onChange={(e) => setForm((f) => ({ ...f, vehicleType: e.target.value }))}
@@ -124,7 +127,7 @@ const DriversPage: React.FC = () => {
           </div>
           <Button onClick={handleInvite} disabled={inviting}>
             {inviting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            Inviter
+            {t('drivers.invite')}
           </Button>
           {lastInvite && (
             <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm">
@@ -147,13 +150,13 @@ const DriversPage: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Équipe livraison</CardTitle>
+          <CardTitle>{t('drivers.team')}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <Loader2 className="w-6 h-6 animate-spin" />
           ) : drivers.length === 0 ? (
-            <p className="text-muted-foreground">Aucun livreur — invitez le premier.</p>
+            <p className="text-muted-foreground">{t('drivers.noDrivers')}</p>
           ) : (
             <ul className="divide-y">
               {drivers.map((d) => (
@@ -173,7 +176,7 @@ const DriversPage: React.FC = () => {
                       )
                     }
                   >
-                    {d.isActive ? 'Désactiver' : 'Activer'}
+                    {d.isActive ? t('drivers.deactivate') : t('drivers.activate')}
                   </Button>
                 </li>
               ))}
@@ -181,6 +184,8 @@ const DriversPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <DriverReconciliationPanel />
     </div>
   );
 };

@@ -43,6 +43,16 @@ export class ThemeDto {
   @IsOptional()
   @IsString()
   favicon?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  coverImage?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  slogan?: string;
 }
 
 // ==================== SEO DTO ====================

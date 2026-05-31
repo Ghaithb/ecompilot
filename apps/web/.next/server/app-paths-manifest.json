@@ -1,0 +1,11 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/page": "app/page.js",
+  "/login/page": "app/login/page.js",
+  "/(merchant)/dashboard/page": "app/(merchant)/dashboard/page.js",
+  "/(merchant)/orders/page": "app/(merchant)/orders/page.js",
+  "/(merchant)/delivery/page": "app/(merchant)/delivery/page.js",
+  "/(merchant)/delivery/analytics/page": "app/(merchant)/delivery/analytics/page.js",
+  "/(merchant)/delivery/connect/page": "app/(merchant)/delivery/connect/page.js",
+  "/(merchant)/delivery/shipments/page": "app/(merchant)/delivery/shipments/page.js"
+}

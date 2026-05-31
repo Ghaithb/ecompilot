@@ -109,8 +109,8 @@ export const generateInvoicePdf = async (order: Order): Promise<void> => {
   const legalText = [
     "Mentions légales",
     "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée.",
-    "Une indemnité forfaitaire de 40€ pour frais de recouvrement sera due.",
-    `Capital social : 100 000€ - RCS Paris 123 456 789 - TVA : ${COMPANY_INFO.vatNumber}`,
+    "Une indemnité forfaitaire de 40.00 TND pour frais de recouvrement sera due.",
+    `Capital social : 100 0.00 TND - RCS Paris 123 456 789 - TVA : ${COMPANY_INFO.vatNumber}`,
   ];
 
   pdf.setFontSize(8);
@@ -125,7 +125,7 @@ export const generateInvoicePdf = async (order: Order): Promise<void> => {
 const formatPrice = (amount: number, currency: string): string => {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: currency || "EUR",
+    currency: currency || "TND",
   }).format(amount);
 };
 

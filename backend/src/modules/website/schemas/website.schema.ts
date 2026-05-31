@@ -24,6 +24,8 @@ export class Website {
     font: string;
     logo?: string;
     favicon?: string;
+    coverImage?: string;
+    slogan?: string;
   };
 
   @Prop({ type: Boolean, default: false })
@@ -137,7 +139,13 @@ export class Website {
   domain: {
     customDomain?: string;
     sslEnabled: boolean;
+    dnsVerified?: boolean;
+    dnsVerifiedAt?: Date;
+    dnsTarget?: string;
   };
+
+  @Prop({ type: String, default: 'cod-classic' })
+  storeTemplate?: string;
 
   // Type de business/niche
   @Prop({ type: String })

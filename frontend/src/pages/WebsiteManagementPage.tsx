@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import { apiUrl, getAuthHeaders, resolveUploadUrl } from '@/lib/apiConfig';
+import {
   Plus, 
   Globe, 
   Eye, 
@@ -31,8 +32,8 @@ const WebsiteManagementPage: React.FC = () => {
       const token = localStorage.getItem('auth_token');
       
       // Récupérer les sites
-      const websiteResponse = await fetch('http://localhost:3001/api/v1/website', {
-        headers: { Authorization: `Bearer ${token}` },
+      const websiteResponse = await fetch(apiUrl('/website'), {
+        headers: getAuthHeaders(),
       });
 
       if (websiteResponse.ok) {
@@ -41,8 +42,8 @@ const WebsiteManagementPage: React.FC = () => {
       }
 
       // Récupérer les pages
-      const pagesResponse = await fetch('http://localhost:3001/api/v1/website/pages', {
-        headers: { Authorization: `Bearer ${token}` },
+      const pagesResponse = await fetch(apiUrl('/website/pages'), {
+        headers: getAuthHeaders(),
       });
 
       if (pagesResponse.ok) {
@@ -61,9 +62,9 @@ const WebsiteManagementPage: React.FC = () => {
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3001/api/v1/website/pages/${pageId}`, {
+      const response = await fetch(apiUrl(`/website/pages/${pageId}`), {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -87,9 +88,9 @@ const WebsiteManagementPage: React.FC = () => {
       const token = localStorage.getItem('auth_token');
       const endpoint = currentStatus ? 'unpublish' : 'publish';
       
-      const response = await fetch(`http://localhost:3001/api/v1/website/pages/${pageId}/${endpoint}`, {
+      const response = await fetch(apiUrl(`/website/pages/${pageId}/${endpoint}`), {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {

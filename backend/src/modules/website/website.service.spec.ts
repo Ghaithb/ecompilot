@@ -4,6 +4,10 @@ import { WebsiteService } from './website.service';
 import { SmartWebsiteGeneratorService } from './services/smart-website-generator.service';
 import { OrdersService } from '../orders/orders.service';
 import { TunisiaPaymentService } from '../payment/tunisia-payment.service';
+import { CustomersService } from '../customers/customers.service';
+import { ProductsService } from '../products/products.service';
+import { CartAbandonmentService } from '../cart/cart-abandonment.service';
+
 
 describe('WebsiteService', () => {
   let service: WebsiteService;
@@ -89,6 +93,24 @@ describe('WebsiteService', () => {
             getPublicPaymentMethods: jest.fn().mockResolvedValue({ methods: [] }),
           },
         },
+        {
+          provide: CustomersService,
+          useValue: {
+            findOrCreateByPhone: jest.fn(),
+          },
+        },
+        {
+          provide: ProductsService,
+          useValue: {
+            resolveVariantRef: jest.fn(),
+          },
+        },
+        {
+          provide: CartAbandonmentService,
+          useValue: {
+            recordPublicAbandonedCart: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -129,9 +151,13 @@ describe('WebsiteService', () => {
     };
 
     beforeEach(() => {
-      mockWebsiteModel.findOne
-        .mockResolvedValueOnce(null) // Existing website check
-        .mockResolvedValueOnce(null); // Slug availability
+      mockWebsiteModel.findOne.mockImplementation((filter: Record<string, unknown>) => {
+        if (filter?.isActive === false) {
+          return { sort: jest.fn().mockResolvedValue(null) } as unknown as Promise<null>;
+        }
+        if (filter?.slug) return Promise.resolve(null);
+        return Promise.resolve(null);
+      });
     });
 
     it('should call smart generator with normalized data', async () => {
@@ -149,17 +175,35 @@ describe('WebsiteService', () => {
       expect(websiteInstance?.slug).toBe('test-company');
     });
 
-    it('should deactivate existing website before regeneration', async () => {
-      mockWebsiteModel.findOne
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(null);
+    it('should update existing boutique instead of creating a duplicate', async () => {
+      const existing = {
+        _id: 'website-existing',
+        tenantId: 'tenant-123',
+        slug: 'test-company',
+        name: 'Old Name',
+        theme: {},
+        businessConfig: {},
+        save: jest.fn().mockResolvedValue(undefined),
+      };
 
-      await service.generateWebsite('tenant-123', mockWizardData as any);
+      mockWebsiteModel.findOne.mockImplementation((filter: Record<string, unknown>) => {
+        if (filter?.isActive === true) return Promise.resolve(existing);
+        if (filter?.isActive === false) {
+          return { sort: jest.fn().mockResolvedValue(null) } as unknown as Promise<null>;
+        }
+        return Promise.resolve(null);
+      });
 
-      expect(mockWebsiteModel.updateMany).toHaveBeenCalledWith(
-        { tenantId: 'tenant-123' },
-        { isActive: false },
-      );
+      mockPageModel.findOne = jest.fn().mockReturnValue({
+        sort: jest.fn().mockResolvedValue({ _id: 'page-1' }),
+      });
+
+      const result = await service.generateWebsite('tenant-123', mockWizardData as any);
+
+      expect(existing.save).toHaveBeenCalled();
+      expect(result.slug).toBe('test-company');
+      expect(result.message).toContain('mise à jour');
+      expect(mockWebsiteModel.updateMany).not.toHaveBeenCalled();
     });
   });
 

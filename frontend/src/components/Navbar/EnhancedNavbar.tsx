@@ -72,7 +72,7 @@ export function EnhancedNavbar() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">Nouvelle commande</p>
-                      <p className="text-xs text-gray-600">Commande #1234 - 145.90€</p>
+                      <p className="text-xs text-gray-600">Commande #1234 - 145.90 TND</p>
                       <p className="text-xs text-gray-400 mt-1">Il y a 5 min</p>
                     </div>
                   </div>
@@ -96,7 +96,7 @@ export function EnhancedNavbar() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">Paiement reçu</p>
-                      <p className="text-xs text-gray-600">250.00€ crédité</p>
+                      <p className="text-xs text-gray-600">250.00 TND crédité</p>
                       <p className="text-xs text-gray-400 mt-1">Il y a 2h</p>
                     </div>
                   </div>

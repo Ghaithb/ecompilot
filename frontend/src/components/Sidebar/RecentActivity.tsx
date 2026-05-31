@@ -21,7 +21,7 @@ export function RecentActivity() {
     {
       icon: CheckCircle,
       title: 'Paiement reçu',
-      description: '250€',
+      description: '250.00 TND',
       time: 'Il y a 2h',
       type: 'success' as const,
     },

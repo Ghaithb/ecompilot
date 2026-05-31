@@ -18,6 +18,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ordersApi } from '@/lib/api';
 import { type Order, type OrderStatus, type PaymentStatus } from '@/types/order';
 import { EmptyState, EmptyCartIllustration } from '@/components/ui/empty-state';
+import { formatTND } from '@/lib/currency';
+import { useTranslation } from 'react-i18next';
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -51,6 +53,7 @@ const OrdersPage: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
 
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [filters, setFilters] = useState<FiltersState>({
@@ -155,7 +158,7 @@ const OrdersPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin" aria-label="Chargement des commandes" />
+        <Loader2 className="w-8 h-8 animate-spin" aria-label={t('orders.loading')} />
       </div>
     );
   }
@@ -163,13 +166,13 @@ const OrdersPage: React.FC = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <p className="text-destructive">Une erreur est survenue lors du chargement des commandes.</p>
+        <p className="text-destructive">{t('orders.errorLoading')}</p>
         <Button
           onClick={() => queryClient.invalidateQueries({ queryKey: ['orders'] })}
           variant="outline"
-          aria-label="Réessayer de charger les commandes"
+          aria-label={t('orders.retry')}
         >
-          Réessayer
+          {t('orders.retry')}
         </Button>
       </div>
     );
@@ -179,8 +182,8 @@ const OrdersPage: React.FC = () => {
     <div className="container mx-auto py-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Commandes</CardTitle>
-          <CardDescription>Gérez les commandes de votre boutique</CardDescription>
+          <CardTitle>{t('orders.title')}</CardTitle>
+          <CardDescription>{t('orders.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between mb-6">
@@ -193,13 +196,13 @@ const OrdersPage: React.FC = () => {
           <div className="flex gap-4 mb-6">
             <div className="flex-1">
               <Input
-                placeholder="Rechercher une commande..."
+                placeholder={t('orders.searchPlaceholder')}
                 value={filters.search}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setFilters({ ...filters, search: e.target.value })
                 }
                 className="flex-1"
-                aria-label="Rechercher une commande par numéro ou email"
+                aria-label={t('orders.searchPlaceholder')}
               />
             </div>
             <Select
@@ -208,16 +211,16 @@ const OrdersPage: React.FC = () => {
                 setFilters({ ...filters, status: value })
               }
             >
-              <SelectTrigger className="w-[200px]" aria-label="Filtrer par statut de commande">
-                <SelectValue placeholder="Statut de commande" />
+              <SelectTrigger className="w-[200px]" aria-label={t('orders.statusFilter')}>
+                <SelectValue placeholder={t('orders.statusFilter')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="pending">En attente</SelectItem>
-                <SelectItem value="confirmed">Confirmée</SelectItem>
-                <SelectItem value="shipped">Expédiée</SelectItem>
-                <SelectItem value="delivered">Livrée</SelectItem>
-                <SelectItem value="cancelled">Annulée</SelectItem>
+                <SelectItem value="all">{t('orders.allStatuses')}</SelectItem>
+                <SelectItem value="pending">{t('orders.status.pending')}</SelectItem>
+                <SelectItem value="confirmed">{t('orders.status.confirmed')}</SelectItem>
+                <SelectItem value="shipped">{t('orders.status.shipped')}</SelectItem>
+                <SelectItem value="delivered">{t('orders.status.delivered')}</SelectItem>
+                <SelectItem value="cancelled">{t('orders.status.cancelled')}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -226,15 +229,15 @@ const OrdersPage: React.FC = () => {
                 setFilters({ ...filters, paymentStatus: value })
               }
             >
-              <SelectTrigger className="w-[200px]" aria-label="Filtrer par statut de paiement">
-                <SelectValue placeholder="Statut de paiement" />
+              <SelectTrigger className="w-[200px]" aria-label={t('orders.paymentFilter')}>
+                <SelectValue placeholder={t('orders.paymentFilter')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tous les paiements</SelectItem>
-                <SelectItem value="pending">En attente</SelectItem>
-                <SelectItem value="paid">Payé</SelectItem>
-                <SelectItem value="refunded">Remboursé</SelectItem>
-                <SelectItem value="failed">Échoué</SelectItem>
+                <SelectItem value="all">{t('orders.allPayments')}</SelectItem>
+                <SelectItem value="pending">{t('orders.payment.pending')}</SelectItem>
+                <SelectItem value="paid">{t('orders.payment.paid')}</SelectItem>
+                <SelectItem value="refunded">{t('orders.payment.refunded')}</SelectItem>
+                <SelectItem value="failed">{t('orders.payment.failed')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -242,23 +245,23 @@ const OrdersPage: React.FC = () => {
           {filteredOrders.length === 0 ? (
             <EmptyState
               icon={ShoppingCart}
-              title="Aucune commande"
-              description="Vous n'avez pas encore reçu de commande. Partagez votre boutique pour commencer à vendre !"
+              title={t('orders.emptyTitle')}
+              description={t('orders.emptyDesc')}
               illustration={<EmptyCartIllustration />}
             />
           ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Numéro</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Livreur</TableHead>
-                <TableHead>Transporteur</TableHead>
-                <TableHead>Paiement</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t('orders.col.number')}</TableHead>
+                <TableHead>{t('orders.col.date')}</TableHead>
+                <TableHead>{t('orders.col.customer')}</TableHead>
+                <TableHead>{t('orders.col.total')}</TableHead>
+                <TableHead>{t('orders.col.status')}</TableHead>
+                <TableHead>{t('orders.col.driver')}</TableHead>
+                <TableHead>{t('orders.col.carrier')}</TableHead>
+                <TableHead>{t('orders.col.payment')}</TableHead>
+                <TableHead>{t('orders.col.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -274,10 +277,7 @@ const OrdersPage: React.FC = () => {
                   </TableCell>
                   <TableCell>{order.customerEmail}</TableCell>
                   <TableCell>
-                    {new Intl.NumberFormat('fr-FR', {
-                      style: 'currency',
-                      currency: order.currency || 'EUR', // Fallback to EUR
-                    }).format(order.total)}
+                    {formatTND(order.total)}
                   </TableCell>
                   <TableCell>
                     <StatusUpdateButton
@@ -425,7 +425,7 @@ const OrdersPage: React.FC = () => {
                 aria-label="Email du client"
               />
               <Input
-                placeholder="Total (€)"
+                placeholder="Total (TND)"
                 type="number"
                 value={editForm.total}
                 onChange={(e) => setEditForm((p) => ({ ...p!, total: Number(e.target.value) }))}

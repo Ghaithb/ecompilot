@@ -127,8 +127,8 @@ const AIContentGenerator: React.FC<AIContentGeneratorProps> = ({ onInsertContent
         luxury: `# L'Excellence à Votre Portée\n\nUne expérience unique, un savoir-faire d'exception. Rejoignez l'élite de ceux qui n'acceptent que le meilleur.\n\n**Découvrir la collection →**`,
       },
       product: {
-        professional: `## Sac en Cuir Premium - Collection Artisanale\n\nFabriqué à la main par nos artisans experts, ce sac allie élégance intemporelle et durabilité exceptionnelle. Cuir pleine fleur italien, finitions soignées, design polyvalent.\n\n### Caractéristiques:\n- Cuir italien pleine fleur\n- Multiples compartiments intérieurs\n- Dimensions: 35 x 28 x 12 cm\n- Garantie à vie\n\n**Prix: 299€** | Livraison offerte`,
-        casual: `## Le Sac Qui Fait Tout !\n\nGénial pour le boulot, parfait pour les weekends. Ce sac en cuir ultra-solide va devenir votre meilleur pote. Fait main, classe, et qui dure des années.\n\n**299€** - Tu vas l'adorer !`,
+        professional: `## Sac en Cuir Premium - Collection Artisanale\n\nFabriqué à la main par nos artisans experts, ce sac allie élégance intemporelle et durabilité exceptionnelle. Cuir pleine fleur italien, finitions soignées, design polyvalent.\n\n### Caractéristiques:\n- Cuir italien pleine fleur\n- Multiples compartiments intérieurs\n- Dimensions: 35 x 28 x 12 cm\n- Garantie à vie\n\n**Prix: 299.00 TND** | Livraison offerte`,
+        casual: `## Le Sac Qui Fait Tout !\n\nGénial pour le boulot, parfait pour les weekends. Ce sac en cuir ultra-solide va devenir votre meilleur pote. Fait main, classe, et qui dure des années.\n\n**299.00 TND** - Tu vas l'adorer !`,
       },
       about: {
         professional: `## Notre Histoire\n\nFondée en 2020, notre entreprise est née d'une vision claire: révolutionner l'industrie par l'innovation et l'excellence. Aujourd'hui, nous servons plus de 10,000 clients satisfaits à travers le monde.\n\n### Nos Valeurs\n\n**Innovation** - Nous repoussons constamment les limites\n**Qualité** - L'excellence sans compromis\n**Durabilité** - Un engagement pour l'avenir`,

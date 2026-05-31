@@ -251,7 +251,7 @@ export default function MarketingPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-gray-600">
-                      1€ = 10 points. 100 points = 1€ de réduction
+                      1.00 TND = 10 points. 100 points = 1.00 TND de réduction
                     </p>
                     <Button className="w-full mt-4" variant="outline">
                       Configurer

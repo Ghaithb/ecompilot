@@ -91,4 +91,11 @@ export const integrationsApi = {
     const response = await api.post('/integrations/social/linkedin/disconnect');
     return response.data;
   },
+
+  getMessagingStatus: async () => {
+    const response = await api.get('/notifications/messaging-status');
+    return response.data as {
+      sms: { configured: boolean; status: 'live' | 'pilot' | 'coming-soon'; provider: string };
+    };
+  },
 };

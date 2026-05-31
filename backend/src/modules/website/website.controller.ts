@@ -7,6 +7,14 @@ import { WebsiteService } from './website.service';
 import { PageService } from './page.service';
 import { GenerateWebsiteDto } from './dto/generate-website.dto';
 import { UpdateWebsiteDto, UpdateFeaturesDto } from './dto/update-website.dto';
+import {
+  UpdateStoreTemplateDto,
+  UpdateWebsiteAnalyticsDto,
+  UpdateWebsiteDomainDto,
+  UpdateBrandingDto,
+} from './dto/website-settings.dto';
+import { WebsiteDomainService } from './website-domain.service';
+import { STORE_TEMPLATES } from './constants/store-templates';
 
 @ApiTags('website')
 @ApiBearerAuth()
@@ -16,6 +24,7 @@ export class WebsiteController {
   constructor(
     private readonly websiteService: WebsiteService,
     private readonly pageService: PageService,
+    private readonly domainService: WebsiteDomainService,
   ) {}
 
   // ==================== WEBSITE ====================
@@ -202,6 +211,52 @@ export class WebsiteController {
   @ApiResponse({ status: 200, description: 'Configuration récupérée' })
   async getConfig(@TenantId() tenantId: string) {
     return this.websiteService.getWebsiteConfig(tenantId);
+  }
+
+  @Get('domain')
+  @ApiOperation({ summary: 'Statut domaine personnalisé' })
+  async getDomain(@TenantId() tenantId: string) {
+    return this.domainService.getDomainStatus(tenantId);
+  }
+
+  @Patch('domain')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  @ApiOperation({ summary: 'Configurer le domaine personnalisé' })
+  async updateDomain(@TenantId() tenantId: string, @Body() dto: UpdateWebsiteDomainDto) {
+    return this.domainService.updateCustomDomain(tenantId, dto.customDomain);
+  }
+
+  @Post('domain/verify')
+  @ApiOperation({ summary: 'Vérifier la configuration DNS du domaine' })
+  async verifyDomain(@TenantId() tenantId: string) {
+    return this.domainService.verifyDns(tenantId);
+  }
+
+  @Patch('analytics')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  @ApiOperation({ summary: 'Configurer GA4 et Meta Pixel' })
+  async updateAnalytics(@TenantId() tenantId: string, @Body() dto: UpdateWebsiteAnalyticsDto) {
+    return this.websiteService.updateAnalytics(tenantId, dto);
+  }
+
+  @Get('templates')
+  @ApiOperation({ summary: 'Liste des templates boutique COD' })
+  listTemplates() {
+    return Object.values(STORE_TEMPLATES);
+  }
+
+  @Patch('template')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  @ApiOperation({ summary: 'Appliquer un template boutique' })
+  async updateTemplate(@TenantId() tenantId: string, @Body() dto: UpdateStoreTemplateDto) {
+    return this.websiteService.updateStoreTemplate(tenantId, dto.templateId);
+  }
+
+  @Patch('branding')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  @ApiOperation({ summary: 'Logo, couverture et slogan de la boutique' })
+  async updateBranding(@TenantId() tenantId: string, @Body() dto: UpdateBrandingDto) {
+    return this.websiteService.updateBranding(tenantId, dto);
   }
 
   @Patch('features')

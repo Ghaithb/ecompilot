@@ -10,8 +10,13 @@ export interface RealtimeNotification {
   at: string;
 }
 
+/** MVP: realtime désactivé par défaut (backend stub sans gateway Socket.io). */
+export function isRealtimeEnabled(): boolean {
+  return import.meta.env.VITE_ENABLE_REALTIME === 'true';
+}
+
 function getSocketBaseUrl(): string {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
   return apiUrl.replace(/\/api\/v1\/?$/, '');
 }
 
@@ -27,13 +32,14 @@ function formatRelativeTime(isoDate: string): string {
 
 export function useRealtimeNotifications(enabled: boolean) {
   const [notifications, setNotifications] = useState<RealtimeNotification[]>([]);
+  const realtimeActive = enabled && isRealtimeEnabled();
 
   const markAllRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
   }, []);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!realtimeActive) return;
 
     const token = localStorage.getItem('auth_token');
     if (!token) return;
@@ -60,6 +66,12 @@ export function useRealtimeNotifications(enabled: boolean) {
     socket = io(`${getSocketBaseUrl()}/realtime`, {
       auth: { token },
       transports: ['websocket', 'polling'],
+      reconnection: false,
+      timeout: 5000,
+    });
+
+    socket.on('connect_error', () => {
+      socket?.disconnect();
     });
 
     socket.on('notification', pushNotification);
@@ -71,7 +83,7 @@ export function useRealtimeNotifications(enabled: boolean) {
     return () => {
       socket?.disconnect();
     };
-  }, [enabled]);
+  }, [realtimeActive]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 

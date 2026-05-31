@@ -60,7 +60,7 @@ interface AnalyticsData {
     views: number;
     percentage: number;
   }>;
-  traffic Sources: Array<{
+  trafficSources: Array<{
     source: string;
     visits: number;
     percentage: number;
@@ -154,7 +154,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ pageId }) => {
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'TND',
     }).format(amount);
   };
 

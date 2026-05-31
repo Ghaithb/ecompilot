@@ -194,7 +194,7 @@ const BookingPage: React.FC = () => {
                                                 <TableCell>
                                                     {new Intl.NumberFormat('fr-FR', {
                                                         style: 'currency',
-                                                        currency: 'EUR',
+                                                        currency: 'TND',
                                                     }).format(booking.price)}
                                                 </TableCell>
                                                 <TableCell>
@@ -268,7 +268,7 @@ const BookingPage: React.FC = () => {
                                                     <div className="text-2xl font-bold">
                                                         {new Intl.NumberFormat('fr-FR', {
                                                             style: 'currency',
-                                                            currency: 'EUR',
+                                                            currency: 'TND',
                                                         }).format(service.price)}
                                                     </div>
                                                     <div className="text-sm text-muted-foreground">

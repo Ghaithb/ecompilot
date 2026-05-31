@@ -20,6 +20,16 @@ export class DeliveryQueueProcessor {
     return this.delivery.processQueuedCreate(job.data);
   }
 
+  @Process(DeliveryJobName.SYNC_TRACKING)
+  async handleSyncTracking(job: Job<DeliveryQueuePayload>) {
+    if (!job.data.shipmentId) {
+      this.logger.warn(`Sync job ${job.id} missing shipmentId`);
+      return;
+    }
+    this.logger.log(`Sync tracking job ${job.id} shipment=${job.data.shipmentId}`);
+    return this.delivery.syncTracking(job.data.tenantId, job.data.shipmentId);
+  }
+
   @OnQueueFailed()
   onFailed(job: Job<DeliveryQueuePayload>, error: Error) {
     this.logger.error(

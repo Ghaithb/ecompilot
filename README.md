@@ -28,8 +28,17 @@ MongoDB local : `mongodb://localhost:27017/ecompilot`
 ## Tests
 
 ```bash
-node scripts/test-all-features.mjs
-set WEB_URL=http://127.0.0.1:5175
+# Verification complete (Phase 0 + 1)
+powershell -ExecutionPolicy Bypass -File scripts/run-verification.ps1
+
+# Smoke E2E API (register → boutique → branding → checkout COD)
+powershell -ExecutionPolicy Bypass -File scripts/e2e-smoke-test.ps1
+
+# Smoke MVP API uniquement (modules actifs)
+node scripts/test-mvp-features.mjs
+
+# Routes SPA + API
+set WEB_URL=http://127.0.0.1:5173
 node scripts/test-all-routes.mjs
 ```
 

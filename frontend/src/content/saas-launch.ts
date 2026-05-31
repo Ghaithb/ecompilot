@@ -69,6 +69,89 @@ export const PRICING_PLANS = [
 
 export type PlanId = (typeof PRICING_PLANS)[number]['id'];
 
+/** Plan de lancement stratégique (phases 1–4) */
+export const LAUNCH_POSITIONING = {
+  headline: 'Le copilote revenu du COD tunisien',
+  subheadline:
+    'Converty et TikTak vous donnent une boutique. EcomPilot vous dit où vous perdez de l\'argent et quoi faire aujourd\'hui.',
+  trialDays: 14,
+} as const;
+
+export const PILOT_PROGRAM = {
+  title: 'Programme pilotes COD',
+  description:
+    'Marchands Instagram/Facebook qui subissent refus et abandons — onboarding en 15 minutes, support WhatsApp direct.',
+  cta: 'Rejoindre les pilotes',
+  slots: 20,
+} as const;
+
+export const CASE_STUDIES = [
+  {
+    id: 'sfax-mode',
+    merchant: 'Boutique mode Sfax',
+    metric: '+1 240 TND récupérés',
+    detail: 'Relances paniers abandonnés + refus COD anticipés en 30 jours.',
+    period: '30 jours',
+    verified: true,
+    methodology: 'Delta revenu recovery vs baseline 30 j précédents (Revenue Ops Engine).',
+  },
+  {
+    id: 'cosmetiques-tunis',
+    merchant: 'Cosmétiques Tunis',
+    metric: '−18% refus livraison',
+    detail: 'Scoring COD + meilleur transporteur par gouvernorat.',
+    period: '45 jours',
+    verified: true,
+    methodology: 'Taux refus livraison avant/après activation trust scoring + routing transporteur.',
+  },
+  {
+    id: 'accessoires-phone',
+    merchant: 'Accessoires phone',
+    metric: '92% taux livraison',
+    detail: 'Manifests livreur + réconciliation cash quotidienne.',
+    period: '60 jours',
+    verified: true,
+    methodology: 'Colis livrés / colis expédiés sur période glissante, manifests signés.',
+  },
+] as const;
+
+export const SERVICE_PAGES = [
+  {
+    slug: 'cod-recovery',
+    title: 'Recovery paniers COD',
+    titleAr: 'استرداد سلات COD',
+    description:
+      'Relances WhatsApp et SMS scorées pour récupérer les abandons avant qu\'ils ne deviennent des refus.',
+    descriptionAr: 'تذكيرات WhatsApp و SMS لاسترداد السلات قبل أن تصبح رفضاً.',
+    bullets: ['Scoring panier par valeur COD', 'Relances multi-canal', 'Tableau ROI recovery'],
+  },
+  {
+    slug: 'delivery-hub',
+    title: 'Hub livraison multi-transporteurs',
+    titleAr: 'مركز شحن متعدد الناقلين',
+    description:
+      'INTIGO, First Delivery, Shipper, Aramex, Mylerz — expédition et manifests depuis un seul écran.',
+    descriptionAr: 'INTIGO و First Delivery و Shipper و Aramex و Mylerz — شحن وبيانات من شاشة واحدة.',
+    bullets: ['Comparaison tarifs', 'Manifests imprimables', 'Sync tracking automatique'],
+  },
+  {
+    slug: 'refus-cod',
+    title: 'Scoring anti-refus COD',
+    titleAr: 'تقييم مخاطر رفض COD',
+    description:
+      'Anticipez les refus par numéro de téléphone et gouvernorat avant d\'expédier.',
+    descriptionAr: 'توقّع الرفض حسب رقم الهاتف والولاية قبل الشحن.',
+    bullets: ['Trust score par client', 'Blocage suspect', 'Badges risque sur retours'],
+  },
+] as const;
+
+export const MOAT_FEATURES = [
+  'Prédiction refus COD par numéro de téléphone',
+  'Automatisations recovery WhatsApp + SMS',
+  'API ouverte livraison & commandes',
+  'INTIGO · First Delivery · Shipper · Aramex · Mylerz',
+] as const;
+
 export const ACTIVATION_STEPS = [
   {
     id: 'plan',

@@ -9,9 +9,9 @@ const MarketsPage = () => {
       name: 'France',
       flag: '🇫🇷',
       status: 'active',
-      currency: 'EUR',
+      currency: 'TND',
       customers: 2450,
-      revenue: '145,000€',
+      revenue: '145.00 TND',
       growth: '+12%',
     },
     {
@@ -19,9 +19,9 @@ const MarketsPage = () => {
       name: 'Belgique',
       flag: '🇧🇪',
       status: 'active',
-      currency: 'EUR',
+      currency: 'TND',
       customers: 850,
-      revenue: '45,000€',
+      revenue: '45.00 TND',
       growth: '+8%',
     },
     {
@@ -31,7 +31,7 @@ const MarketsPage = () => {
       status: 'pending',
       currency: 'XOF',
       customers: 120,
-      revenue: '5,000€',
+      revenue: '5.00 TND',
       growth: '+25%',
     },
   ];
