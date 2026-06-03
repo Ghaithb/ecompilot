@@ -1,0 +1,133 @@
+ts-jest[ts-jest-transformer] (WARN) Define `ts-jest` config under `globals` is deprecated. Please do
+transform: {
+    <transform_regex>: ['ts-jest', { /* ts-jest config goes here in Jest */ }],
+},
+See more at https://kulshekhar.github.io/ts-jest/docs/getting-started/presets#advanced
+FAIL src/modules/whatsapp/whatsapp.service.spec.ts
+  WhatsAppService - Hybrid Provider
+    × should be defined (8 ms)
+    × should resolve to WAHA provider if configured (2 ms)
+    × should default to META provider if not configured (2 ms)
+
+  ● WhatsAppService - Hybrid Provider › should be defined
+
+    Nest can't resolve dependencies of the WhatsAppService (?, TenantModel, MetaWhatsAppProvider, WahaProvider, ConfigService). Please make sure that the argument "WhatsAppMessageModel" at index [0] is available in the RootTestModule context.
+
+    Potential solutions:
+    - Is RootTestModule a valid NestJS module?
+    - If "WhatsAppMessageModel" is a provider, is it part of the current RootTestModule?
+    - If "WhatsAppMessageModel" is exported from a separate @Module, is that module imported within RootTestModule?
+      @Module({
+        imports: [ /* the Module containing "WhatsAppMessageModel" */ ]
+      })
+
+    [0m [90m 25 |[39m     }[33m;[39m
+     [90m 26 |[39m
+    [31m[1m>[22m[39m[90m 27 |[39m     [36mconst[39m module[33m:[39m [33mTestingModule[39m [33m=[39m [36mawait[39m [33mTest[39m[33m.[39mcreateTestingModule({
+     [90m    |[39m                                   [31m[1m^[22m[39m
+     [90m 28 |[39m       providers[33m:[39m [
+     [90m 29 |[39m         [33mWhatsAppService[39m[33m,[39m
+     [90m 30 |[39m         { provide[33m:[39m [33mMetaWhatsAppProvider[39m[33m,[39m useValue[33m:[39m mockMetaProvider }[33m,[39m[0m
+
+      at TestingInjector.lookupComponentInParentModules (../node_modules/@nestjs/core/injector/injector.js:286:19)
+      at TestingInjector.resolveComponentWrapper (../node_modules/@nestjs/testing/testing-injector.js:19:45)
+      at resolveParam (../node_modules/@nestjs/core/injector/injector.js:141:38)
+          at async Promise.all (index 0)
+      at TestingInjector.resolveConstructorParams (../node_modules/@nestjs/core/injector/injector.js:169:27)
+      at TestingInjector.loadInstance (../node_modules/@nestjs/core/injector/injector.js:75:13)
+      at TestingInjector.loadProvider (../node_modules/@nestjs/core/injector/injector.js:103:9)
+      at ../node_modules/@nestjs/core/injector/instance-loader.js:56:13
+          at async Promise.all (index 3)
+      at TestingInstanceLoader.createInstancesOfProviders (../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
+      at ../node_modules/@nestjs/core/injector/instance-loader.js:40:13
+          at async Promise.all (index 1)
+      at TestingInstanceLoader.createInstances (../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
+      at TestingInstanceLoader.createInstancesOfDependencies (../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
+      at TestingInstanceLoader.createInstancesOfDependencies (../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
+      at TestingModuleBuilder.createInstancesOfDependencies (../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
+      at TestingModuleBuilder.compile (../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
+      at Object.<anonymous> (modules/whatsapp/whatsapp.service.spec.ts:27:35)
+
+  ● WhatsAppService - Hybrid Provider › should resolve to WAHA provider if configured
+
+    Nest can't resolve dependencies of the WhatsAppService (?, TenantModel, MetaWhatsAppProvider, WahaProvider, ConfigService). Please make sure that the argument "WhatsAppMessageModel" at index [0] is available in the RootTestModule context.
+
+    Potential solutions:
+    - Is RootTestModule a valid NestJS module?
+    - If "WhatsAppMessageModel" is a provider, is it part of the current RootTestModule?
+    - If "WhatsAppMessageModel" is exported from a separate @Module, is that module imported within RootTestModule?
+      @Module({
+        imports: [ /* the Module containing "WhatsAppMessageModel" */ ]
+      })
+
+    [0m [90m 25 |[39m     }[33m;[39m
+     [90m 26 |[39m
+    [31m[1m>[22m[39m[90m 27 |[39m     [36mconst[39m module[33m:[39m [33mTestingModule[39m [33m=[39m [36mawait[39m [33mTest[39m[33m.[39mcreateTestingModule({
+     [90m    |[39m                                   [31m[1m^[22m[39m
+     [90m 28 |[39m       providers[33m:[39m [
+     [90m 29 |[39m         [33mWhatsAppService[39m[33m,[39m
+     [90m 30 |[39m         { provide[33m:[39m [33mMetaWhatsAppProvider[39m[33m,[39m useValue[33m:[39m mockMetaProvider }[33m,[39m[0m
+
+      at TestingInjector.lookupComponentInParentModules (../node_modules/@nestjs/core/injector/injector.js:286:19)
+      at TestingInjector.resolveComponentWrapper (../node_modules/@nestjs/testing/testing-injector.js:19:45)
+      at resolveParam (../node_modules/@nestjs/core/injector/injector.js:141:38)
+          at async Promise.all (index 0)
+      at TestingInjector.resolveConstructorParams (../node_modules/@nestjs/core/injector/injector.js:169:27)
+      at TestingInjector.loadInstance (../node_modules/@nestjs/core/injector/injector.js:75:13)
+      at TestingInjector.loadProvider (../node_modules/@nestjs/core/injector/injector.js:103:9)
+      at ../node_modules/@nestjs/core/injector/instance-loader.js:56:13
+          at async Promise.all (index 3)
+      at TestingInstanceLoader.createInstancesOfProviders (../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
+      at ../node_modules/@nestjs/core/injector/instance-loader.js:40:13
+          at async Promise.all (index 1)
+      at TestingInstanceLoader.createInstances (../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
+      at TestingInstanceLoader.createInstancesOfDependencies (../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
+      at TestingInstanceLoader.createInstancesOfDependencies (../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
+      at TestingModuleBuilder.createInstancesOfDependencies (../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
+      at TestingModuleBuilder.compile (../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
+      at Object.<anonymous> (modules/whatsapp/whatsapp.service.spec.ts:27:35)
+
+  ● WhatsAppService - Hybrid Provider › should default to META provider if not configured
+
+    Nest can't resolve dependencies of the WhatsAppService (?, TenantModel, MetaWhatsAppProvider, WahaProvider, ConfigService). Please make sure that the argument "WhatsAppMessageModel" at index [0] is available in the RootTestModule context.
+
+    Potential solutions:
+    - Is RootTestModule a valid NestJS module?
+    - If "WhatsAppMessageModel" is a provider, is it part of the current RootTestModule?
+    - If "WhatsAppMessageModel" is exported from a separate @Module, is that module imported within RootTestModule?
+      @Module({
+        imports: [ /* the Module containing "WhatsAppMessageModel" */ ]
+      })
+
+    [0m [90m 25 |[39m     }[33m;[39m
+     [90m 26 |[39m
+    [31m[1m>[22m[39m[90m 27 |[39m     [36mconst[39m module[33m:[39m [33mTestingModule[39m [33m=[39m [36mawait[39m [33mTest[39m[33m.[39mcreateTestingModule({
+     [90m    |[39m                                   [31m[1m^[22m[39m
+     [90m 28 |[39m       providers[33m:[39m [
+     [90m 29 |[39m         [33mWhatsAppService[39m[33m,[39m
+     [90m 30 |[39m         { provide[33m:[39m [33mMetaWhatsAppProvider[39m[33m,[39m useValue[33m:[39m mockMetaProvider }[33m,[39m[0m
+
+      at TestingInjector.lookupComponentInParentModules (../node_modules/@nestjs/core/injector/injector.js:286:19)
+      at TestingInjector.resolveComponentWrapper (../node_modules/@nestjs/testing/testing-injector.js:19:45)
+      at resolveParam (../node_modules/@nestjs/core/injector/injector.js:141:38)
+          at async Promise.all (index 0)
+      at TestingInjector.resolveConstructorParams (../node_modules/@nestjs/core/injector/injector.js:169:27)
+      at TestingInjector.loadInstance (../node_modules/@nestjs/core/injector/injector.js:75:13)
+      at TestingInjector.loadProvider (../node_modules/@nestjs/core/injector/injector.js:103:9)
+      at ../node_modules/@nestjs/core/injector/instance-loader.js:56:13
+          at async Promise.all (index 3)
+      at TestingInstanceLoader.createInstancesOfProviders (../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
+      at ../node_modules/@nestjs/core/injector/instance-loader.js:40:13
+          at async Promise.all (index 1)
+      at TestingInstanceLoader.createInstances (../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
+      at TestingInstanceLoader.createInstancesOfDependencies (../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
+      at TestingInstanceLoader.createInstancesOfDependencies (../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
+      at TestingModuleBuilder.createInstancesOfDependencies (../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
+      at TestingModuleBuilder.compile (../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
+      at Object.<anonymous> (modules/whatsapp/whatsapp.service.spec.ts:27:35)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        4.232 s, estimated 7 s
+Ran all test suites matching src/modules/whatsapp/whatsapp.service.spec.ts.
