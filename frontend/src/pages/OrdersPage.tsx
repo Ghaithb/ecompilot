@@ -1,11 +1,12 @@
 import React, { useState, useMemo, type ChangeEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, ShoppingCart } from 'lucide-react';
+import { Loader2, PackageCheck, PhoneCall, Route, ShoppingCart, Truck } from 'lucide-react';
 import { GenerateInvoiceButton } from '@/components/orders/GenerateInvoiceButton';
 import { StatusUpdateButton } from '@/components/orders/StatusUpdateButton';
 import { AssignDriverSelect } from '@/components/orders/AssignDriverSelect';
@@ -152,6 +153,26 @@ const OrdersPage: React.FC = () => {
     });
   }, [orders, filters]);
 
+  const workflowStats = useMemo(() => {
+    const needsConfirmation = orders.filter((order) =>
+      ['pending', 'created'].includes(order.status) || order.paymentStatus === 'pending',
+    ).length;
+    const preparing = orders.filter((order) =>
+      ['confirmed', 'prepared', 'assigned_to_driver'].includes(order.status),
+    ).length;
+    const inTransit = orders.filter((order) =>
+      ['shipped', 'out_for_delivery'].includes(order.status),
+    ).length;
+    const completed = orders.filter((order) =>
+      ['delivered', 'paid', 'completed'].includes(order.status),
+    ).length;
+    const missingTracking = orders.filter((order) =>
+      !order.trackingNumber && !['cancelled', 'delivered', 'completed', 'refused'].includes(order.status),
+    ).length;
+
+    return { needsConfirmation, preparing, inTransit, completed, missingTracking };
+  }, [orders]);
+
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const paginatedOrders = filteredOrders.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
@@ -186,6 +207,53 @@ const OrdersPage: React.FC = () => {
           <CardDescription>{t('orders.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <button
+              type="button"
+              onClick={() => setFilters((prev) => ({ ...prev, status: 'pending', paymentStatus: 'all' }))}
+              className="rounded-xl border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <PhoneCall className="mb-3 h-5 w-5 text-amber-600" />
+              <p className="text-xs text-muted-foreground">A confirmer</p>
+              <p className="text-2xl font-semibold tabular-nums">{workflowStats.needsConfirmation}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilters((prev) => ({ ...prev, status: 'confirmed', paymentStatus: 'all' }))}
+              className="rounded-xl border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <PackageCheck className="mb-3 h-5 w-5 text-blue-600" />
+              <p className="text-xs text-muted-foreground">Preparation</p>
+              <p className="text-2xl font-semibold tabular-nums">{workflowStats.preparing}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilters((prev) => ({ ...prev, status: 'shipped', paymentStatus: 'all' }))}
+              className="rounded-xl border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <Truck className="mb-3 h-5 w-5 text-indigo-600" />
+              <p className="text-xs text-muted-foreground">En livraison</p>
+              <p className="text-2xl font-semibold tabular-nums">{workflowStats.inTransit}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilters((prev) => ({ ...prev, status: 'delivered', paymentStatus: 'all' }))}
+              className="rounded-xl border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <Route className="mb-3 h-5 w-5 text-emerald-600" />
+              <p className="text-xs text-muted-foreground">Livrees</p>
+              <p className="text-2xl font-semibold tabular-nums">{workflowStats.completed}</p>
+            </button>
+            <Link
+              to="/delivery"
+              className="rounded-xl border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <Truck className="mb-3 h-5 w-5 text-red-600" />
+              <p className="text-xs text-muted-foreground">Tracking manquant</p>
+              <p className="text-2xl font-semibold tabular-nums">{workflowStats.missingTracking}</p>
+            </Link>
+          </div>
+
           <div className="flex justify-between mb-6">
             <div className="flex gap-2">
               <ExportButton orders={filteredOrders} format="excel" />

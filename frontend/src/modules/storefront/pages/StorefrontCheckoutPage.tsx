@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, ShieldCheck, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { TUNISIA_GOVERNORATES, getDelegationsForGovernorate } from '@/lib/tunisia-locations';
@@ -34,6 +34,32 @@ function fieldErrorMessage(
   if (field === 'phone') return t('checkout.invalidPhoneIntl');
   if (field === 'address') return t('checkout.invalidAddress');
   return t('checkout.fieldRequired');
+}
+
+function CheckoutAssurancePanel() {
+  const { t } = useTranslation();
+  const items = [
+    { icon: ShieldCheck, title: t('checkout.assuranceCod'), desc: t('checkout.assuranceCodDesc') },
+    { icon: Truck, title: t('checkout.assuranceDelivery'), desc: t('checkout.assuranceDeliveryDesc') },
+    { icon: CheckCircle2, title: t('checkout.assuranceConfirm'), desc: t('checkout.assuranceConfirmDesc') },
+  ];
+
+  return (
+    <div className="mb-6 grid gap-2 sm:grid-cols-3">
+      {items.map((item) => {
+        const Icon = item.icon;
+        return (
+          <div key={item.title} className="rounded-xl border bg-card px-3 py-3">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <Icon className="h-4 w-4 text-primary" aria-hidden />
+              {item.title}
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.desc}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export function StorefrontCheckoutPage() {
@@ -149,7 +175,7 @@ export function StorefrontCheckoutPage() {
 
   return (
     <StorefrontLayout>
-      <div className="mx-auto max-w-lg px-4 py-6 pb-24">
+      <div className="mx-auto max-w-3xl px-4 py-6 pb-24">
         <Link to={`/store/${storeSlug}`} className="inline-flex items-center gap-1 text-sm text-muted-foreground mb-6">
           <ArrowLeft className="h-4 w-4" />
           {t('checkout.backToStore')}
@@ -157,6 +183,7 @@ export function StorefrontCheckoutPage() {
 
         <h1 className="text-xl font-semibold mb-1">{t('checkout.title')}</h1>
         <p className="text-sm text-muted-foreground mb-6">{t('checkout.subtitle')}</p>
+        <CheckoutAssurancePanel />
 
         {step === 'form' ? (
           <>
@@ -171,6 +198,7 @@ export function StorefrontCheckoutPage() {
                 <span>{t('checkout.totalCod')}</span>
                 <span className="tabular-nums">{total.toFixed(0)} TND</span>
               </div>
+              <p className="border-t pt-2 text-center text-xs text-muted-foreground">{t('checkout.noCardNeeded')}</p>
             </div>
 
             {preview?.freeShipping && !preview.freeShipping.unlocked && (

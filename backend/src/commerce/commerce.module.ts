@@ -26,10 +26,9 @@ import { MerchantApiModule } from '../modules/merchant-api/merchant-api.module';
 import { BillingModule } from '../modules/billing/billing.module';
 import { StaffModule } from '../modules/staff/staff.module';
 import { StorefrontModule } from '../modules/storefront/storefront.module';
+import { MarketIntelligenceModule } from '../modules/market-intelligence/market-intelligence.module';
+import { WholesaleModule } from '../modules/wholesale/wholesale.module';
 
-/**
- * Commerce MVP — vente en ligne TN (boutique, commandes, COD, livreurs internes).
- */
 @Module({
   imports: [
     AuthModule,
@@ -59,6 +58,8 @@ import { StorefrontModule } from '../modules/storefront/storefront.module';
     MerchantApiModule,
     BillingModule,
     StaffModule,
+    MarketIntelligenceModule,
+    WholesaleModule,
   ],
   exports: [
     AuthModule,
@@ -75,6 +76,8 @@ import { StorefrontModule } from '../modules/storefront/storefront.module';
     PilotsModule,
     MerchantApiModule,
     BillingModule,
+    MarketIntelligenceModule,
+    WholesaleModule,
   ],
 })
 export class CommerceModule {}

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageCircle, Truck, Banknote } from 'lucide-react';
+import { BadgeCheck, Clock3, MessageCircle, ShieldCheck, Truck, Banknote } from 'lucide-react';
 import type { StoreProduct } from '@/templates/storefront/types';
 import { WHATSAPP_COLOR, DEFAULT_TESTIMONIALS } from './constants';
 import { StoreContainer, StoreSection, StoreSectionHeader } from './layout';
@@ -47,6 +47,56 @@ export function StoreTrustAdvantages() {
                   {t(`storefront.sections.${item.descKey}`)}
                 </p>
               </article>
+            );
+          })}
+        </div>
+      </StoreContainer>
+    </section>
+  );
+}
+
+export function StoreMarketProofStrip({
+  productCount,
+  deliveryLabel = '24-72h',
+}: {
+  productCount: number;
+  deliveryLabel?: string;
+}) {
+  const { t } = useTranslation();
+  const items = [
+    {
+      icon: ShieldCheck,
+      label: t('storefront.sections.marketProofCod'),
+      value: t('storefront.sections.marketProofCodValue'),
+    },
+    {
+      icon: Clock3,
+      label: t('storefront.sections.marketProofDelivery'),
+      value: deliveryLabel,
+    },
+    {
+      icon: BadgeCheck,
+      label: t('storefront.sections.marketProofCatalog'),
+      value: t('storefront.sections.marketProofCatalogValue', { count: productCount }),
+    },
+  ];
+
+  return (
+    <section className="store-market-proof border-b bg-background/95">
+      <StoreContainer>
+        <div className="grid gap-3 py-4 sm:grid-cols-3">
+          {items.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 shadow-sm">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--store-primary)]/10 text-[var(--store-primary)]">
+                  <Icon className="h-5 w-5" aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] uppercase tracking-wide text-muted-foreground">{item.label}</span>
+                  <span className="block truncate text-sm font-semibold">{item.value}</span>
+                </span>
+              </div>
             );
           })}
         </div>

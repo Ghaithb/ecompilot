@@ -159,7 +159,7 @@ export default function ConversionCenterPage() {
 
       <div className="grid sm:grid-cols-3 gap-4">
         <Link to="/discounts"><Card className="hover:shadow-md transition cursor-pointer"><CardContent className="pt-6 text-center"><TrendingUp className="w-8 h-8 mx-auto mb-2 text-primary" /><div className="font-semibold">Coupons</div></CardContent></Card></Link>
-        <Link to="/whatsapp-settings"><Card className="hover:shadow-md transition cursor-pointer"><CardContent className="pt-6 text-center"><MessageCircle className="w-8 h-8 mx-auto mb-2 text-green-600" /><div className="font-semibold">WhatsApp</div></CardContent></Card></Link>
+        <Link to="/integrations"><Card className="hover:shadow-md transition cursor-pointer"><CardContent className="pt-6 text-center"><MessageCircle className="w-8 h-8 mx-auto mb-2 text-green-600" /><div className="font-semibold">WhatsApp</div></CardContent></Card></Link>
         <Link to="/website"><Card className="hover:shadow-md transition cursor-pointer"><CardContent className="pt-6 text-center"><Zap className="w-8 h-8 mx-auto mb-2 text-orange-500" /><div className="font-semibold">Ma boutique</div></CardContent></Card></Link>
       </div>
     </div>

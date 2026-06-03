@@ -91,6 +91,68 @@ export class ConversionDashboardController {
     return cfg;
   }
 
+  @Get('recovery-automation')
+  @ApiOperation({ summary: 'Etat automation panier abandonne', description: 'Queues dues, relancables, bloquees et potentiel revenu' })
+  async recoveryAutomation(@TenantId() tenantId: string) {
+    const now = new Date();
+    const [cfg, due, recoverable, blocked, abandoned] = await Promise.all([
+      this.getRecoveryConfig(tenantId),
+      this.cartModel.countDocuments({
+        tenantId,
+        status: 'abandoned',
+        recoveryStage: { $lt: 3 },
+        nextRecoveryAt: { $lte: now },
+      }),
+      this.cartModel.countDocuments({
+        tenantId,
+        status: 'abandoned',
+        recoveryStage: { $lt: 3 },
+        $or: [{ conversionScore: { $lte: 80 } }, { conversionScore: { $exists: false } }],
+      }),
+      this.cartModel.countDocuments({
+        tenantId,
+        status: 'abandoned',
+        $or: [{ recoveryStage: { $gte: 3 } }, { conversionScore: { $gt: 80 } }],
+      }),
+      this.cartModel
+        .find({ tenantId, status: 'abandoned' })
+        .select('totals recoveryStage nextRecoveryAt conversionScore customerPhone customerEmail')
+        .lean(),
+    ]);
+
+    return {
+      enabled: true,
+      config: cfg,
+      queues: {
+        dueNow: due,
+        recoverable,
+        blocked,
+        totalAbandoned: abandoned.length,
+      },
+      revenue: {
+        atRisk: Math.round(abandoned.reduce((sum, cart) => sum + (cart.totals?.total || 0), 0) * 100) / 100,
+        recoverable:
+          Math.round(
+            abandoned
+              .filter((cart) => (cart.recoveryStage ?? 0) < 3 && (cart.conversionScore ?? 50) <= 80)
+              .reduce((sum, cart) => sum + (cart.totals?.total || 0), 0) * 100,
+          ) / 100,
+      },
+      nextRuns: abandoned
+        .filter((cart) => cart.nextRecoveryAt)
+        .sort((a, b) => new Date(a.nextRecoveryAt!).getTime() - new Date(b.nextRecoveryAt!).getTime())
+        .slice(0, 10)
+        .map((cart) => ({
+          cartId: (cart as { _id: unknown })._id,
+          nextRecoveryAt: cart.nextRecoveryAt,
+          stage: cart.recoveryStage,
+          conversionScore: cart.conversionScore,
+          reachable: Boolean(cart.customerPhone || cart.customerEmail),
+          total: cart.totals?.total || 0,
+        })),
+    };
+  }
+
   @Patch('recovery-config')
   @ApiOperation({ summary: 'Mettre à jour la config recovery' })
   async updateRecoveryConfig(

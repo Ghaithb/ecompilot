@@ -11,6 +11,8 @@ import {
   Moon,
   Sun,
   ExternalLink,
+  Zap,
+  Truck,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -27,6 +29,8 @@ const MAIN_NAV = [
   { icon: ShoppingBag, labelKey: 'nav.orders', path: '/orders' },
   { icon: Package, labelKey: 'nav.products', path: '/products' },
   { icon: PackageCheck, labelKey: 'nav.delivery', path: '/delivery' },
+  { icon: Zap, labelKey: 'nav.marketIntelligence', path: '/market/intelligence' },
+  { icon: Truck, labelKey: 'nav.wholesaleHub', path: '/wholesale/hub' },
   { icon: TrendingUp, labelKey: 'nav.recovery', path: '/conversion/center' },
   { icon: Settings, labelKey: 'nav.settings', path: '/settings' },
 ] as const;

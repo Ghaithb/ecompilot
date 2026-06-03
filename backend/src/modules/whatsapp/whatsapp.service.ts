@@ -12,6 +12,9 @@ import {
   LowStockAlertDto,
 } from './dto/send-message.dto';
 
+import { IWhatsAppProvider } from './interfaces/whatsapp-provider.interface';
+import { WahaProvider } from './providers/waha.provider';
+
 @Injectable()
 export class WhatsAppService {
   private readonly logger = new Logger(WhatsAppService.name);
@@ -20,8 +23,17 @@ export class WhatsAppService {
     @InjectModel(WhatsAppMessage.name)
     private messageModel: Model<WhatsAppMessageDocument>,
     private metaWhatsAppProvider: MetaWhatsAppProvider,
+    private wahaProvider: WahaProvider,
     private readonly configService: ConfigService,
   ) {}
+
+  private getProvider(): IWhatsAppProvider {
+    const providerType = this.configService.get<string>('messaging.whatsapp.provider') || 'meta';
+    if (providerType === 'waha') {
+      return this.wahaProvider;
+    }
+    return this.metaWhatsAppProvider;
+  }
 
   /**
    * Envoyer un message texte simple
@@ -29,7 +41,7 @@ export class WhatsAppService {
   async sendTextMessage(tenantId: string, dto: WhatsAppSendMessageDto) {
     try {
       // Envoyer via provider
-      const result = await this.metaWhatsAppProvider.sendTextMessage(dto.to, dto.message);
+      const result = await this.getProvider().sendTextMessage(dto.to, dto.message);
 
       // Sauvegarder en base
       const message = new this.messageModel({
@@ -65,7 +77,7 @@ export class WhatsAppService {
    */
   async sendTemplateMessage(tenantId: string, dto: SendTemplateDto) {
     try {
-      const result = await this.metaWhatsAppProvider.sendTemplateMessage(
+      const result = await this.getProvider().sendTemplateMessage(
         dto.to,
         dto.templateName,
         dto.params || {},
@@ -231,15 +243,17 @@ export class WhatsAppService {
    * Vérifier configuration WhatsApp
    */
   async checkConfiguration() {
+    const provider = this.getProvider();
     return {
-      configured: this.metaWhatsAppProvider.isConfigured(),
-      provider: 'Meta WhatsApp Cloud API',
-      businessNumber: this.metaWhatsAppProvider.getBusinessNumber() || 'Not configured',
+      configured: provider.isConfigured(),
+      provider:
+        this.configService.get<string>('messaging.whatsapp.provider') || 'Meta WhatsApp Cloud API',
+      businessNumber: provider.getBusinessNumber() || 'Not configured',
     };
   }
 
   getWhatsAppChatUrl(message?: string): string {
-    return this.metaWhatsAppProvider.getWhatsAppChatUrl(message);
+    return this.getProvider().getWhatsAppChatUrl(message);
   }
 
   /**

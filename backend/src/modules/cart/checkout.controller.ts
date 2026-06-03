@@ -67,9 +67,24 @@ export class CheckoutController {
 
   @Get('upsells')
   @ApiOperation({ summary: 'Produits recommandés (rule-based)' })
-  upsells(@TenantId() tenantId: string, @Query('productIds') productIds: string) {
+  upsells(
+    @TenantId() tenantId: string,
+    @Query('productIds') productIds: string,
+    @Query('strategy') strategy?: 'auto' | 'upsell' | 'cross_sell',
+  ) {
     const ids = productIds.split(',').filter(Boolean);
-    return this.checkout.getUpsells(tenantId, ids);
+    return this.checkout.getUpsells(tenantId, ids, strategy || 'auto');
+  }
+
+  @Get('funnel-offers')
+  @ApiOperation({ summary: 'Funnel upsell / cross-sell', description: 'Offres checkout, livraison gratuite et next-best-offer' })
+  funnelOffers(
+    @TenantId() tenantId: string,
+    @Query('productIds') productIds: string,
+    @Query('subtotal') subtotal?: string,
+  ) {
+    const ids = productIds.split(',').filter(Boolean);
+    return this.checkout.getFunnelOffers(tenantId, ids, Number(subtotal) || 0);
   }
 
   @Post('submit')

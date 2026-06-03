@@ -52,6 +52,12 @@ export class OrdersController {
     return this.ordersService.getReturnsStats(tenantId);
   }
 
+  @Get('workflow/summary')
+  @ApiOperation({ summary: 'Workflow commande complet', description: 'Pipeline statuts, actions urgentes et queues operationnelles' })
+  workflowSummary(@TenantId() tenantId: string) {
+    return this.ordersService.getWorkflowSummary(tenantId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Détail d’une commande', description: 'Récupère une commande par son ID' })
   @ApiResponse({ status: 200, description: 'Commande trouvée' })

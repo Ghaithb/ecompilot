@@ -53,6 +53,8 @@ import IntegrationsPage from '@/pages/IntegrationsPage';
 import CustomersPage from '@/pages/CustomersPage';
 import DiscountsPage from '@/pages/DiscountsPage';
 import AnalyticsPage from '@/pages/AnalyticsPage';
+import MarketIntelligencePage from '@/pages/MarketIntelligencePage';
+import WholesaleHubPage from '@/pages/WholesaleHubPage';
 import StaffPage from '@/pages/StaffPage';
 import { ThemeBootstrap } from '@/components/ThemeBootstrap';
 import './App.css';
@@ -124,6 +126,8 @@ function AppContent() {
             <Route path="settings" element={<Navigate to="/delivery/connect" replace />} />
             <Route path="analytics" element={<DeliveryAnalyticsPage />} />
           </Route>
+          <Route path="/market/intelligence" element={<MarketIntelligencePage />} />
+          <Route path="/wholesale/hub" element={<WholesaleHubPage />} />
           <Route path="/automation" element={<AutomationPage />} />
           <Route path="/website" element={<WebsiteHubPage />} />
           <Route path="/website/settings" element={<WebsiteSettingsPage />} />

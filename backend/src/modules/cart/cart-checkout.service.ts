@@ -179,7 +179,7 @@ export class CartCheckoutService {
     return id?.toString?.() || String(product._id);
   }
 
-  async getUpsells(tenantId: string, productIds: string[]) {
+  async getUpsells(tenantId: string, productIds: string[], strategy: 'auto' | 'upsell' | 'cross_sell' = 'auto') {
     if (!productIds.length) return [];
 
     const allProducts = await this.products.findByTenant(tenantId);
@@ -188,13 +188,21 @@ export class CartCheckoutService {
       inCart.has(this.productIdOf(p as unknown as Record<string, unknown>)),
     );
 
-    const upsellIds = new Set<string>();
+    const recommendations = new Map<string, { type: 'upsell' | 'cross_sell'; reason: string; score: number }>();
     for (const product of sourceProducts) {
       const meta = (product.metadata || {}) as Record<string, unknown>;
       const configured = meta.upsellProductIds as string[] | undefined;
       if (configured?.length) {
-        configured.forEach((id) => upsellIds.add(id));
-      } else if (product.category) {
+        configured.forEach((id, index) =>
+          recommendations.set(id, {
+            type: 'upsell',
+            reason: 'Offre configuree pour ce produit',
+            score: 100 - index,
+          }),
+        );
+      }
+
+      if (product.category && strategy !== 'upsell') {
         allProducts
           .filter(
             (p) =>
@@ -203,20 +211,76 @@ export class CartCheckoutService {
               p.status === 'active',
           )
           .slice(0, 2)
-          .forEach((p) => upsellIds.add(this.productIdOf(p as unknown as Record<string, unknown>)));
+          .forEach((p, index) => {
+            const id = this.productIdOf(p as unknown as Record<string, unknown>);
+            if (!recommendations.has(id)) {
+              recommendations.set(id, {
+                type: 'cross_sell',
+                reason: `Complement populaire en ${product.category}`,
+                score: 80 - index,
+              });
+            }
+          });
       }
     }
 
     return allProducts
-      .filter((p) => upsellIds.has(this.productIdOf(p as unknown as Record<string, unknown>)))
+      .filter((p) => {
+        const id = this.productIdOf(p as unknown as Record<string, unknown>);
+        if (!recommendations.has(id)) return false;
+        const inventory = p.variants?.reduce((sum, v) => sum + (v.inventory || 0), 0) || 0;
+        return p.status === 'active' && inventory > 0;
+      })
+      .sort((a, b) => {
+        const aId = this.productIdOf(a as unknown as Record<string, unknown>);
+        const bId = this.productIdOf(b as unknown as Record<string, unknown>);
+        return (recommendations.get(bId)?.score || 0) - (recommendations.get(aId)?.score || 0);
+      })
       .slice(0, 4)
-      .map((p) => ({
-        id: this.productIdOf(p as unknown as Record<string, unknown>),
+      .map((p) => {
+        const id = this.productIdOf(p as unknown as Record<string, unknown>);
+        const recommendation = recommendations.get(id);
+        const inventory = p.variants?.reduce((sum, v) => sum + (v.inventory || 0), 0) || 0;
+        return {
+        id,
         title: p.title,
         price: p.variants?.[0]?.price || 0,
+        compareAtPrice: p.variants?.[0]?.compareAtPrice || 0,
         image: p.images?.[0],
         category: p.category,
-      }));
+        inStock: inventory > 0,
+        stock: inventory,
+        recommendationType: recommendation?.type || 'cross_sell',
+        reason: recommendation?.reason || 'Produit recommande',
+        score: recommendation?.score || 50,
+      };
+      });
+  }
+
+  async getFunnelOffers(tenantId: string, productIds: string[], subtotal = 0) {
+    const freeShippingThreshold = 150;
+    const offers = await this.getUpsells(tenantId, productIds, 'auto');
+    const missingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
+
+    return {
+      productIds,
+      subtotal,
+      freeShipping: {
+        threshold: freeShippingThreshold,
+        missing: Math.round(missingForFreeShipping * 100) / 100,
+        unlocked: missingForFreeShipping === 0,
+      },
+      upsells: offers.filter((offer) => offer.recommendationType === 'upsell'),
+      crossSells: offers.filter((offer) => offer.recommendationType === 'cross_sell'),
+      nextBestOffer: offers[0] || null,
+      playbook: [
+        missingForFreeShipping > 0 && missingForFreeShipping <= 80
+          ? `Proposer un produit autour de ${missingForFreeShipping.toFixed(0)} TND pour debloquer la livraison`
+          : null,
+        offers[0] ? `Mettre "${offers[0].title}" dans le panier secondaire` : null,
+        offers.length > 1 ? 'Afficher 2 choix max pour eviter la friction checkout' : null,
+      ].filter(Boolean),
+    };
   }
 
   async submitCheckout(

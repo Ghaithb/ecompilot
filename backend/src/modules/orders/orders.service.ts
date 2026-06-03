@@ -186,6 +186,80 @@ export class OrdersService {
     return this.orderModel.findOne({ _id: id, tenantId }).exec();
   }
 
+  async getWorkflowSummary(tenantId: string) {
+    const orders = await this.orderModel.find({ tenantId }).lean();
+    const countBy = (statuses: string[]) =>
+      orders.filter((order) => statuses.includes(normalizeOrderStatus(order.status))).length;
+    const codToConfirm = orders.filter(
+      (order) =>
+        order.paymentMethod === 'cod' &&
+        !order.isVerified &&
+        [OrderStatus.CREATED, OrderStatus.CONFIRMED].includes(normalizeOrderStatus(order.status)),
+    ).length;
+    const missingTracking = orders.filter(
+      (order) =>
+        !order.trackingNumber &&
+        ![
+          OrderStatus.CANCELLED,
+          OrderStatus.DELIVERED,
+          OrderStatus.PAID,
+          OrderStatus.COMPLETED,
+          OrderStatus.REFUSED,
+        ].includes(normalizeOrderStatus(order.status)),
+    ).length;
+
+    return {
+      total: orders.length,
+      stages: {
+        created: countBy([OrderStatus.CREATED]),
+        confirmed: countBy([OrderStatus.CONFIRMED]),
+        prepared: countBy([OrderStatus.PREPARED]),
+        shipped: countBy([OrderStatus.SHIPPED, OrderStatus.ASSIGNED_TO_DRIVER, OrderStatus.OUT_FOR_DELIVERY]),
+        delivered: countBy([OrderStatus.DELIVERED, OrderStatus.PAID, OrderStatus.COMPLETED]),
+        returns: countBy([OrderStatus.REFUSED, OrderStatus.RETURNED_TO_SELLER, OrderStatus.RETURN_COMPLETED]),
+        cancelled: countBy([OrderStatus.CANCELLED]),
+      },
+      actions: {
+        codToConfirm,
+        missingTracking,
+        paymentPending: orders.filter((order) => order.paymentStatus === 'pending').length,
+        readyToShip: countBy([OrderStatus.PREPARED]),
+      },
+      queues: {
+        confirmation: orders
+          .filter((order) => [OrderStatus.CREATED, OrderStatus.CONFIRMED].includes(normalizeOrderStatus(order.status)))
+          .slice(0, 10)
+          .map((order) => this.workflowOrderRow(order)),
+        delivery: orders
+          .filter((order) =>
+            [OrderStatus.SHIPPED, OrderStatus.ASSIGNED_TO_DRIVER, OrderStatus.OUT_FOR_DELIVERY].includes(
+              normalizeOrderStatus(order.status),
+            ),
+          )
+          .slice(0, 10)
+          .map((order) => this.workflowOrderRow(order)),
+        exceptions: orders
+          .filter((order) => !order.trackingNumber || order.status === OrderStatus.REFUSED)
+          .slice(0, 10)
+          .map((order) => this.workflowOrderRow(order)),
+      },
+    };
+  }
+
+  private workflowOrderRow(order: any) {
+    return {
+      id: order._id?.toString?.() || String(order._id),
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      total: order.total,
+      trackingNumber: order.trackingNumber,
+      shippingProvider: order.shippingProvider,
+      nextStatuses: this.orderStatusService.listNextStatuses(order.status),
+    };
+  }
+
   async assignDriver(
     orderId: string,
     tenantId: string,
@@ -244,8 +318,13 @@ export class OrdersService {
       total: order.total,
       currency: order.currency,
       paymentMethod: order.paymentMethod,
+      trackingNumber: order.trackingNumber,
+      carrier: order.shippingProvider,
+      estimatedDelivery: order.metadata?.estimatedDeliveryAt,
       createdAt: order.createdAt,
-      statusHistory: order.statusHistory,
+      statusHistory: (order.statusHistory || []).sort(
+        (a, b) => new Date(a.changedAt).getTime() - new Date(b.changedAt).getTime(),
+      ),
       nextSteps: this.orderStatusService.listNextStatuses(order.status),
     };
   }
@@ -397,13 +476,19 @@ export class OrdersService {
   }
 
   async updatePaymentStatus(id: string, status: string, tenantId: string) {
-    return this.orderModel
-      .findOneAndUpdate(
-        { _id: id, tenantId },
-        { paymentStatus: status, updatedAt: new Date() },
-        { new: true }
-      )
-      .exec();
+    const order = await this.orderModel.findOne({ _id: id, tenantId });
+    if (!order) throw new BadRequestException('Commande introuvable');
+    order.paymentStatus = status;
+    order.updatedAt = new Date();
+    order.statusHistory = order.statusHistory || [];
+    order.statusHistory.push({
+      status: `payment_${status}`,
+      changedAt: new Date(),
+      changedBy: 'merchant',
+    });
+    await order.save();
+    void this.orderPrismaMirror.mirrorMongoOrder(tenantId, order.toObject?.() ?? order);
+    return order;
   }
 
   async remove(id: string, tenantId: string) {
@@ -438,6 +523,12 @@ export class OrdersService {
     if (isValid) {
       order.isVerified = true;
       order.status = OrderStatus.CONFIRMED;
+      order.statusHistory = order.statusHistory || [];
+      order.statusHistory.push({
+        status: OrderStatus.CONFIRMED,
+        changedAt: new Date(),
+        changedBy: 'otp',
+      });
       await order.save();
       if (phone) {
         await this.codTrustService.recordVerifiedOrder(

@@ -1,15 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-
-export interface WhatsAppSendResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
+import { IWhatsAppProvider, WhatsAppSendResult } from '../interfaces/whatsapp-provider.interface';
 
 @Injectable()
-export class MetaWhatsAppProvider {
+export class MetaWhatsAppProvider implements IWhatsAppProvider {
   private readonly logger = new Logger(MetaWhatsAppProvider.name);
   private readonly apiVersion = 'v21.0';
 

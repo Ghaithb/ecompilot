@@ -119,6 +119,85 @@ export class ProductsService {
     return this.productModel.find({ tenantId: this.toTenantObjectId(tenantId) }).exec();
   }
 
+  async getInventoryHealth(tenantId: string, lowStockThreshold = 5) {
+    const products = await this.productModel
+      .find({ tenantId: this.toTenantObjectId(tenantId), status: { $ne: 'archived' } })
+      .lean();
+
+    const variants = products.flatMap((product) =>
+      (product.variants || []).map((variant: any) => ({
+        productId: product._id?.toString?.() || String(product._id),
+        productTitle: product.title,
+        productStatus: product.status,
+        category: product.category,
+        variantId: variant._id?.toString?.() || variant.sku,
+        sku: variant.sku,
+        name: variant.name,
+        price: variant.price || 0,
+        inventory: variant.inventory || 0,
+        isActive: variant.isActive !== false,
+      })),
+    );
+
+    const activeProducts = products.filter((product) => product.status === 'active');
+    const outOfStock = variants.filter((variant) => variant.isActive && variant.inventory <= 0);
+    const lowStock = variants.filter(
+      (variant) => variant.isActive && variant.inventory > 0 && variant.inventory <= lowStockThreshold,
+    );
+    const inactiveVariants = variants.filter((variant) => !variant.isActive);
+    const inventoryValue = variants.reduce(
+      (sum, variant) => sum + variant.price * Math.max(0, variant.inventory),
+      0,
+    );
+    const activeCatalogCoverage = products.length
+      ? Math.round((activeProducts.length / products.length) * 100)
+      : 0;
+
+    return {
+      threshold: lowStockThreshold,
+      totals: {
+        products: products.length,
+        activeProducts: activeProducts.length,
+        variants: variants.length,
+        outOfStock: outOfStock.length,
+        lowStock: lowStock.length,
+        inactiveVariants: inactiveVariants.length,
+        inventoryValue: Math.round(inventoryValue * 100) / 100,
+        activeCatalogCoverage,
+      },
+      alerts: [
+        ...outOfStock.slice(0, 20).map((variant) => ({
+          type: 'out_of_stock',
+          severity: 'critical',
+          ...variant,
+          message: `${variant.productTitle} est en rupture`,
+        })),
+        ...lowStock.slice(0, 20).map((variant) => ({
+          type: 'low_stock',
+          severity: 'warning',
+          ...variant,
+          message: `${variant.productTitle} stock faible (${variant.inventory})`,
+        })),
+      ],
+      reorderSuggestions: [...outOfStock, ...lowStock].slice(0, 25).map((variant) => ({
+        productId: variant.productId,
+        variantId: variant.variantId,
+        sku: variant.sku,
+        productTitle: variant.productTitle,
+        currentStock: variant.inventory,
+        suggestedReorderQty: Math.max(10, lowStockThreshold * 3 - variant.inventory),
+      })),
+    };
+  }
+
+  async listLowStock(tenantId: string, threshold = 5) {
+    const health = await this.getInventoryHealth(tenantId, threshold);
+    return {
+      threshold,
+      items: health.alerts.filter((alert) => ['out_of_stock', 'low_stock'].includes(alert.type)),
+    };
+  }
+
   async findOne(tenantId: string, id: string): Promise<Product> {
     const product = await this.productModel
       .findOne({ _id: id, tenantId: this.toTenantObjectId(tenantId) })
@@ -369,7 +448,7 @@ export class ProductsService {
   async updateInventory(tenantId: string, productId: string, variantId: string, quantity: number): Promise<Product> {
     const product = await this.findOne(tenantId, productId);
     
-    const variant = product.variants.find(v => v.sku === variantId);
+    const variant = product.variants.find(v => v.sku === variantId || v._id?.toString() === variantId);
     if (!variant) {
       throw new NotFoundException('Variante non trouvée');
     }
@@ -493,4 +572,3 @@ export class ProductsService {
     return product;
   }
 }
-

@@ -9,7 +9,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Loader2, Plus, MoreVertical, Pencil, Trash2, UploadCloud, Package, CheckSquare } from 'lucide-react';
+import {
+  AlertTriangle,
+  Boxes,
+  CheckSquare,
+  Loader2,
+  MoreVertical,
+  Package,
+  PackageCheck,
+  Pencil,
+  Plus,
+  Trash2,
+  TrendingUp,
+  UploadCloud,
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmptyState, EmptyBoxIllustration } from '@/components/ui/empty-state';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -417,6 +430,30 @@ const ProductsPage: React.FC = () => {
     });
   }, [products, filters]);
 
+  const inventoryStats = useMemo(() => {
+    const safeProducts = Array.isArray(products) ? products : [];
+    const activeProducts = safeProducts.filter((product) => product.status === 'active');
+    const outOfStock = safeProducts.filter((product) => totalInventory(product) <= 0);
+    const lowStock = safeProducts.filter((product) => {
+      const stock = totalInventory(product);
+      return stock > 0 && stock <= 5;
+    });
+    const draftProducts = safeProducts.filter((product) => product.status === 'draft');
+    const inventoryValue = safeProducts.reduce((sum, product) => {
+      return sum + product.variants.reduce((variantSum, variant) => {
+        return variantSum + (variant.price || 0) * (variant.inventory ?? 0);
+      }, 0);
+    }, 0);
+
+    return {
+      active: activeProducts.length,
+      outOfStock: outOfStock.length,
+      lowStock: lowStock.length,
+      drafts: draftProducts.length,
+      inventoryValue,
+    };
+  }, [products]);
+
   const categoryOptions = useMemo(() => {
     const set = new Set<string>();
     if (Array.isArray(products)) {
@@ -657,6 +694,42 @@ const ProductsPage: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
+          <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <button
+              type="button"
+              onClick={() => setFilters((prev) => ({ ...prev, status: 'active' }))}
+              className="rounded-xl border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <PackageCheck className="mb-3 h-5 w-5 text-emerald-600" />
+              <p className="text-xs text-muted-foreground">Produits actifs</p>
+              <p className="text-2xl font-semibold tabular-nums">{inventoryStats.active}</p>
+            </button>
+            <div className="rounded-xl border bg-background px-4 py-3">
+              <AlertTriangle className="mb-3 h-5 w-5 text-red-600" />
+              <p className="text-xs text-muted-foreground">Ruptures stock</p>
+              <p className="text-2xl font-semibold tabular-nums">{inventoryStats.outOfStock}</p>
+            </div>
+            <div className="rounded-xl border bg-background px-4 py-3">
+              <Boxes className="mb-3 h-5 w-5 text-amber-600" />
+              <p className="text-xs text-muted-foreground">Stock faible</p>
+              <p className="text-2xl font-semibold tabular-nums">{inventoryStats.lowStock}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFilters((prev) => ({ ...prev, status: 'draft' }))}
+              className="rounded-xl border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/40"
+            >
+              <Package className="mb-3 h-5 w-5 text-slate-600" />
+              <p className="text-xs text-muted-foreground">Brouillons</p>
+              <p className="text-2xl font-semibold tabular-nums">{inventoryStats.drafts}</p>
+            </button>
+            <div className="rounded-xl border bg-background px-4 py-3">
+              <TrendingUp className="mb-3 h-5 w-5 text-blue-600" />
+              <p className="text-xs text-muted-foreground">Valeur stock</p>
+              <p className="text-2xl font-semibold tabular-nums">{formatPrice(inventoryStats.inventoryValue)}</p>
+            </div>
+          </div>
+
           {/* Bulk Actions Bar */}
           {selectedProducts.size > 0 && (
             <Card className="mb-4 border-primary/20 bg-primary/5">

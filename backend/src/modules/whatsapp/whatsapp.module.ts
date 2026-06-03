@@ -6,6 +6,7 @@ import { WhatsAppWebhookController } from './whatsapp-webhook.controller';
 import { WhatsAppService } from './whatsapp.service';
 import { WhatsAppMessage, WhatsAppMessageSchema } from './schemas/whatsapp-message.schema';
 import { MetaWhatsAppProvider } from './providers/meta-whatsapp.provider';
+import { WahaProvider } from './providers/waha.provider';
 import { WhatsappOrderNotificationService } from './whatsapp-order-notification.service';
 import { User, UserSchema } from '../users/schemas/user.schema';
 
@@ -18,7 +19,7 @@ import { User, UserSchema } from '../users/schemas/user.schema';
     ]),
   ],
   controllers: [WhatsAppController, WhatsAppWebhookController],
-  providers: [WhatsAppService, MetaWhatsAppProvider, WhatsappOrderNotificationService],
-  exports: [WhatsAppService, MetaWhatsAppProvider, WhatsappOrderNotificationService],
+  providers: [WhatsAppService, MetaWhatsAppProvider, WahaProvider, WhatsappOrderNotificationService],
+  exports: [WhatsAppService, MetaWhatsAppProvider, WahaProvider, WhatsappOrderNotificationService],
 })
 export class WhatsAppModule {}

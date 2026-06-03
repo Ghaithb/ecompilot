@@ -9,6 +9,7 @@ import {
   StickyBottomBar,
   WhatsAppLink,
   StoreTrustAdvantages,
+  StoreMarketProofStrip,
   StoreCategoryTiles,
   StoreWhyChooseUs,
   StoreReviewsSection,
@@ -78,6 +79,7 @@ export function CODClassicTemplate(props: StorefrontProps) {
       </StoreBrandingHero>
 
       <StoreTrustAdvantages />
+      <StoreMarketProofStrip productCount={products.length} deliveryLabel={delivery.estimatedLabel} />
 
       <StoreCategoryTiles
         categories={[...categories]}

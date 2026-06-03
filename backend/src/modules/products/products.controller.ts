@@ -80,6 +80,24 @@ export class ProductsController {
     return this.productsService.getTags(tenantId);
   }
 
+  @Get('inventory/health')
+  @ApiOperation({ summary: 'Advanced inventory health', description: 'Stock value, ruptures, low stock and reorder suggestions' })
+  inventoryHealth(
+    @TenantId() tenantId: string,
+    @Query('threshold') threshold?: string,
+  ) {
+    return this.productsService.getInventoryHealth(tenantId, Number(threshold) || 5);
+  }
+
+  @Get('inventory/low-stock')
+  @ApiOperation({ summary: 'Low stock alerts', description: 'Variants in rupture or below threshold' })
+  lowStock(
+    @TenantId() tenantId: string,
+    @Query('threshold') threshold?: string,
+  ) {
+    return this.productsService.listLowStock(tenantId, Number(threshold) || 5);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get product by ID', description: 'Retrieves a specific product by its ID' })
   @ApiResponse({ status: 200, description: 'Product retrieved successfully' })
@@ -229,4 +247,3 @@ export class ProductsController {
     return this.productsService.removeImage(tenantId, id, imageUrl);
   }
 }
-

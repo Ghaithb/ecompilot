@@ -83,7 +83,15 @@
     "smsSent": "تم إرسال رمز SMS",
     "orderError": "خطأ في الطلب",
     "orderConfirmed": "تم تأكيد الطلب!",
-    "invalidCode": "رمز غير صالح"
+    "invalidCode": "رمز غير صالح",
+    "assuranceCod": "بدون بطاقة",
+    "assuranceCodDesc": "يدفع العميل عند الاستلام فقط.",
+    "assuranceDelivery": "توصيل محلي",
+    "assuranceDeliveryDesc": "عنوان تونسي ومتابعة الشحنة.",
+    "assuranceConfirm": "تأكيد",
+    "assuranceConfirmDesc": "تأكيد الهاتف قبل التحضير.",
+    "noCardNeeded": "لا حاجة لبطاقة بنكية اليوم.",
+    "orderSummary": "ملخص الطلب"
   },
   "navbar": {
     "searchPlaceholder": "ابحث عن المنتجات، الطلبات، العملاء...",
@@ -258,6 +266,18 @@
     "editProducts": "إضافة / تعديل المنتجات",
     "changeTheme": "تغيير ثيم المتجر",
     "conversionCenterLink": "مركز التحويل",
+    "market": {
+      "title": "جاهزية السوق",
+      "headline": "متجرك أمام المنافسة",
+      "subtitle": "درجة مبنية على المتجر، الدفع عند الاستلام، التوصيل واسترجاع السلات.",
+      "score": "درجة السوق",
+      "storefront": "المتجر",
+      "checkout": "الدفع",
+      "delivery": "التوصيل",
+      "recovery": "الاسترجاع",
+      "ready": "جاهز للدفع",
+      "improve": "يحتاج تحسين"
+    },
     "tabs": {
       "overview": "نظرة عامة",
       "sales": "المبيعات والتحويل",
@@ -402,6 +422,11 @@
     },
     "sections": {
       "advantagesAria": "ضماناتنا",
+      "marketProofCod": "دفع مطمئن",
+      "marketProofCodValue": "ادفع عند الاستلام",
+      "marketProofDelivery": "توصيل متوقع",
+      "marketProofCatalog": "كتالوج نشط",
+      "marketProofCatalogValue": "{{count}} منتج متاح",
       "fastDelivery": "توصيل سريع",
       "fastDeliveryDesc": "24–72 ساعة في جميع أنحاء تونس",
       "codPayment": "الدفع عند الاستلام",

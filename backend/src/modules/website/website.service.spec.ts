@@ -103,6 +103,7 @@ describe('WebsiteService', () => {
           provide: ProductsService,
           useValue: {
             resolveVariantRef: jest.fn(),
+            findAll: jest.fn().mockResolvedValue({ total: 1 }),
           },
         },
         {
@@ -224,7 +225,10 @@ describe('WebsiteService', () => {
     });
 
     it('should throw NotFoundException when website not found', async () => {
-      mockWebsiteModel.findOne.mockResolvedValue(null);
+      mockWebsiteModel.findOne.mockImplementation((filter: Record<string, unknown>) => {
+        if (filter?.isActive === true) return Promise.resolve(null);
+        return { sort: jest.fn().mockResolvedValue(null) };
+      });
 
       await expect(service.findByTenant('non-existent')).rejects.toThrow();
     });

@@ -55,9 +55,27 @@ export class PublicCheckoutController {
   }
 
   @Get(':slug/upsells')
-  async upsells(@Param('slug') slug: string, @Query('productIds') productIds: string) {
+  async upsells(
+    @Param('slug') slug: string,
+    @Query('productIds') productIds: string,
+    @Query('strategy') strategy?: 'auto' | 'upsell' | 'cross_sell',
+  ) {
     const { tenantId } = await this.resolveTenant(slug);
-    return this.checkout.getUpsells(tenantId, productIds.split(',').filter(Boolean));
+    return this.checkout.getUpsells(tenantId, productIds.split(',').filter(Boolean), strategy || 'auto');
+  }
+
+  @Get(':slug/funnel-offers')
+  async funnelOffers(
+    @Param('slug') slug: string,
+    @Query('productIds') productIds: string,
+    @Query('subtotal') subtotal?: string,
+  ) {
+    const { tenantId } = await this.resolveTenant(slug);
+    return this.checkout.getFunnelOffers(
+      tenantId,
+      productIds.split(',').filter(Boolean),
+      Number(subtotal) || 0,
+    );
   }
 
   @Post(':slug/submit')

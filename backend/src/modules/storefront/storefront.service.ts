@@ -220,7 +220,15 @@ export class StorefrontService {
 
   private async getHomeIntelligence(
     tenantId: string,
-    products: Array<{ id: string; title: string; price: number; image: string; category: string }>,
+    products: Array<{
+      id: string;
+      title: string;
+      price: number;
+      image: string;
+      category: string;
+      inStock: boolean;
+      sku: string;
+    }>,
   ) {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 

@@ -1,0 +1,62 @@
+# EcomPilot : Rapport des Fonctionnalités & Plan de Test
+
+Ce document détaille l'état actuel de la plateforme EcomPilot (Market Network Edition).
+
+---
+
+## 1. Rapport des Fonctionnalités
+
+### 🏛️ Core SaaS & Multi-Tenant
+- **Isolation des Données** : Chaque marchand possède son propre environnement.
+- **Gestion des Boutiques** : Création de storefronts dynamiques.
+- **Catalogue Produits** : Gestion CRUD, variantes, prix et stock.
+- **Système de Commandes** : Workflow complet de la réception à la livraison.
+
+### 📱 Conversion & WhatsApp Intelligence
+- **WhatsApp Recovery** : Système automatisé de relance des paniers abandonnés.
+- **Provider Switching** : Support de Meta API (officiel) et WAHA/OpenWA (auto-hébergé).
+- **OTP Verification** : Confirmation des numéros de téléphone pour les commandes COD.
+- **Automation Engine** : Déclencheurs personnalisables (ex: après 1h d'abandon).
+
+### 🧠 Market Intelligence Center (Nouveau)
+- **Winning Products Discovery** : Top produits basés sur les tendances réelles en Tunisie.
+- **Delivery Intelligence** : Calcul automatique de la fiabilité des transporteurs par article.
+- **Delivery Advisor** : Recommandation du meilleur transporteur pour chaque vente.
+- **Heat Map Régionale** : Analyse des zones de forte demande par gouvernorat.
+
+### 🤝 Wholesale Hub (Réseau Sourcing)
+- **Annuaire Fournisseurs** : Liste des grossistes vérifiés avec contacts directs.
+- **Wholesale Goods** : Accès aux prix de gros et stocks fournisseurs.
+- **Smart RFQ** : Système de demande de devis groupée.
+- **One-Click Launch** : Importation instantanée d'un produit grossiste vers la boutique.
+
+### 🚚 Logistique & COD
+- **Multi-Transporteur** : Intégrations avec INTIGO, First Delivery, Aramex, etc.
+- **Bordereaux de Livraison** : Génération automatique des étiquettes et manifestes.
+- **Suivi en Temps Réel** : Webhooks de tracking intégrés.
+
+---
+
+## 2. Plan de Test (QA)
+
+### 🧪 Tests Fonctionnels (Alpha/Beta)
+
+| Feature | Cas de Test | Résultat Attendu |
+| :--- | :--- | :--- |
+| **Auth** | Login Marchand | Accès au dashboard filtré par tenant. |
+| **Storefront** | Commande COD | Création commande + envoi WhatsApp confirmation. |
+| **Recovery** | Abandon Panier | Envoi automatique de la relance après le délai défini. |
+| **Intelligence** | Top Produits | Affichage du Trend Score et du meilleur transporteur. |
+| **Wholesale** | Launch Product | Création d'une copie du produit fournisseur dans "Mes Produits". |
+| **Logistique** | Créer shipment | Génération du tracking number chez le transporteur choisi. |
+
+### 🧪 Tests de Charge & Sécurité
+- **Isolation Tenant** : Tenter d'accéder aux commandes du `tenant_A` depuis le compte du `tenant_B` (Erreur 403 attendue).
+- **WhatsApp Load** : Simuler 100 relances simultanées via le provider WAHA.
+
+### 🧪 Tests de Données (Intelligence)
+- **Aggregation** : Vérifier que le `trendScore` augmente après une série de ventes sur une période de 24h.
+
+---
+**Date du rapport :** 02 Juin 2026
+**Version :** EcomPilot v2.5 (Market Network Ready)

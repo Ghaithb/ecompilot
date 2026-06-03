@@ -298,6 +298,166 @@ function HealthScoresRow({ health }: { health: RevenueOpsDashboardData['healthSc
   );
 }
 
+function MarketReadinessPanel({ data }: { data: RevenueOpsDashboardData }) {
+  const { t } = useTranslation();
+  const readiness = Math.round(
+    (
+      data.healthScores.store.score +
+      data.healthScores.delivery.score +
+      data.healthScores.recovery.score +
+      Math.min(100, Math.max(0, data.kpis.codConfirmationRate))
+    ) / 4,
+  );
+
+  const checks = [
+    {
+      label: t('dashboard.market.storefront'),
+      value: data.healthScores.store.score,
+      ok: data.healthScores.store.score >= 70,
+      href: '/website',
+    },
+    {
+      label: t('dashboard.market.checkout'),
+      value: data.kpis.conversionRate,
+      ok: data.kpis.conversionRate >= 2 || data.kpis.ordersToday > 0,
+      href: '/orders',
+    },
+    {
+      label: t('dashboard.market.delivery'),
+      value: data.kpis.deliverySuccessRate,
+      ok: data.kpis.deliverySuccessRate >= 70,
+      href: '/delivery',
+    },
+    {
+      label: t('dashboard.market.recovery'),
+      value: data.recoveryPerformance.recoveryRate,
+      ok: data.recoveryPerformance.recoveryRate >= 10 || data.recoveryPerformance.recoveredRevenue > 0,
+      href: '/conversion/center',
+    },
+  ];
+
+  return (
+    <section className="rounded-3xl border bg-card px-5 py-5 shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t('dashboard.market.title')}</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight">{t('dashboard.market.headline')}</h2>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t('dashboard.market.subtitle')}</p>
+        </div>
+        <div className="rounded-2xl bg-muted/30 px-5 py-4 text-center">
+          <p className={`text-4xl font-semibold tabular-nums ${scoreTone(readiness)}`}>{readiness}</p>
+          <p className="text-xs text-muted-foreground">{t('dashboard.market.score')}</p>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-4">
+        {checks.map((check) => (
+          <Link
+            key={check.label}
+            to={check.href}
+            className="rounded-2xl border bg-background px-4 py-3 transition-colors hover:bg-muted/40"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium">{check.label}</p>
+              {check.ok ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              ) : (
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+              )}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {check.ok ? t('dashboard.market.ready') : t('dashboard.market.improve')}
+            </p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function P0GrowthEnginePanel({ data }: { data: RevenueOpsDashboardData }) {
+  const cartsToRecover = data.actions.cartsToRecover.length;
+  const codToConfirm = data.actions.codToConfirm.length;
+  const failedDeliveries = data.actions.failedDeliveries.length;
+  const funnelLeak = data.funnel.reduce((sum, step) => sum + (step.moneyLost ?? 0), 0);
+
+  const p0Modules = [
+    {
+      title: 'Panier abandonne',
+      metric: cartsToRecover ? `${cartsToRecover} a relancer` : 'Automation active',
+      detail: `${data.recoveryPerformance.recoveryRate}% recovery - ${data.recoveryPerformance.recoveredRevenue.toFixed(0)} TND recuperes`,
+      href: '/conversion/center',
+      icon: ShoppingCart,
+      tone: cartsToRecover > 0 ? 'text-amber-600' : 'text-emerald-600',
+    },
+    {
+      title: 'Funnel upsell',
+      metric: funnelLeak > 0 ? `${funnelLeak.toFixed(0)} TND fuite` : 'Funnel sain',
+      detail: 'Analyser friction, cross-sell et offres post-panier',
+      href: '/conversion/center',
+      icon: TrendingUp,
+      tone: funnelLeak > 0 ? 'text-amber-600' : 'text-emerald-600',
+    },
+    {
+      title: 'Workflow commandes',
+      metric: codToConfirm ? `${codToConfirm} COD a confirmer` : 'Flux controle',
+      detail: 'Statuts, paiement, facture, chauffeur et expedition',
+      href: '/orders',
+      icon: Phone,
+      tone: codToConfirm > 0 ? 'text-amber-600' : 'text-emerald-600',
+    },
+    {
+      title: 'Tracking livraison',
+      metric: failedDeliveries ? `${failedDeliveries} incidents` : `${data.kpis.deliverySuccessRate}% succes`,
+      detail: 'Page client + transporteurs + suivi des echecs',
+      href: '/delivery',
+      icon: Truck,
+      tone: failedDeliveries > 0 ? 'text-red-600' : 'text-emerald-600',
+    },
+    {
+      title: 'Stock avance',
+      metric: `${data.healthScores.store.score}/100 store`,
+      detail: 'Ruptures, brouillons, catalogue et produits gagnants',
+      href: '/products',
+      icon: Sparkles,
+      tone: data.healthScores.store.score >= 70 ? 'text-emerald-600' : 'text-amber-600',
+    },
+  ];
+
+  return (
+    <section className="rounded-3xl border bg-card px-5 py-5 shadow-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">P0 growth engine</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight">Les 5 leviers qui font gagner le marche</h2>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/conversion/center">Piloter les automations</Link>
+        </Button>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        {p0Modules.map((module) => {
+          const Icon = module.icon;
+          return (
+            <Link
+              key={module.title}
+              to={module.href}
+              className="group rounded-2xl border bg-background px-4 py-4 transition-colors hover:bg-muted/40"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <Icon className={`h-5 w-5 ${module.tone}`} />
+                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </div>
+              <p className="mt-4 text-sm font-semibold">{module.title}</p>
+              <p className={`mt-1 text-lg font-semibold tabular-nums ${module.tone}`}>{module.metric}</p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{module.detail}</p>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function FunnelPanel({
   funnel,
   activeStep,
@@ -482,7 +642,7 @@ function ActionSidebar({
             {actions.codToConfirm.length > 0 && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-2">
-                  <Phone className="h-3 w-3" /> COD
+                  <Phone className="h-3 w-3" /> {t('dashboard.codLabel')}
                 </p>
                 <ul className="space-y-2">
                   {actions.codToConfirm.slice(0, 3).map((o) => (
@@ -575,6 +735,8 @@ export function RevenueOpsDashboard({
       </header>
 
       <KpiStrip data={data} />
+      <MarketReadinessPanel data={data} />
+      <P0GrowthEnginePanel data={data} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex h-auto p-1">

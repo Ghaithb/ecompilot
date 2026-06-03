@@ -35,12 +35,15 @@ export const AUTOMATION_ACTIONS: AutomationActionType[] = [
   'notify_admin',
 ];
 
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
+
 @Injectable()
 export class AutomationService {
   private readonly logger = new Logger(AutomationService.name);
 
   constructor(
     @InjectModel(AutomationRule.name) private ruleModel: Model<AutomationRuleDocument>,
+    private readonly whatsapp: WhatsAppService,
   ) {}
 
   catalog() {
@@ -90,10 +93,29 @@ export class AutomationService {
     for (const rule of rules) {
       for (const action of rule.actions) {
         this.logger.log(`Automation ${rule.name}: ${action.type}`);
+        
+        let status = 'queued';
+        let error: string | undefined;
+
+        if (action.type === 'send_whatsapp' && context.phone) {
+          try {
+            const message = action.params?.message as string || 'Bonjour';
+            const result = await this.whatsapp.sendTextMessage(tenantId, {
+              to: context.phone as string,
+              message,
+            });
+            status = result.success ? 'sent' : 'failed';
+            error = result.error;
+          } catch (err: any) {
+            status = 'failed';
+            error = err.message;
+          }
+        }
+
         results.push({
           ruleId: rule._id.toString(),
           action: action.type,
-          status: 'queued',
+          status,
         });
       }
     }
