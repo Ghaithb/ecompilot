@@ -10,6 +10,7 @@ import {
   ConversionDailyMetric,
   ConversionDailyMetricSchema,
 } from '../conversion-intelligence/schemas/conversion-daily-metric.schema';
+import { ProductTrend, ProductTrendSchema } from './schemas/product-trend.schema';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import {
       { name: Product.name, schema: ProductSchema },
       { name: Shipment.name, schema: ShipmentSchema },
       { name: ConversionDailyMetric.name, schema: ConversionDailyMetricSchema },
+      { name: ProductTrend.name, schema: ProductTrendSchema },
     ]),
   ],
   controllers: [MarketIntelligenceController],
