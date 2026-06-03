@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 import { CartDocument } from '../cart/schemas/cart.schema';
+import { AbandonedCart, AbandonedCartDocument } from './schemas/abandoned-cart.schema';
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 export type UrgencyLevel = 'low' | 'medium' | 'high';
 
@@ -18,17 +23,19 @@ export interface CartIntelligenceV2 {
   frictionFlags: string[];
   isHighValue: boolean;
   signals: Record<string, unknown>;
-  /** @deprecated alias */
   riskLevel: UrgencyLevel;
   conversionProbability: number;
 }
 
-/**
- * Rule-based scoring V2 — O(1), deterministic.
- * conversionScore = likelihood to convert (higher is better).
- */
 @Injectable()
 export class ConversionIntelligenceService {
+  private readonly logger = new Logger(ConversionIntelligenceService.name);
+
+  constructor(
+    @InjectModel(AbandonedCart.name) private abandonedCartModel: Model<AbandonedCartDocument>,
+    private whatsappService: WhatsAppService,
+  ) {}
+
   analyzeCart(cart: CartDocument, context: AnalyzeContext = {}): CartIntelligenceV2 {
     const total = cart.totals?.total || 0;
     const subtotal = cart.totals?.subtotal || total;
@@ -99,32 +106,109 @@ export class ConversionIntelligenceService {
     };
   }
 
-  appendScoreHistory(cart: CartDocument, intel: CartIntelligenceV2) {
-    if (!cart.scoreHistory) cart.scoreHistory = [];
-    cart.scoreHistory.push({
-      score: intel.conversionScore,
-      abandonmentProbability: intel.abandonmentProbability,
-      urgencyLevel: intel.urgencyLevel,
-      signals: intel.signals,
-      recordedAt: new Date(),
-    });
-    if (cart.scoreHistory.length > 20) {
-      cart.scoreHistory = cart.scoreHistory.slice(-20);
-    }
-    cart.conversionScore = intel.conversionScore;
-    cart.abandonmentProbability = intel.abandonmentProbability;
-    cart.urgencyLevel = intel.urgencyLevel;
-    cart.riskLevel = intel.urgencyLevel;
-    cart.conversionProbability = intel.conversionProbability;
-    cart.frictionFlags = intel.frictionFlags;
-    cart.deliveryCostSensitivity = Math.round(intel.signals.shippingRatio as number * 100);
+  async trackAbandonedCart(tenantId: string, cart: CartDocument, intel: CartIntelligenceV2) {
+    if (!cart.customerPhone) return;
+
+    await this.abandonedCartModel.findOneAndUpdate(
+      { cartId: cart._id, tenantId: new Types.ObjectId(tenantId) },
+      {
+        customerPhone: cart.customerPhone,
+        customerEmail: cart.customerEmail,
+        cartData: cart.toObject(),
+        conversionScore: intel.conversionScore,
+        frictionFlags: intel.frictionFlags,
+        status: 'pending',
+      },
+      { upsert: true, new: true },
+    );
   }
 
-  /** Recovery delay by conversion score tier + step (max 3). */
-  getRecoveryDelayMinutes(conversionScore: number, stage: number): number | null {
-    if (conversionScore > 80) return null;
-    if (conversionScore >= 50) return stage === 0 ? 45 : stage === 1 ? 240 : 720;
-    if (conversionScore >= 30) return stage === 0 ? 20 : stage === 1 ? 120 : 360;
-    return stage === 0 ? 5 : stage === 1 ? 60 : 180;
+  async getAbandonedCarts(tenantId: string, query: { page: number; limit: number; status?: string }) {
+    const filter: any = { tenantId: new Types.ObjectId(tenantId) };
+    if (query.status) filter.status = query.status;
+
+    const [items, total] = await Promise.all([
+      this.abandonedCartModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip((query.page - 1) * query.limit)
+        .limit(query.limit)
+        .lean(),
+      this.abandonedCartModel.countDocuments(filter),
+    ]);
+
+    return { items, total, page: query.page, limit: query.limit };
+  }
+
+  async triggerManualReminder(tenantId: string, id: string) {
+    const cart = await this.abandonedCartModel.findOne({ _id: id, tenantId: new Types.ObjectId(tenantId) });
+    if (!cart) throw new NotFoundException('Panier non trouvé');
+
+    await this.sendWhatsAppRecovery(cart);
+
+    cart.status = 'reminded';
+    cart.lastReminderAt = new Date();
+    cart.reminderCount += 1;
+    await cart.save();
+
+    return { success: true };
+  }
+
+  private async sendWhatsAppRecovery(cart: AbandonedCartDocument) {
+    const total = cart.cartData?.totals?.total || 0;
+    await this.whatsappService.sendTemplateMessage(cart.tenantId.toString(), {
+      to: cart.customerPhone,
+      templateName: 'cart_recovery',
+      params: {
+        customerName: cart.cartData?.customerName || 'Cher client',
+        cartTotal: total.toString(),
+        checkoutUrl: `${process.env.APP_URL}/checkout?cartId=${cart.cartId}`,
+      },
+    });
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async handleAutoReminders() {
+    this.logger.log('Vérification des relances automatiques pour paniers abandonnés');
+    
+    // Paniers abandonnés depuis plus d'une heure, avec un score de conversion raisonnable (>30)
+    const oneHourAgo = new Date(Date.now() - 60 * 60000);
+    const abandoned = await this.abandonedCartModel.find({
+      status: 'pending',
+      conversionScore: { $gt: 30 },
+      createdAt: { $lt: oneHourAgo },
+      reminderCount: 0,
+    });
+
+    for (const cart of abandoned) {
+      try {
+        await this.sendWhatsAppRecovery(cart);
+        cart.status = 'reminded';
+        cart.lastReminderAt = new Date();
+        cart.reminderCount = 1;
+        await cart.save();
+      } catch (e) {
+        this.logger.error(`Erreur relance auto pour ${cart._id}: ${e.message}`);
+      }
+    }
+  }
+
+  async getConversionStats(tenantId: string) {
+    const tid = new Types.ObjectId(tenantId);
+    const [total, recovered, byScore] = await Promise.all([
+      this.abandonedCartModel.countDocuments({ tenantId: tid }),
+      this.abandonedCartModel.countDocuments({ tenantId: tid, status: 'recovered' }),
+      this.abandonedCartModel.aggregate([
+        { $match: { tenantId: tid } },
+        { $group: { _id: '$urgencyLevel', count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    return {
+      totalAbandoned: total,
+      recoveredCount: recovered,
+      recoveryRate: total > 0 ? (recovered / total) * 100 : 0,
+      byRisk: byScore,
+    };
   }
 }

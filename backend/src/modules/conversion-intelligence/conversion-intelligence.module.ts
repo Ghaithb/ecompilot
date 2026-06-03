@@ -1,5 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { AbandonedCart, AbandonedCartSchema } from './schemas/abandoned-cart.schema';
 import { Cart, CartSchema } from '../cart/schemas/cart.schema';
 import { Order, OrderSchema } from '../orders/schemas/order.schema';
 import { Shipment, ShipmentSchema } from '../delivery/schemas/shipment.schema';
@@ -28,6 +30,7 @@ import { RecoveryDecisionEngine } from './recovery-decision.engine';
 import { CartConversionHandler } from './handlers/cart-conversion.handler';
 import { SmartRecoveryScheduler } from './handlers/smart-recovery.scheduler';
 import { ConversionDashboardController } from './conversion-dashboard.controller';
+import { ConversionIntelligenceController } from './conversion-intelligence.controller';
 
 @Module({
   imports: [
@@ -38,12 +41,14 @@ import { ConversionDashboardController } from './conversion-dashboard.controller
       { name: Cart.name, schema: CartSchema },
       { name: Order.name, schema: OrderSchema },
       { name: Shipment.name, schema: ShipmentSchema },
+      { name: AbandonedCart.name, schema: AbandonedCartSchema },
     ]),
     EventsModule,
     forwardRef(() => CartModule),
     DeliveryModule,
-  ],
-  controllers: [ConversionDashboardController],
+    WhatsAppModule,
+],
+  controllers: [ConversionDashboardController, ConversionIntelligenceController],
   providers: [
     ConversionIntelligenceService,
     ConversionExperimentService,

@@ -131,6 +131,28 @@ export class WhatsAppService {
   }
 
   /**
+   * Notification mise à jour statut livraison
+   */
+  async sendShippingUpdate(tenantId: string, dto: { to: string; orderNumber: string; status: string; trackingNumber?: string }) {
+    return this.sendTemplateMessage(tenantId, {
+      to: dto.to,
+      templateName: 'shipping_update',
+      params: {
+        orderNumber: dto.orderNumber,
+        status: dto.status,
+        trackingNumber: dto.trackingNumber || '',
+      },
+    });
+  }
+
+  /**
+   * Message personnalisé
+   */
+  async sendCustomMessage(tenantId: string, to: string, message: string) {
+    return this.sendTextMessage(tenantId, { to, message });
+  }
+
+  /**
    * Alerte stock faible
    */
   async sendLowStockAlert(tenantId: string, dto: LowStockAlertDto) {

@@ -1,0 +1,11 @@
+{
+  "name": "ecompilot-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "ワークスペース": [
+    "backend",
+    "frontend",
+    "apps/*",
+    "packages/*"
+  ]
+}

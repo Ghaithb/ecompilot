@@ -8,7 +8,6 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { AppI18nModule } from './i18n/i18n.module';
 import configuration from './config/configuration';
-import { PrismaModule } from './prisma/prisma.module';
 import { CoreModule } from './core/core.module';
 import { EventsModule } from './core/events/events.module';
 import { CommerceModule } from './commerce/commerce.module';
@@ -41,7 +40,6 @@ import { AiModule } from './modules/ai/ai.module';
     ]),
     ScheduleModule.forRoot(),
     DatabaseModule,
-    PrismaModule,
     CoreModule,
     EventsModule,
     CommerceModule,
