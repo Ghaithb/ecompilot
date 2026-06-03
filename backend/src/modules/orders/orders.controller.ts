@@ -1,15 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ReturnsService } from './returns.service';
 import { OrderStatusService } from './order-status.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantGuard } from '../../common/guards/tenant.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { CodStatusGuard } from '../../common/guards/cod-status.guard';
+import { CodProtected } from '../../common/decorators/cod-protected.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { AppRole } from '../../common/enums/app-role.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { TenantId } from '../../common/decorators/tenant.decorator';
 import { AssignDriverDto } from './dto/update-order-status.dto';
+import { PaginationPipe } from '../../common/pipes/pagination.pipe';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('orders')
@@ -36,7 +39,7 @@ export class OrdersController {
   @Get()
   @ApiOperation({ summary: 'Lister les commandes', description: 'Récupère toutes les commandes du tenant' })
   @ApiResponse({ status: 200, description: 'Liste des commandes récupérée' })
-  findAll(@TenantId() tenantId: string) {
+  findAll(@TenantId() tenantId: string, @Query(PaginationPipe) _pagination: any) {
     return this.ordersService.findAll(tenantId);
   }
 
@@ -76,6 +79,8 @@ export class OrdersController {
   }
 
   @Patch(':id/status')
+  @UseGuards(CodStatusGuard)
+  @CodProtected()
   @ApiOperation({ summary: 'Changer le statut', description: 'Met à jour uniquement le statut de la commande' })
   @ApiParam({ name: 'id', description: 'ID de la commande' })
   updateStatus(
@@ -131,6 +136,8 @@ export class OrdersController {
   }
 
   @Patch(':id/payment')
+  @UseGuards(CodStatusGuard)
+  @CodProtected()
   @ApiOperation({ summary: 'Changer le statut de paiement', description: 'Met à jour uniquement le statut de paiement' })
   @ApiParam({ name: 'id', description: 'ID de la commande' })
   updatePaymentStatus(
