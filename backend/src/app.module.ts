@@ -13,6 +13,7 @@ import { CoreModule } from './core/core.module';
 import { EventsModule } from './core/events/events.module';
 import { CommerceModule } from './commerce/commerce.module';
 import { IntegrationsModule } from './integrations/integrations.module';
+import { AiModule } from './modules/ai/ai.module';
 
 /**
  * EcomPilot MVP — auth multi-tenant, commandes, livraison, boutique COD.
@@ -46,6 +47,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
     CommerceModule,
     IntegrationsModule,
     AppI18nModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
