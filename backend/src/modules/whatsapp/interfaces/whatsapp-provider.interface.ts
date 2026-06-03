@@ -5,13 +5,14 @@ export interface WhatsAppSendResult {
 }
 
 export interface IWhatsAppProvider {
-  sendTextMessage(to: string, message: string): Promise<WhatsAppSendResult>;
+  sendTextMessage(to: string, message: string, config?: any): Promise<WhatsAppSendResult>;
   sendTemplateMessage(
     to: string,
     templateName: string,
     params: Record<string, string>,
+    config?: any,
   ): Promise<WhatsAppSendResult>;
-  isConfigured(): boolean;
-  getBusinessNumber(): string;
-  getWhatsAppChatUrl(message?: string): string;
+  isConfigured(config?: any): boolean;
+  getBusinessNumber(config?: any): string;
+  getWhatsAppChatUrl(message?: string, config?: any): string;
 }

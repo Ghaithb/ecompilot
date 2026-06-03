@@ -11,7 +11,6 @@ import { RealtimeService } from '../../core/stubs/realtime.stub';
 import { WhatsAppService } from '../whatsapp/whatsapp.service';
 import { OrderStatusService } from './order-status.service';
 import { WhatsappOrderNotificationService } from '../whatsapp/whatsapp-order-notification.service';
-import { PrismaMirrorService } from '../../prisma/prisma-mirror.service';
 import { EventBusService } from '../../core/events/event-bus.service';
 
 describe('OrdersService', () => {
@@ -122,12 +121,6 @@ describe('OrdersService', () => {
           provide: WhatsappOrderNotificationService,
           useValue: {
             notifyStatusChange: jest.fn(),
-          },
-        },
-        {
-          provide: PrismaMirrorService,
-          useValue: {
-            mirrorMongoOrder: jest.fn(),
           },
         },
         {

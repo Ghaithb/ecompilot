@@ -106,6 +106,24 @@ export class ConversionIntelligenceService {
     };
   }
 
+  appendScoreHistory(cart: any, intel: CartIntelligenceV2) {
+    if (!cart.scoreHistory) {
+      cart.scoreHistory = [];
+    }
+    cart.scoreHistory.push({
+      timestamp: new Date(),
+      score: intel.conversionScore,
+      frictionFlags: intel.frictionFlags,
+      signals: intel.signals as Record<string, any>,
+    });
+  }
+
+  getRecoveryDelayMinutes(intel: CartIntelligenceV2): number {
+    if (intel.urgencyLevel === 'high') return 15;
+    if (intel.urgencyLevel === 'medium') return 60;
+    return 120;
+  }
+
   async trackAbandonedCart(tenantId: string, cart: CartDocument, intel: CartIntelligenceV2) {
     if (!cart.customerPhone) return;
 

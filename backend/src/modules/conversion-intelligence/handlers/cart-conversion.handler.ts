@@ -44,7 +44,7 @@ export class CartConversionHandler {
       const intel = this.intelligence.analyzeCart(cart);
       this.intelligence.appendScoreHistory(cart, intel);
 
-      const delay = this.intelligence.getRecoveryDelayMinutes(intel.conversionScore, 0);
+      const delay = this.intelligence.getRecoveryDelayMinutes(intel);
       cart.nextRecoveryAt = delay ? new Date(Date.now() + delay * 60 * 1000) : undefined;
       await cart.save();
 

@@ -9,36 +9,38 @@ export class WahaProvider implements IWhatsAppProvider {
 
   constructor(private readonly configService: ConfigService) {}
 
-  isConfigured(): boolean {
+  isConfigured(config?: any): boolean {
+    if (config?.url) return true;
     return !!this.configService.get<string>('messaging.whatsapp.wahaUrl');
   }
 
-  getBusinessNumber(): string {
+  getBusinessNumber(config?: any): string {
+    if (config?.businessNumber) return config.businessNumber;
     return this.configService.get<string>('messaging.whatsapp.businessNumber') || '';
   }
 
-  getWhatsAppChatUrl(message?: string): string {
-    const number = this.getBusinessNumber().replace(/\D/g, '');
+  getWhatsAppChatUrl(message?: string, config?: any): string {
+    const number = this.getBusinessNumber(config).replace(/\D/g, '');
     const text = message ? `?text=${encodeURIComponent(message)}` : '';
     return number ? `https://wa.me/${number}${text}` : '';
   }
 
-  async sendTextMessage(to: string, message: string): Promise<WhatsAppSendResult> {
-    if (!this.isConfigured()) {
+  async sendTextMessage(to: string, message: string, config?: any): Promise<WhatsAppSendResult> {
+    if (!this.isConfigured(config)) {
       this.logger.warn(`[WAHA] Non configuré, message simulé → ${to}`);
       return { success: true, messageId: `sim_waha_${Date.now()}` };
     }
 
     try {
-      const url = this.configService.get<string>('messaging.whatsapp.wahaUrl');
-      const apiToken = this.configService.get<string>('messaging.whatsapp.wahaToken');
+      const url = config?.url || this.configService.get<string>('messaging.whatsapp.wahaUrl');
+      const apiToken = config?.token || config?.tokenEnc || this.configService.get<string>('messaging.whatsapp.wahaToken');
 
       const response = await axios.post(
         `${url}/api/sendText`,
         {
           chatId: this.formatChatId(to),
           text: message,
-          session: 'default', // Session par défaut WAHA
+          session: config?.session || 'default', // Session par défaut WAHA
         },
         {
           headers: apiToken ? { Authorization: `Bearer ${apiToken}` } : {},
@@ -56,11 +58,12 @@ export class WahaProvider implements IWhatsAppProvider {
     to: string,
     templateName: string,
     params: Record<string, string>,
+    config?: any,
   ): Promise<WhatsAppSendResult> {
     // WAHA n'utilise pas de templates officiels au sens Meta.
     // On convertit le template en texte brut pour les pilotes.
     const message = this.buildFallbackText(templateName, params);
-    return this.sendTextMessage(to, message);
+    return this.sendTextMessage(to, message, config);
   }
 
   private formatChatId(phone: string): string {

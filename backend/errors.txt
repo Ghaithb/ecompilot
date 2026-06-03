@@ -1,0 +1,12 @@
+src/modules/cart/cart-checkout.service.ts(45,23): error TS2339: Property 'appendScoreHistory' does not exist on type 'ConversionIntelligenceService'.
+src/modules/cart/cart-checkout.service.ts(82,23): error TS2339: Property 'appendScoreHistory' does not exist on type 'ConversionIntelligenceService'.
+src/modules/cart/cart-recovery.service.ts(41,23): error TS2339: Property 'appendScoreHistory' does not exist on type 'ConversionIntelligenceService'.
+src/modules/conversion-intelligence/handlers/cart-conversion.handler.ts(45,25): error TS2339: Property 'appendScoreHistory' does not exist on type 'ConversionIntelligenceService'.
+src/modules/conversion-intelligence/handlers/cart-conversion.handler.ts(47,39): error TS2339: Property 'getRecoveryDelayMinutes' does not exist on type 'ConversionIntelligenceService'.
+src/modules/orders-saas/orders-saas.service.ts(34,32): error TS2345: Argument of type 'Document<unknown, {}, OrderDocument, {}, {}> & Order & Document<unknown, any, any, Record<string, any>, {}> & Required<{ _id: unknown; }> & { ...; }' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'Document<unknown, {}, OrderDocument, {}, {}> & Order & Document<unknown, any, any, Record<string, any>, {}> & Required<{ _id: unknown; }> & { ...; }'.
+src/modules/orders-saas/orders-saas.service.ts(73,32): error TS2345: Argument of type 'Document<unknown, {}, OrderDocument, {}, {}> & Order & Document<unknown, any, any, Record<string, any>, {}> & Required<{ _id: unknown; }> & { ...; }' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'Document<unknown, {}, OrderDocument, {}, {}> & Order & Document<unknown, any, any, Record<string, any>, {}> & Required<{ _id: unknown; }> & { ...; }'.
+src/modules/orders-saas/orders-saas.service.ts(109,32): error TS2345: Argument of type 'Document<unknown, {}, OrderDocument, {}, {}> & Order & Document<unknown, any, any, Record<string, any>, {}> & Required<{ _id: unknown; }> & { ...; }' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'Document<unknown, {}, OrderDocument, {}, {}> & Order & Document<unknown, any, any, Record<string, any>, {}> & Required<{ _id: unknown; }> & { ...; }'.
+src/modules/orders/orders.service.spec.ts(14,37): error TS2307: Cannot find module '../../prisma/prisma-mirror.service' or its corresponding type declarations.

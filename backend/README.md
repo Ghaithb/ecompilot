@@ -101,7 +101,7 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
 La documentation interactive de l’API EcomPilot est générée automatiquement avec Swagger et disponible à l’URL suivante :
 
-- **URL locale** : http://localhost:3000/api/docs
+- **URL locale** : http://localhost:3001/api/docs
 - **URL en production** : [VOTRE_DOMAINE]/api/docs
 
 Vous pouvez explorer tous les endpoints, tester les requêtes, voir les schémas de données et télécharger la spécification OpenAPI (bouton "Export" dans l’interface Swagger).
@@ -109,5 +109,5 @@ Vous pouvez explorer tous les endpoints, tester les requêtes, voir les schémas
 **Exemple d’utilisation avec curl :**
 
 ```bash
-curl -H "Authorization: Bearer <votre_token>" http://localhost:3000/api/products
+curl -H "Authorization: Bearer <votre_token>" http://localhost:3001/api/products
 ```

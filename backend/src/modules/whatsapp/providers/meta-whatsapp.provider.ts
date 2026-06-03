@@ -10,32 +10,36 @@ export class MetaWhatsAppProvider implements IWhatsAppProvider {
 
   constructor(private readonly configService: ConfigService) {}
 
-  isConfigured(): boolean {
+  isConfigured(config?: any): boolean {
+    if (config) {
+      return !!(config.tokenEnc || config.token) && !!config.phoneNumberId;
+    }
     return !!(
       this.configService.get<string>('messaging.whatsapp.token') &&
       this.configService.get<string>('messaging.whatsapp.phoneNumberId')
     );
   }
 
-  getBusinessNumber(): string {
+  getBusinessNumber(config?: any): string {
+    if (config?.businessNumber) return config.businessNumber;
     return this.configService.get<string>('messaging.whatsapp.businessNumber') || '';
   }
 
-  getWhatsAppChatUrl(message?: string): string {
-    const number = this.getBusinessNumber().replace(/\D/g, '');
+  getWhatsAppChatUrl(message?: string, config?: any): string {
+    const number = this.getBusinessNumber(config).replace(/\D/g, '');
     const text = message ? `?text=${encodeURIComponent(message)}` : '';
     return number ? `https://wa.me/${number}${text}` : '';
   }
 
-  async sendTextMessage(to: string, message: string): Promise<WhatsAppSendResult> {
-    if (!this.isConfigured()) {
+  async sendTextMessage(to: string, message: string, config?: any): Promise<WhatsAppSendResult> {
+    if (!this.isConfigured(config)) {
       this.logger.warn(`[DEV] WhatsApp simulé → ${to}: ${message.slice(0, 80)}...`);
       return { success: true, messageId: `sim_wa_${Date.now()}` };
     }
 
     try {
-      const phoneNumberId = this.configService.get<string>('messaging.whatsapp.phoneNumberId');
-      const token = this.configService.get<string>('messaging.whatsapp.token');
+      const phoneNumberId = config?.phoneNumberId || this.configService.get<string>('messaging.whatsapp.phoneNumberId');
+      const token = config?.token || config?.tokenEnc || this.configService.get<string>('messaging.whatsapp.token');
       const url = `https://graph.facebook.com/${this.apiVersion}/${phoneNumberId}/messages`;
 
       const response = await axios.post(
@@ -69,17 +73,18 @@ export class MetaWhatsAppProvider implements IWhatsAppProvider {
     to: string,
     templateName: string,
     params: Record<string, string> = {},
+    config?: any,
   ): Promise<WhatsAppSendResult> {
-    const language = this.configService.get<string>('messaging.whatsapp.templateLanguage') || 'fr';
+    const language = (config?.templateLanguage) || this.configService.get<string>('messaging.whatsapp.templateLanguage') || 'fr';
 
-    if (!this.isConfigured()) {
+    if (!this.isConfigured(config)) {
       const fallback = this.buildFallbackText(templateName, params);
-      return this.sendTextMessage(to, fallback);
+      return this.sendTextMessage(to, fallback, config);
     }
 
     try {
-      const phoneNumberId = this.configService.get<string>('messaging.whatsapp.phoneNumberId');
-      const token = this.configService.get<string>('messaging.whatsapp.token');
+      const phoneNumberId = config?.phoneNumberId || this.configService.get<string>('messaging.whatsapp.phoneNumberId');
+      const token = config?.token || config?.tokenEnc || this.configService.get<string>('messaging.whatsapp.token');
       const url = `https://graph.facebook.com/${this.apiVersion}/${phoneNumberId}/messages`;
 
       const components = Object.keys(params).length

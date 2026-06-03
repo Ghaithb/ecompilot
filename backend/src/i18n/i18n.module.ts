@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { I18nModule } from 'nestjs-i18n';
+import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { I18nJsonLoader } from 'nestjs-i18n/dist/loaders/i18n.json.loader';
 import * as path from 'path';
 
@@ -9,9 +9,14 @@ import * as path from 'path';
       fallbackLanguage: 'fr',
       loader: I18nJsonLoader,
       loaderOptions: {
-        path: path.join(__dirname),
+        path: path.join(process.cwd(), 'src/i18n'),
         watch: true,
       },
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        AcceptLanguageResolver,
+        new HeaderResolver(['x-custom-lang']),
+      ],
     }),
   ],
 })

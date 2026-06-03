@@ -139,6 +139,20 @@ export class Tenant {
       sandbox?: boolean;
       connectedAt?: Date;
     };
+    whatsapp?: {
+      provider?: 'meta' | 'waha';
+      businessNumber?: string;
+      meta?: {
+        phoneNumberId?: string;
+        tokenEnc?: string;
+        verifyToken?: string;
+      };
+      waha?: {
+        url?: string;
+        tokenEnc?: string;
+      };
+      configuredAt?: Date;
+    };
   };
 
   @Prop({ default: Date.now })

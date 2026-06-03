@@ -115,7 +115,7 @@ export class OrdersSaasService {
     return `ORD-${shortTenant}-${suffix}`;
   }
 
-  private serializeOrder<T extends Record<string, unknown>>(order: T) {
+  private serializeOrder(order: any) {
     const toNum = (v: unknown) =>
       typeof v === 'object' && v !== null && 'toNumber' in v
         ? (v as { toNumber: () => number }).toNumber()

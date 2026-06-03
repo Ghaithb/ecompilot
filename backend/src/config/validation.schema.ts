@@ -5,7 +5,7 @@ export const validationSchema = Joi.object({
     .valid('development', 'production', 'test', 'staging')
     .default('development'),
   
-  PORT: Joi.number().default(3000),
+  PORT: Joi.number().default(3001),
   
   MONGODB_URI: Joi.string().required(),
   

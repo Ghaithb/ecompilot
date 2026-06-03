@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { WhatsAppMessage, WhatsAppMessageDocument } from './schemas/whatsapp-message.schema';
 import { MetaWhatsAppProvider } from './providers/meta-whatsapp.provider';
+import { Tenant, TenantDocument } from '../tenants/schemas/tenant.schema';
 import {
   WhatsAppSendMessageDto,
   SendTemplateDto,
@@ -22,17 +23,33 @@ export class WhatsAppService {
   constructor(
     @InjectModel(WhatsAppMessage.name)
     private messageModel: Model<WhatsAppMessageDocument>,
+    @InjectModel(Tenant.name)
+    private tenantModel: Model<TenantDocument>,
     private metaWhatsAppProvider: MetaWhatsAppProvider,
     private wahaProvider: WahaProvider,
     private readonly configService: ConfigService,
   ) {}
 
-  private getProvider(): IWhatsAppProvider {
+  private async getProvider(tenantId?: string): Promise<{ provider: IWhatsAppProvider, config?: any }> {
+    if (tenantId) {
+      const tenant = await this.tenantModel.findById(tenantId).lean();
+      const waConfig = tenant?.integrations?.whatsapp;
+      
+      if (waConfig && waConfig.provider) {
+        if (waConfig.provider === 'waha' && waConfig.waha?.url) {
+          return { provider: this.wahaProvider, config: waConfig.waha };
+        }
+        if (waConfig.provider === 'meta' && waConfig.meta?.phoneNumberId) {
+          return { provider: this.metaWhatsAppProvider, config: waConfig.meta };
+        }
+      }
+    }
+
     const providerType = this.configService.get<string>('messaging.whatsapp.provider') || 'meta';
     if (providerType === 'waha') {
-      return this.wahaProvider;
+      return { provider: this.wahaProvider };
     }
-    return this.metaWhatsAppProvider;
+    return { provider: this.metaWhatsAppProvider };
   }
 
   /**
@@ -41,7 +58,8 @@ export class WhatsAppService {
   async sendTextMessage(tenantId: string, dto: WhatsAppSendMessageDto) {
     try {
       // Envoyer via provider
-      const result = await this.getProvider().sendTextMessage(dto.to, dto.message);
+      const { provider, config } = await this.getProvider(tenantId);
+      const result = await provider.sendTextMessage(dto.to, dto.message, config);
 
       // Sauvegarder en base
       const message = new this.messageModel({
@@ -77,10 +95,12 @@ export class WhatsAppService {
    */
   async sendTemplateMessage(tenantId: string, dto: SendTemplateDto) {
     try {
-      const result = await this.getProvider().sendTemplateMessage(
+      const { provider, config } = await this.getProvider(tenantId);
+      const result = await provider.sendTemplateMessage(
         dto.to,
         dto.templateName,
         dto.params || {},
+        config,
       );
 
       const message = new this.messageModel({
@@ -264,8 +284,8 @@ export class WhatsAppService {
   /**
    * Vérifier configuration WhatsApp
    */
-  async checkConfiguration() {
-    const provider = this.getProvider();
+  async checkConfiguration(tenantId?: string) {
+    const { provider } = await this.getProvider(tenantId);
     return {
       configured: provider.isConfigured(),
       provider:
@@ -274,8 +294,9 @@ export class WhatsAppService {
     };
   }
 
-  getWhatsAppChatUrl(message?: string): string {
-    return this.getProvider().getWhatsAppChatUrl(message);
+  async getWhatsAppChatUrl(tenantId?: string, message?: string): Promise<string> {
+    const { provider } = await this.getProvider(tenantId);
+    return provider.getWhatsAppChatUrl(message);
   }
 
   /**

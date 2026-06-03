@@ -48,7 +48,7 @@ async function bootstrap() {
     .addTag('social-media', 'Réseaux sociaux (Facebook, Instagram, Twitter, LinkedIn)')
     .addTag('stripe-integration', 'Intégration Stripe Connect')
     .addTag('shopify-integration', 'Intégration Shopify')
-    .addServer('http://localhost:3000', 'Serveur de développement')
+    .addServer('http://localhost:3001', 'Serveur de développement')
     .addServer('https://api.ecompilot.com', 'Serveur de production')
     .build();
     
@@ -74,8 +74,8 @@ async function bootstrap() {
             // Autoriser les images servies par l'API en dev
             'http://localhost:3001',
             'http://127.0.0.1:3001',
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
+            'http://localhost:3001',
+            'http://127.0.0.1:3001',
           ],
         },
       },
@@ -102,7 +102,7 @@ async function bootstrap() {
   // Configuration CORS sécurisée avec whitelist - DOIT ÊTRE AVANT useStaticAssets
   const nodeEnv = configService.get<string>('nodeEnv') || process.env.NODE_ENV || 'development';
   const configuredOrigins = (configService.get<string[]>('cors.origins') || []).filter(Boolean);
-  const defaultDevOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+  const defaultDevOrigins = ['http://localhost:5173', 'http://localhost:3001', 'http://127.0.0.1:5173', 'http://127.0.0.1:3001'];
   const allowedHosts = ['localhost', '127.0.0.1'];
 
   app.enableCors({
@@ -180,7 +180,7 @@ async function bootstrap() {
   // Filtre global d'exception
   app.useGlobalFilters(new AllExceptionsFilter());
   
-  const port = configService.get<number>('port') || 3000;
+  const port = configService.get<number>('port') || 3001;
   
   // Écouter sur 0.0.0.0 pour permettre l'accès externe
   console.log('🔒 Configuration de la sécurité et des middlewares terminée');
@@ -189,7 +189,7 @@ async function bootstrap() {
     const host = '127.0.0.1';
     await app.listen(port, host);
     console.log(`🚀 EcomPilot API démarrée sur http://${host}:${port}`);
-    console.log(`📚 Documentation API: http://${host}:${port}/api/v1`);
+    console.log(`📚 Documentation API: http://${host}:${port}/api/docs`);
     console.log('🌍 Configuration CORS:', {
       origin: configService.get<string>('cors.origin') || 'http://localhost:5173',
   credentials: true,

@@ -19,7 +19,6 @@ import {
 import { DeliveryQueuePayload } from '../constants/delivery-queue.constants';
 import { DeliveryProviderRegistry } from './delivery-provider-registry.service';
 import { DeliveryQueueService } from '../queue/delivery-queue.service';
-import { PrismaMirrorService } from '../../../prisma/prisma-mirror.service';
 
 /**
  * Orchestrateur central : création expédition, retry HTTP, sync tracking, comparaison tarifs.
@@ -32,7 +31,6 @@ export class DeliveryService {
     private registry: DeliveryProviderRegistry,
     private queue: DeliveryQueueService,
     private events: EventBusService,
-    private readonly prismaMirror: PrismaMirrorService,
     @InjectModel(Shipment.name) private shipmentModel: Model<ShipmentDocument>,
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
   ) {}
@@ -178,8 +176,6 @@ export class DeliveryService {
     order.providerRef = result.providerRef;
     await order.save();
 
-    void this.prismaMirror.mirrorMongoOrder(tenantId, order.toObject?.() ?? order);
-    void this.prismaMirror.mirrorMongoShipment(tenantId, shipment.toObject?.() ?? shipment);
 
     this.logger.log(`Shipment ${result.trackingNumber} (${providerId}) #${order.orderNumber}`);
     this.events.publishSync(DomainEvents.SHIPMENT_CREATED, {
@@ -225,7 +221,6 @@ export class DeliveryService {
     });
     await shipment.save();
 
-    void this.prismaMirror.mirrorMongoShipment(tenantId, shipment.toObject?.() ?? shipment);
 
     return { shipment: shipment.toObject(), tracking: normalized };
   }
@@ -262,7 +257,6 @@ export class DeliveryService {
     });
     await shipment.save();
 
-    void this.prismaMirror.mirrorMongoShipment(tenantId, shipment.toObject?.() ?? shipment);
 
     return { shipment, cancelled: true, providerCancelled };
   }
