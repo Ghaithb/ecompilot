@@ -39,4 +39,21 @@ export class WholesaleController {
     const tenantId = req.user.tenantId;
     return this.wholesaleService.launchProduct(tenantId, id);
   }
+
+  // --- Supplier account management ---
+
+  @Post('onboard')
+  async onboardSupplier(@Body() body: any, @Request() req: any) {
+    return this.wholesaleService.onboardSupplier(req.user.id, body);
+  }
+
+  @Get('my-products')
+  async getMyProducts(@Request() req: any) {
+    return this.wholesaleService.listSupplierProducts(req.user.id);
+  }
+
+  @Post('my-products')
+  async addMyProduct(@Body() body: any, @Request() req: any) {
+    return this.wholesaleService.createSupplierProduct(req.user.id, body);
+  }
 }

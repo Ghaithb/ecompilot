@@ -3,7 +3,10 @@ import { OrderStatus, normalizeOrderStatus } from '../../common/enums/order-stat
 import { AppRole, expandUserRoles } from '../../common/enums/app-role.enum';
 
 const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  [OrderStatus.CREATED]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
+  [OrderStatus.CREATED]: [OrderStatus.PENDING_CONFIRMATION, OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
+  [OrderStatus.PENDING_CONFIRMATION]: [OrderStatus.CONFIRMED, OrderStatus.UNREACHABLE, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+  [OrderStatus.UNREACHABLE]: [OrderStatus.CONFIRMED, OrderStatus.UNREACHABLE, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+  [OrderStatus.REJECTED]: [OrderStatus.CANCELLED],
   [OrderStatus.CONFIRMED]: [OrderStatus.PREPARED, OrderStatus.CANCELLED],
   [OrderStatus.PREPARED]: [OrderStatus.SHIPPED, OrderStatus.ASSIGNED_TO_DRIVER, OrderStatus.CANCELLED],
   [OrderStatus.SHIPPED]: [OrderStatus.ASSIGNED_TO_DRIVER, OrderStatus.OUT_FOR_DELIVERY, OrderStatus.CANCELLED],
@@ -26,6 +29,9 @@ const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 
 /** Rôles autorisés par transition cible */
 const ROLE_FOR_STATUS: Partial<Record<OrderStatus, AppRole[]>> = {
+  [OrderStatus.PENDING_CONFIRMATION]: [AppRole.MERCHANT, AppRole.ADMIN],
+  [OrderStatus.UNREACHABLE]: [AppRole.MERCHANT, AppRole.ADMIN],
+  [OrderStatus.REJECTED]: [AppRole.MERCHANT, AppRole.ADMIN],
   [OrderStatus.CONFIRMED]: [AppRole.MERCHANT, AppRole.ADMIN],
   [OrderStatus.PREPARED]: [AppRole.MERCHANT, AppRole.ADMIN],
   [OrderStatus.SHIPPED]: [AppRole.MERCHANT, AppRole.ADMIN],

@@ -62,7 +62,7 @@ export class Customer {
   @Prop({ type: Object, default: {} })
   codTrust?: {
     score?: number;
-    level?: 'trusted' | 'normal' | 'suspect' | 'blocked';
+    level?: 'trusted' | 'normal' | 'suspect' | 'risk' | 'blocked';
     deliveryRefusals?: number;
     cancelledOrders?: number;
     verifiedOrders?: number;

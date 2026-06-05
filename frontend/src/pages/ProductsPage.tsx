@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
@@ -30,6 +31,8 @@ import { productsApi, aiApi } from '@/lib/api';
 import { api } from '@/lib/api';
 import { formatTND } from '@/lib/currency';
 import { useTranslation } from 'react-i18next';
+import ScraperTool from '@/components/tools/ScraperTool';
+import SourcingNetwork from '@/components/tools/SourcingNetwork';
 
 type ProductStatus = 'active' | 'draft' | 'archived';
 
@@ -498,7 +501,15 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <Card>
+      <Tabs defaultValue="inventory" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-8 h-12">
+          <TabsTrigger value="inventory" className="text-sm font-bold">📦 Mon Inventaire</TabsTrigger>
+          <TabsTrigger value="sourcing" className="text-sm font-bold">🤝 Sourcing & Winning</TabsTrigger>
+          <TabsTrigger value="scraper" className="text-sm font-bold">✨ Magic Scraper</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="inventory" className="space-y-6">
+          <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -1242,6 +1253,16 @@ const ProductsPage: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </TabsContent>
+
+        <TabsContent value="sourcing">
+          <SourcingNetwork />
+        </TabsContent>
+
+        <TabsContent value="scraper">
+          <ScraperTool />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

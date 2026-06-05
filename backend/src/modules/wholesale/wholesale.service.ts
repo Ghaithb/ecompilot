@@ -86,4 +86,33 @@ export class WholesaleService {
       title: { $regex: title, $options: 'i' }
     }).populate('supplierId').lean();
   }
+
+  // --- Supplier specific methods ---
+
+  async createSupplierProduct(userId: string, productData: any) {
+    // Find the supplier owned by this user
+    const supplier = await this.supplierModel.findOne({ ownerId: new Types.ObjectId(userId) });
+    if (!supplier) throw new Error('Aucun compte fournisseur associé à cet utilisateur');
+
+    return this.productModel.create({
+      ...productData,
+      supplierId: supplier._id,
+    });
+  }
+
+  async listSupplierProducts(userId: string) {
+    const supplier = await this.supplierModel.findOne({ ownerId: new Types.ObjectId(userId) });
+    if (!supplier) return [];
+
+    return this.productModel.find({ supplierId: supplier._id }).lean();
+  }
+
+  async onboardSupplier(userId: string, supplierData: any) {
+    return this.supplierModel.create({
+      ...supplierData,
+      ownerId: new Types.ObjectId(userId),
+      isActive: true,
+      isVerified: false,
+    });
+  }
 }

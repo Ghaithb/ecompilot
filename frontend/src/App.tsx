@@ -56,7 +56,11 @@ import AnalyticsPage from '@/pages/AnalyticsPage';
 import MarketIntelligencePage from '@/pages/MarketIntelligencePage';
 import WholesaleHubPage from '@/pages/WholesaleHubPage';
 import StaffPage from '@/pages/StaffPage';
+import CodDashboardPage from '@/pages/CodDashboardPage';
+import TreasuryPage from '@/pages/TreasuryPage';
 import { ThemeBootstrap } from '@/components/ThemeBootstrap';
+import { InstallPWA } from '@/components/InstallPWA';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -66,6 +70,7 @@ const queryClient = new QueryClient({
 });
 
 function AppContent() {
+  usePushNotifications();
   return (
     <>
       <ThemeBootstrap />
@@ -138,6 +143,8 @@ function AppContent() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/cod-dashboard" element={<CodDashboardPage />} />
+          <Route path="/treasury" element={<TreasuryPage />} />
         </Route>
 
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -150,6 +157,7 @@ function AppContent() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Toaster />
+      <InstallPWA />
     </>
   );
 }

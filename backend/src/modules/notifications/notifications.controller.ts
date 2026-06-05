@@ -11,7 +11,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
+import { PushService } from './push.service';
 import { TwilioSmsProvider } from './providers/twilio-sms.provider';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CreateNotificationDto } from './dto/notification.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantGuard } from '../../common/guards/tenant.guard';
@@ -26,6 +28,7 @@ export class NotificationsController {
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly twilioSms: TwilioSmsProvider,
+    private readonly pushService: PushService,
   ) {}
 
   @Post()
@@ -93,5 +96,14 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'Return unread notifications count' })
   getUnreadCount(@TenantId() tenantId: string) {
     return this.notificationsService.getUnreadCount(tenantId);
+  }
+
+  @Post('push-subscribe')
+  @ApiOperation({ summary: 'Subscribe to Web Push notifications' })
+  subscribePush(
+    @CurrentUser() user: any,
+    @Body() subscription: any,
+  ) {
+    return this.pushService.saveSubscription(user._id, subscription);
   }
 }

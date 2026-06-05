@@ -56,6 +56,15 @@ export class User {
     language: string;
   };
 
+  @Prop({ type: Object })
+  pushSubscription?: {
+    endpoint: string;
+    keys: {
+      auth: string;
+      p256dh: string;
+    };
+  };
+
   @Prop()
   lastLoginAt: Date;
 

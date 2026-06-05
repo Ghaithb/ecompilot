@@ -6,6 +6,8 @@ export enum AppRole {
   MERCHANT = 'merchant',
   /** Livreur — tournées COD */
   DRIVER = 'driver',
+  /** Grossiste — gestion catalogue vente en gros */
+  SUPPLIER = 'supplier',
   /** Admin plateforme (Ghaith) */
   ADMIN = 'admin',
   SUPER_ADMIN = 'super_admin',

@@ -9,6 +9,7 @@ import LanguageSelector from '@/components/LanguageSelector';
 import { Truck, Package, ArrowRight } from 'lucide-react';
 import { SAAS_TAGLINE, SAAS_TAGLINE_FR } from '@/content/saas-launch';
 import { ACTIVATION_KEY, PLAN_KEY, PILOT_KEY } from '@/pages/onboarding/ActivationFlowPage';
+import SupplierOnboarding from '@/components/tools/SupplierOnboarding';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -99,9 +100,10 @@ const LoginPage: React.FC = () => {
           </div>
 
           <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="login">{t('auth.loginTab')}</TabsTrigger>
               <TabsTrigger value="register">{t('auth.registerTab')}</TabsTrigger>
+              <TabsTrigger value="supplier">Grossiste</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
@@ -214,6 +216,9 @@ const LoginPage: React.FC = () => {
                   </form>
                 </CardContent>
               </Card>
+            </TabsContent>
+            <TabsContent value="supplier">
+              <SupplierOnboarding />
             </TabsContent>
           </Tabs>
 

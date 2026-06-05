@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WinningProductsService } from './winning-products.service';
 import { DeliveryIntelligenceService } from './delivery-intelligence.service';
+import { ScrapingService } from './scraping.service';
 import { MarketIntelligenceController } from './market-intelligence.controller';
 import { Order, OrderSchema } from '../orders/schemas/order.schema';
 import { Product, ProductSchema } from '../products/schemas/product.schema';
@@ -23,7 +24,15 @@ import { ProductTrend, ProductTrendSchema } from './schemas/product-trend.schema
     ]),
   ],
   controllers: [MarketIntelligenceController],
-  providers: [WinningProductsService, DeliveryIntelligenceService],
-  exports: [WinningProductsService, DeliveryIntelligenceService],
+  providers: [
+    WinningProductsService,
+    DeliveryIntelligenceService,
+    ScrapingService,
+  ],
+  exports: [
+    WinningProductsService,
+    DeliveryIntelligenceService,
+    ScrapingService,
+  ],
 })
 export class MarketIntelligenceModule {}

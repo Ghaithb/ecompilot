@@ -12,12 +12,44 @@ const httpsOption = (fs.existsSync(certPath) && fs.existsSync(keyPath))
   ? { cert: fs.readFileSync(certPath), key: fs.readFileSync(keyPath) }
   : undefined
 
+import { VitePWA } from 'vite-plugin-pwa';
+
 export default defineConfig({
 
   plugins: [
     // Tailwind CSS v4 plugin processes `@import "tailwindcss"` and friends
     tailwindcss(),
     react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'icons/*.png'],
+      manifest: {
+        name: 'EcomPilot',
+        short_name: 'EcomPilot',
+        description: 'Gérez votre boutique partout',
+        theme_color: '#7C3AED',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/dashboard',
+        orientation: 'portrait',
+        icons: [
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', 
+            type: 'image/png', purpose: 'maskable' }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        runtimeCaching: [
+          {
+            urlPattern: /\/api\/v1\//,
+            handler: 'NetworkFirst',
+            options: { cacheName: 'api-cache', networkTimeoutSeconds: 5 }
+          }
+        ]
+      }
+    })
   ],
   resolve: {
     alias: {

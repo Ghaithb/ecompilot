@@ -1,5 +1,8 @@
 export enum OrderStatus {
   CREATED = 'created',
+  PENDING_CONFIRMATION = 'pending_confirmation',
+  UNREACHABLE = 'unreachable',
+  REJECTED = 'rejected',
   CONFIRMED = 'confirmed',
   PREPARED = 'prepared',
   SHIPPED = 'shipped',

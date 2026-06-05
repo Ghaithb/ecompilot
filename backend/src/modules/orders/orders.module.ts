@@ -8,6 +8,7 @@ import { PublicOrdersController } from './public-orders.controller';
 import { OrdersService } from './orders.service';
 import { OrderStatusService } from './order-status.service';
 import { ReturnsService } from './returns.service';
+import { TreasuryService } from './treasury.service';
 import { Order, OrderSchema } from './schemas/order.schema';
 import { TenantsModule } from '../tenants/tenants.module';
 import { ProductsModule } from '../products/products.module';
@@ -31,7 +32,7 @@ import { User, UserSchema } from '../users/schemas/user.schema';
     WhatsAppModule,
   ],
   controllers: [OrdersController, OrdersApiController, PublicOrdersController],
-  providers: [OrdersService, OrderStatusService, ReturnsService, OrdersRepository, OrdersQueryService],
-  exports: [MongooseModule, OrdersService, OrderStatusService, ReturnsService],
+  providers: [OrdersService, OrderStatusService, ReturnsService, TreasuryService, OrdersRepository, OrdersQueryService],
+  exports: [MongooseModule, OrdersService, OrderStatusService, ReturnsService, TreasuryService],
 })
 export class OrdersModule {}

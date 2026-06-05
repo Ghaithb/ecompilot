@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ReturnsService } from './returns.service';
+import { TreasuryService } from './treasury.service';
 import { OrderStatusService } from './order-status.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantGuard } from '../../common/guards/tenant.guard';
@@ -25,6 +26,7 @@ export class OrdersController {
     private readonly ordersService: OrdersService,
     private readonly returnsService: ReturnsService,
     private readonly orderStatusService: OrderStatusService,
+    private readonly treasuryService: TreasuryService,
   ) {}
 
   @Post()
@@ -59,6 +61,24 @@ export class OrdersController {
   @ApiOperation({ summary: 'Workflow commande complet', description: 'Pipeline statuts, actions urgentes et queues operationnelles' })
   workflowSummary(@TenantId() tenantId: string) {
     return this.ordersService.getWorkflowSummary(tenantId);
+  }
+
+  @Get('today-dashboard')
+  @ApiOperation({ summary: 'Dashboard COD du jour en temps réel' })
+  todayDashboard(@TenantId() tenantId: string) {
+    return this.ordersService.getTodayDashboard(tenantId);
+  }
+
+  @Get('treasury/carrier-balances')
+  @ApiOperation({ summary: 'Solde à encaisser par transporteur' })
+  carrierBalances(@TenantId() tenantId: string) {
+    return this.treasuryService.getCarrierBalances(tenantId);
+  }
+
+  @Get('treasury/refusal-analytics')
+  @ApiOperation({ summary: 'Analyse détaillée des refus COD' })
+  refusalAnalytics(@TenantId() tenantId: string) {
+    return this.treasuryService.getRefusalAnalytics(tenantId);
   }
 
   @Get(':id')

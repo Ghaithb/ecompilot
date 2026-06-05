@@ -17,6 +17,8 @@ import { OrderStatus, normalizeOrderStatus } from '../../common/enums/order-stat
 import { Types } from 'mongoose';
 import { EventBusService } from '../../core/events/event-bus.service';
 import { DomainEvents } from '../../core/events/domain-events.constants';
+import { PushService } from '../notifications/push.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class OrdersService {
@@ -34,6 +36,7 @@ export class OrdersService {
     private readonly orderStatusService: OrderStatusService,
     private readonly whatsappNotifications: WhatsappOrderNotificationService,
     private readonly events: EventBusService,
+    private readonly pushService: PushService,
   ) {}
 
   async create(createOrderDto: any, tenantId: string) {
@@ -170,6 +173,13 @@ export class OrdersService {
       total: createdOrder.total,
       currency: createdOrder.currency || 'TND',
       paymentMethod: createdOrder.paymentMethod,
+    });
+
+    // Notify merchant via Push
+    this.pushService.sendPushNotification(null, {
+      title: '🛍️ Nouvelle commande !',
+      body: `${createdOrder.shippingAddress?.firstName} ${createdOrder.shippingAddress?.lastName} — ${createdOrder.total} ${createdOrder.currency || 'TND'}`,
+      url: `/dashboard/orders/${createdOrder._id}`,
     });
 
     return createdOrder;
@@ -521,6 +531,8 @@ export class OrdersService {
         changedBy: 'otp',
       });
       await order.save();
+      
+      // COD Reinforcement: WhatsApp confirmation + Stock already decremented at creation
       if (phone) {
         await this.codTrustService.recordVerifiedOrder(
           tenantId,
@@ -532,6 +544,13 @@ export class OrdersService {
           message: `✅ Commande confirmée! Merci. Nous vous contactons bientôt pour la livraison.`,
         });
       }
+
+      this.pushService.sendPushNotification(null, {
+        title: '✅ Commande confirmée',
+        body: `La commande #${order.orderNumber} a été validée par OTP.`,
+        url: `/dashboard/orders/${order._id}`,
+      });
+
       this.realtimeService.otpVerified(tenantId, {
         id: order._id.toString(),
         total: order.total,
@@ -541,5 +560,60 @@ export class OrdersService {
     }
 
     throw new BadRequestException('Code de vérification invalide ou expiré');
+  }
+
+  /**
+   * Tâche 3.2 — Relance automatique si OTP non validé après 30 min
+   */
+  @Cron('*/30 * * * *')
+  async remindPendingOTP() {
+    this.logger.log('⏰ Running pending OTP reminder cron...');
+    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+    
+    // Find COD orders still in CREATED status (not verified) after 30 mins
+    const pending = await this.orderModel.find({
+      paymentMethod: 'cod',
+      status: OrderStatus.CREATED,
+      isVerified: false,
+      createdAt: { $lt: thirtyMinAgo },
+    });
+
+    for (const order of pending) {
+      const phone = order.shippingAddress?.phone;
+      if (phone) {
+        await this.whatsAppService.sendTextMessage(order.tenantId.toString(), {
+          to: phone,
+          message: `Votre commande chez EcomPilot attend votre confirmation.\nRépondez OUI pour confirmer ou NON pour annuler.`,
+        });
+        this.logger.log(`📢 Reminder sent to ${phone} for order ${order._id}`);
+      }
+    }
+  }
+
+  /**
+   * Tâche 3.3 — Dashboard "Commandes COD du jour" en temps réel
+   */
+  async getTodayDashboard(tenantId: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const orders = await this.orderModel.find({
+      tenantId,
+      createdAt: { $gte: today },
+    }).lean();
+
+    const countBy = (statuses: string[]) =>
+      orders.filter((order) => statuses.includes(order.status)).length;
+
+    return {
+      todayCount: orders.length,
+      todayRevenue: orders.reduce((sum, o) => sum + (o.total || 0), 0),
+      stats: {
+        pending_otp: orders.filter(o => o.paymentMethod === 'cod' && !o.isVerified).length,
+        confirmed: countBy([OrderStatus.CONFIRMED]),
+        shipped: countBy([OrderStatus.SHIPPED, OrderStatus.OUT_FOR_DELIVERY]),
+        delivered: countBy([OrderStatus.DELIVERED, OrderStatus.PAID]),
+      }
+    };
   }
 }

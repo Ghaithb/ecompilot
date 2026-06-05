@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installer EcomPilot</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 24px;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        img {
+            width: 96px;
+            height: 96px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        h1 { margin: 0 0 10px 0; font-size: 24px; }
+        p { opacity: 0.9; margin-bottom: 30px; line-height: 1.5; }
+        .steps { text-align: left; }
+        .step { margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; }
+        .step-num {
+            background: white;
+            color: #7C3AED;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+        .btn {
+            background: white;
+            color: #7C3AED;
+            padding: 12px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="/icons/icon-192.png" alt="EcomPilot Logo">
+        <h1>Installer EcomPilot</h1>
+        <p>Suivez ces étapes pour installer l'application sur votre écran d'accueil.</p>
+        
+        <div class="steps">
+            <div id="ios-steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div>Ouvrez ce site dans <strong>Safari</strong></div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div>Appuyez sur le bouton <strong>Partager</strong> (carré avec flèche)</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div>Faites défiler et choisissez <strong>Sur l'écran d'accueil</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <a href="/dashboard" class="btn">Accéder au Dashboard</a>
+    </div>
+</body>
+</html>
